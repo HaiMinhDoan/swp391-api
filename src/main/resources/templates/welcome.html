@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chào mừng đến với Tara Academy</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .welcome-message {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        .button {
+            display: inline-block;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            margin: 20px 0;
+            font-weight: bold;
+            transition: transform 0.3s;
+        }
+        .button:hover {
+            transform: translateY(-2px);
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #6c757d;
+            border-top: 1px solid #dee2e6;
+        }
+        .highlight {
+            background-color: #fff3cd;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #ffc107;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>🎉 Chào mừng đến với Tara Academy!</h1>
+    </div>
+
+    <div class="content">
+        <div class="welcome-message">
+            <h2>Xin chào {{userName}}!</h2>
+            <p>Cảm ơn bạn đã đăng ký tài khoản tại <strong>Tara Academy</strong>. Chúng tôi rất vui mừng được chào đón bạn vào cộng đồng học tập của chúng tôi!</p>
+        </div>
+
+        <div class="highlight">
+            <h3>📚 Điều gì đang chờ đợi bạn:</h3>
+            <ul>
+                <li>Hàng trăm khóa học chất lượng cao</li>
+                <li>Giảng viên giàu kinh nghiệm</li>
+                <li>Chứng chỉ được công nhận</li>
+                <li>Cộng đồng học viên tích cực</li>
+            </ul>
+        </div>
+
+        <div style="text-align: center;">
+            <a href="{{loginUrl}}" class="button">
+                🚀 Bắt đầu học ngay
+            </a>
+        </div>
+
+        <p><strong>Thông tin tài khoản của bạn:</strong></p>
+        <ul>
+            <li>Email: {{userEmail}}</li>
+            <li>Ngày đăng ký: {{registrationDate}}</li>
+        </ul>
+
+        <p>Nếu bạn có bất kỳ câu hỏi nào, đừng ngần ngại liên hệ với chúng tôi tại <a href="mailto:support@taraacademy.com">support@taraacademy.com</a></p>
+    </div>
+
+    <div class="footer">
+        <p>© 2024 Tara Academy. All rights reserved.</p>
+        <p>📍 123 Đường ABC, Quận XYZ, TP. Hồ Chí Minh</p>
+    </div>
+</div>
+</body>
+</html>

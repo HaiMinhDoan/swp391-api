@@ -1,0 +1,52 @@
+package com.devmam.taraacademyapi.models.dto.response;
+
+import com.devmam.taraacademyapi.models.entities.Course;
+import jakarta.validation.constraints.Size;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.time.Instant;
+
+/**
+ * DTO for {@link com.devmam.taraacademyapi.models.entities.Course}
+ */
+@AllArgsConstructor
+@Builder
+@Getter
+@Setter
+public class CourseDTO implements Serializable {
+    private final Integer id;
+    private final String thumnail;
+    @Size(max = 255)
+    private final String title;
+    @Size(max = 255)
+    private final String summary;
+    private final String description;
+    @Size(max = 255)
+    private final String lang;
+    private final BigDecimal price;
+    private final Integer saleOff;
+    private final Instant createdAt;
+    private final Instant updatedAt;
+    private final Integer status;
+    private final Integer isDeleted;
+
+    public static CourseDTO toDTO(Course m) {
+        return CourseDTO.builder()
+                .id(m.getId())
+                .thumnail(m.getThumnail())
+                .title(m.getTitle())
+                .summary(m.getSummary())
+                .description(m.getDescription())
+                .lang(m.getLang())
+                .price(m.getPrice())
+                .saleOff(m.getSaleOff())
+                .createdAt(m.getCreatedAt())
+                .updatedAt(m.getUpdatedAt())
+                .status(m.getStatus())
+                .isDeleted(m.getIsDeleted())
+                .build();
+    }
+}
