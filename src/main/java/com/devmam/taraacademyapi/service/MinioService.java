@@ -14,5 +14,3 @@ public interface MinioService {
     String getPublicUrl(String objectName);
     String generatePresignedUploadUrl(String objectName, int expirySeconds) throws Exception;
 }
-
-

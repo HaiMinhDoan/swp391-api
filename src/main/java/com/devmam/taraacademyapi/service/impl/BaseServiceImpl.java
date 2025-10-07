@@ -1,5 +1,6 @@
 package com.devmam.taraacademyapi.service.impl;
 
+import com.devmam.taraacademyapi.constant.enums.FilterLogicType;
 import com.devmam.taraacademyapi.constant.enums.SortDirection;
 import com.devmam.taraacademyapi.exception.customize.InvalidFieldException;
 import com.devmam.taraacademyapi.models.dto.request.BaseFilterRequest;
@@ -12,6 +13,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.JoinType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -47,13 +49,11 @@ public abstract class BaseServiceImpl<T, ID> implements BaseService<T, ID> {
         this.repository = repository;
         this.statusFieldName = statusFieldName;
 
-        // Kiểm tra repository có implement JpaSpecificationExecutor không
         if (!(repository instanceof JpaSpecificationExecutor)) {
             throw new IllegalArgumentException("Repository phải implement JpaSpecificationExecutor để sử dụng filter");
         }
         this.specificationExecutor = (JpaSpecificationExecutor<T>) repository;
 
-        // Tự động detect entity class từ generic type
         this.entityClass = getEntityClassFromGeneric();
     }
 
@@ -63,9 +63,6 @@ public abstract class BaseServiceImpl<T, ID> implements BaseService<T, ID> {
 
     protected abstract EntityManager getEntityManager();
 
-    /**
-     * Tự động detect entity class từ generic type
-     */
     @SuppressWarnings("unchecked")
     private Class<T> getEntityClassFromGeneric() {
         try {
@@ -76,27 +73,18 @@ public abstract class BaseServiceImpl<T, ID> implements BaseService<T, ID> {
         }
     }
 
-    /**
-     * Lấy entity class (có thể override nếu cần)
-     */
     protected Class<T> getEntityClass() {
         return this.entityClass;
     }
 
     // ================= CRUD METHODS =================
 
-    /**
-     * Tạo mới entity
-     */
     @Override
     @Transactional
     public T create(T entity) {
         return repository.save(entity);
     }
 
-    /**
-     * Cập nhật entity
-     */
     @Override
     @Transactional
     public T update(ID id, T entity) {
@@ -106,18 +94,12 @@ public abstract class BaseServiceImpl<T, ID> implements BaseService<T, ID> {
         return repository.save(entity);
     }
 
-    /**
-     * Xóa entity
-     */
     @Override
     @Transactional
     public void delete(ID id) {
         repository.deleteById(id);
     }
 
-    /**
-     * Thay đổi status
-     */
     @Override
     @Transactional
     public T changeStatus(ID id, Integer status) {
@@ -127,106 +109,138 @@ public abstract class BaseServiceImpl<T, ID> implements BaseService<T, ID> {
         return repository.save(entity);
     }
 
-    /**
-     * Lấy tất cả
-     */
     @Override
     @Transactional(readOnly = true)
     public List<T> getAll() {
         return repository.findAll();
     }
 
-    /**
-     * Lấy một entity theo ID
-     */
     @Override
     @Transactional(readOnly = true)
     public Optional<T> getOne(ID id) {
         return repository.findById(id);
     }
 
-    /**
-     * Kiểm tra entity có tồn tại không
-     */
     @Override
     @Transactional(readOnly = true)
     public boolean exists(ID id) {
         return repository.existsById(id);
     }
 
-    /**
-     * Đếm tổng số entity
-     */
     @Override
     @Transactional(readOnly = true)
     public long count() {
         return repository.count();
     }
 
-    /**
-     * Lấy tất cả field names có @Column annotation
-     */
     protected Set<String> getValidColumnFields() {
         Set<String> validFields = new HashSet<>();
-        Field[] fields = getEntityClass().getDeclaredFields();
+        Class<?> currentClass = getEntityClass();
 
-        for (Field field : fields) {
-            if (field.isAnnotationPresent(Column.class)) {
-                validFields.add(field.getName());
+        // Duyệt qua tất cả các class trong hierarchy (bao gồm cả parent class)
+        while (currentClass != null && currentClass != Object.class) {
+            Field[] fields = currentClass.getDeclaredFields();
+
+            for (Field field : fields) {
+                // Hỗ trợ @Column
+                if (field.isAnnotationPresent(Column.class)) {
+                    validFields.add(field.getName());
+                }
+                // Hỗ trợ @JoinColumn (ManyToOne, OneToOne)
+                if (field.isAnnotationPresent(JoinColumn.class)) {
+                    validFields.add(field.getName());
+                }
+                // Hỗ trợ @OneToMany, @ManyToMany
+                if (field.isAnnotationPresent(jakarta.persistence.OneToMany.class) ||
+                        field.isAnnotationPresent(jakarta.persistence.ManyToMany.class)) {
+                    validFields.add(field.getName());
+                }
+                // Hỗ trợ @ManyToOne, @OneToOne (không cần @JoinColumn)
+                if (field.isAnnotationPresent(jakarta.persistence.ManyToOne.class) ||
+                        field.isAnnotationPresent(jakarta.persistence.OneToOne.class)) {
+                    validFields.add(field.getName());
+                }
             }
-            // Cũng check cho @JoinColumn nếu cần
-            if (field.isAnnotationPresent(JoinColumn.class)) {
-                validFields.add(field.getName());
-            }
+
+            currentClass = currentClass.getSuperclass();
         }
 
         return validFields;
     }
 
-    /**
-     * Validate field name có tồn tại và có @Column annotation không
-     */
     protected void validateFieldName(String fieldName) {
         Set<String> validFields = getValidColumnFields();
-        if (!validFields.contains(fieldName)) {
+
+        // Nếu là nested field (vd: "user.name"), chỉ validate phần đầu tiên
+        String firstPart = fieldName.split("\\.")[0];
+
+        if (!validFields.contains(firstPart)) {
             throw new InvalidFieldException(
-                    String.format("Field '%s' không tồn tại hoặc không có @Column annotation trong entity %s. " +
+                    String.format("Field '%s' không tồn tại hoặc không có annotation hợp lệ trong entity %s. " +
                                     "Các field hợp lệ: %s",
-                            fieldName, getEntityClass().getSimpleName(), validFields)
+                            firstPart, getEntityClass().getSimpleName(), validFields)
             );
         }
     }
 
     /**
-     * Tạo Specification từ danh sách FilterCriteria
+     * Tạo Specification từ danh sách FilterCriteria với hỗ trợ AND/OR
      */
     protected Specification<T> createSpecification(List<FilterCriteria> filters) {
         return (root, query, criteriaBuilder) -> {
-            List<Predicate> predicates = new ArrayList<>();
+            if (filters == null || filters.isEmpty()) {
+                return criteriaBuilder.conjunction();
+            }
 
-            for (FilterCriteria filter : filters) {
+            List<Predicate> andPredicates = new ArrayList<>();
+            List<Predicate> orPredicates = new ArrayList<>();
+
+            for (int i = 0; i < filters.size(); i++) {
+                FilterCriteria filter = filters.get(i);
+
                 if (filter.getFieldName() == null || filter.getOperation() == null) {
                     continue;
                 }
 
-                // Validate field name
                 validateFieldName(filter.getFieldName());
 
                 Path<?> fieldPath = getFieldPath(root, filter.getFieldName());
                 Predicate predicate = createPredicate(criteriaBuilder, fieldPath, filter);
 
                 if (predicate != null) {
-                    predicates.add(predicate);
+                    // Điều kiện đầu tiên luôn là AND
+                    if (i == 0) {
+                        andPredicates.add(predicate);
+                    } else {
+                        FilterLogicType logicType = filter.getLogicType() != null ?
+                                filter.getLogicType() : FilterLogicType.AND;
+
+                        if (logicType == FilterLogicType.OR) {
+                            orPredicates.add(predicate);
+                        } else {
+                            andPredicates.add(predicate);
+                        }
+                    }
                 }
             }
 
-            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+            // Kết hợp tất cả predicates
+            Predicate finalPredicate = null;
+
+            if (!andPredicates.isEmpty()) {
+                finalPredicate = criteriaBuilder.and(andPredicates.toArray(new Predicate[0]));
+            }
+
+            if (!orPredicates.isEmpty()) {
+                Predicate orPredicate = criteriaBuilder.or(orPredicates.toArray(new Predicate[0]));
+                finalPredicate = finalPredicate != null ?
+                        criteriaBuilder.and(finalPredicate, orPredicate) : orPredicate;
+            }
+
+            return finalPredicate != null ? finalPredicate : criteriaBuilder.conjunction();
         };
     }
 
-    /**
-     * Tạo field path, hỗ trợ nested fields (ví dụ: "user.name")
-     */
     protected Path<?> getFieldPath(Root<T> root, String fieldName) {
         String[] parts = fieldName.split("\\.");
         Path<?> path = root.get(parts[0]);
@@ -238,9 +252,6 @@ public abstract class BaseServiceImpl<T, ID> implements BaseService<T, ID> {
         return path;
     }
 
-    /**
-     * Tạo Predicate dựa trên operation
-     */
     @SuppressWarnings("unchecked")
     protected Predicate createPredicate(CriteriaBuilder cb, Path<?> path, FilterCriteria filter) {
         Object value = filter.getValue();
@@ -308,11 +319,7 @@ public abstract class BaseServiceImpl<T, ID> implements BaseService<T, ID> {
         }
     }
 
-    /**
-     * Tạo Pageable từ sort criteria và pagination info
-     */
     protected Pageable createPageable(List<SortCriteria> sorts, Integer page, Integer size) {
-        // Validate sort fields
         for (SortCriteria sort : sorts) {
             validateFieldName(sort.getFieldName());
         }
@@ -333,9 +340,6 @@ public abstract class BaseServiceImpl<T, ID> implements BaseService<T, ID> {
         return PageRequest.of(page != null ? page : 0, size != null ? size : 20, sortObj);
     }
 
-    /**
-     * Main method để filter và sort
-     */
     @Override
     @Transactional(readOnly = true)
     public Page<T> filter(BaseFilterRequest request) {
@@ -355,9 +359,6 @@ public abstract class BaseServiceImpl<T, ID> implements BaseService<T, ID> {
 
     // ================= PRIVATE HELPER METHODS =================
 
-    /**
-     * Set status field via reflection
-     */
     private void setStatus(T entity, Integer status) {
         try {
             Field field = getField(entity.getClass(), statusFieldName);
@@ -368,9 +369,6 @@ public abstract class BaseServiceImpl<T, ID> implements BaseService<T, ID> {
         }
     }
 
-    /**
-     * Get field from class hierarchy
-     */
     private Field getField(Class<?> clazz, String name) throws NoSuchFieldException {
         Class<?> current = clazz;
         while (current != null) {
@@ -382,13 +380,6 @@ public abstract class BaseServiceImpl<T, ID> implements BaseService<T, ID> {
         }
         throw new NoSuchFieldException(name);
     }
-
-    /**
-     * Convert value to target type
-     * @param value
-     * @param targetType
-     * @return
-     */
 
     private Object convertValue(Object value, Class<?> targetType) {
         if (value == null) return null;
@@ -405,8 +396,6 @@ public abstract class BaseServiceImpl<T, ID> implements BaseService<T, ID> {
         if (targetType.equals(Boolean.class) && value instanceof String str) {
             return Boolean.parseBoolean(str);
         }
-        // fallback
         return value;
     }
-
 }

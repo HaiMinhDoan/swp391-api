@@ -1,13 +1,18 @@
 package com.devmam.taraacademyapi.models.dto.response;
 
 import com.devmam.taraacademyapi.models.entities.Course;
+import com.devmam.taraacademyapi.models.entities.User;
 import jakarta.validation.constraints.Size;
+import kotlin._Assertions;
 import lombok.*;
-import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * DTO for {@link com.devmam.taraacademyapi.models.entities.Course}
@@ -16,7 +21,7 @@ import java.time.Instant;
 @Builder
 @Getter
 @Setter
-public class CourseDTO implements Serializable {
+public class CourseResponseDTO implements Serializable {
     private final Integer id;
     private final String thumnail;
     @Size(max = 255)
@@ -33,8 +38,8 @@ public class CourseDTO implements Serializable {
     private final Integer status;
     private final Integer isDeleted;
 
-    public static CourseDTO toDTO(Course m) {
-        return CourseDTO.builder()
+    public static CourseResponseDTO toDTO(Course m) {
+        return CourseResponseDTO.builder()
                 .id(m.getId())
                 .thumnail(m.getThumnail())
                 .title(m.getTitle())
@@ -48,5 +53,18 @@ public class CourseDTO implements Serializable {
                 .status(m.getStatus())
                 .isDeleted(m.getIsDeleted())
                 .build();
+    }
+
+    public static Page<CourseResponseDTO> convertPage(Page<Course> coursePage) {
+        List<CourseResponseDTO> courseResponseDTOs = coursePage.getContent()
+                .stream()
+                .map(CourseResponseDTO::toDTO)
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(
+                courseResponseDTOs,
+                coursePage.getPageable(),
+                coursePage.getTotalElements()
+        );
     }
 }

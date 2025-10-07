@@ -15,6 +15,9 @@ public class UserService extends BaseServiceImpl<User, UUID> {
     @Autowired
     private EntityManager entityManager;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @Override
     protected EntityManager getEntityManager() {
         return entityManager;
@@ -23,4 +26,6 @@ public class UserService extends BaseServiceImpl<User, UUID> {
     public UserService(UserRepository repository) {
         super(repository);
     }
+
+
 }
