@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class TeacherCvService extends BaseServiceImpl<TeacherCv, Integer> {
-
     @Autowired
     private EntityManager entityManager;
 

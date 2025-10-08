@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class SerService extends BaseServiceImpl<Ser, Integer> {
-
     @Autowired
     private EntityManager entityManager;
 

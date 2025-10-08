@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class FeedbackService extends BaseServiceImpl<Feedback, Integer> {
-
     @Autowired
     private EntityManager entityManager;
 

@@ -9,12 +9,14 @@ import com.nimbusds.jwt.SignedJWT;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.util.Date;
 import java.util.Set;
 import java.util.StringJoiner;
 
+@Service
 public class JwtServiceImpl implements JwtService {
     @Override
     public String buildScope(Set<String> roles) {

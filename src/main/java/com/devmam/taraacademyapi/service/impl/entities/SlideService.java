@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class SlideService extends BaseServiceImpl<Slide, Integer> {
-
     @Autowired
     private EntityManager entityManager;
 

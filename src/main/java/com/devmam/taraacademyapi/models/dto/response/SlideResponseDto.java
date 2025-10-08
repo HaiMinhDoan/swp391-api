@@ -1,29 +1,64 @@
 package com.devmam.taraacademyapi.models.dto.response;
 
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
-import lombok.Value;
+import com.devmam.taraacademyapi.models.entities.Slide;
+import lombok.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * DTO for {@link com.devmam.taraacademyapi.models.entities.Slide}
  */
-@Value
+@AllArgsConstructor
+@Builder
+@Getter
+@Setter
 public class SlideResponseDto implements Serializable {
-    Integer id;
-    @Size(max = 255)
-    String title;
-    String description;
-    @NotNull
-    String imageUrl;
-    String linkUrl;
-    Integer orderIndex;
-    UUID createdById;
-    String createdByUsername;
-    Instant createdAt;
-    Instant updatedAt;
-    Integer status;
+    private final Integer id;
+    private final String title;
+    private final String description;
+    private final String imageUrl;
+    private final String linkUrl;
+    private final Integer orderIndex;
+    private final UUID createdById;
+    private final String createdByUsername;
+    private final Instant createdAt;
+    private final Instant updatedAt;
+    private final Integer status;
+    private final Integer isDeleted;
+
+    public static SlideResponseDto toDTO(Slide slide) {
+        return SlideResponseDto.builder()
+                .id(slide.getId())
+                .title(slide.getTitle())
+                .description(slide.getDescription())
+                .imageUrl(slide.getImageUrl())
+                .linkUrl(slide.getLinkUrl())
+                .orderIndex(slide.getOrderIndex())
+                .createdById(slide.getCreatedBy() != null ? slide.getCreatedBy().getId() : null)
+                .createdByUsername(slide.getCreatedBy() != null ? slide.getCreatedBy().getUsername() : null)
+                .createdAt(slide.getCreatedAt())
+                .updatedAt(slide.getUpdatedAt())
+                .status(slide.getStatus())
+                .isDeleted(slide.getIsDeleted())
+                .build();
+    }
+
+    public static Page<SlideResponseDto> convertPage(Page<Slide> slidePage) {
+        List<SlideResponseDto> slideResponseDTOs = slidePage.getContent()
+                .stream()
+                .map(SlideResponseDto::toDTO)
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(
+                slideResponseDTOs,
+                slidePage.getPageable(),
+                slidePage.getTotalElements()
+        );
+    }
 }
