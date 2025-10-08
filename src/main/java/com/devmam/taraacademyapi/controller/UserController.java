@@ -5,7 +5,6 @@ import com.devmam.taraacademyapi.models.dto.response.ResponseData;
 import com.devmam.taraacademyapi.models.dto.response.UserResponseDTO;
 import com.devmam.taraacademyapi.models.entities.User;
 import com.devmam.taraacademyapi.service.impl.entities.UserService;
-import org.eclipse.angus.mail.imap.protocol.ID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +28,7 @@ public class UserController {
         if (user.isEmpty()) {
             throw new RuntimeException("user not found");
         }
-        return ResponseEntity.<ResponseData<UserResponseDTO>>ok(
+        return ResponseEntity.ok(
                 ResponseData.<UserResponseDTO>builder()
                         .status(200)
                         .message("user found")

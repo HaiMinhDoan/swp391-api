@@ -33,7 +33,7 @@ public class CourseController {
                         .message("course found")
                         .error(null)
                         .data(CourseResponseDTO.toDTO(course.get()))
-                .build());
+                        .build());
     }
 
     @PostMapping("/filter")
