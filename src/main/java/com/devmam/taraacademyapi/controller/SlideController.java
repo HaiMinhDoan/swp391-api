@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
@@ -46,7 +47,7 @@ public class SlideController {
         String currentUserEmail = jwtService.getCurrentUserId();
         User currentUser = null;
         if (currentUserEmail != null) {
-            currentUser = userService.findByEmail(currentUserEmail).orElse(null);
+            currentUser = userService.getOne(UUID.fromString(currentUserEmail)).orElse(null);
         }
 
         Slide slide = Slide.builder()
@@ -220,13 +221,13 @@ public class SlideController {
     @PostMapping("/filter")
     public ResponseEntity<ResponseData<Page<SlideResponseDto>>> filterSlides(@RequestBody BaseFilterRequest filter) {
         Page<Slide> result = slideService.filter(filter);
-        Page<SlideResponseDto> responsePage = SlideResponseDto.convertPage(result);
+        Page<SlideResponseDto> response = SlideResponseDto.convertPage(result);
 
         return ResponseEntity.ok(ResponseData.<Page<SlideResponseDto>>builder()
                 .status(200)
                 .message("Slides filtered successfully")
                 .error(null)
-                .data(responsePage)
+                .data(response)
                 .build());
     }
 

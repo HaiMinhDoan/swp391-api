@@ -52,7 +52,7 @@ public class CertificateController {
         String currentUserEmail = jwtService.getCurrentUserId();
         User currentUser = null;
         if (currentUserEmail != null) {
-            currentUser = userService.findByEmail(currentUserEmail).orElse(null);
+            currentUser = userService.getOne(UUID.fromString(currentUserEmail)).orElse(null);
         }
 
         // Get user and course entities
