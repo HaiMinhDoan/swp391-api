@@ -1,6 +1,5 @@
 package com.devmam.taraacademyapi.models.dto.request;
 
-import com.devmam.taraacademyapi.models.dto.IBaseDTO;
 import com.devmam.taraacademyapi.models.entities.User;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -14,7 +13,7 @@ import lombok.experimental.FieldDefaults;
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class RegisterRequest implements IBaseDTO<RegisterRequest, User> {
+public class RegisterDTO {
 
     @NotBlank(message = "Username is required")
     @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
@@ -30,8 +29,6 @@ public class RegisterRequest implements IBaseDTO<RegisterRequest, User> {
 
     String customerCode;
 
-    String subscriptionPlan;
-
     @NotBlank(message = "Full name is required")
     @Size(max = 255, message = "Full name must not exceed 255 characters")
     String firstName;
@@ -40,13 +37,14 @@ public class RegisterRequest implements IBaseDTO<RegisterRequest, User> {
     @Size(max = 255, message = "Full name must not exceed 255 characters")
     String lastName;
 
-    @Override
-    public RegisterRequest toDTO(User m) throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public User toModel() throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public static User toEntity(RegisterDTO dto) {
+        return User.builder()
+                .username(dto.getUsername())
+                .email(dto.getEmail())
+                .password(dto.getPassword())
+                .customerCode(dto.getCustomerCode())
+                .fullName(dto.getFirstName() + " " + dto.getLastName())
+                .role("ROLE_USER")
+                .build();
     }
 }

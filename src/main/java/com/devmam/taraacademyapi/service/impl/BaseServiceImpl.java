@@ -12,9 +12,9 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import jakarta.persistence.criteria.JoinType;
-import org.springframework.transaction.annotation.Transactional;
+import lombok.Getter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,19 +23,13 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 import java.util.*;
-
-import jakarta.persistence.criteria.Predicate;
-
 import java.util.stream.Collectors;
-
+@Getter
 @Service
 @Transactional
 public abstract class BaseServiceImpl<T, ID> implements BaseService<T, ID> {
@@ -208,18 +202,13 @@ public abstract class BaseServiceImpl<T, ID> implements BaseService<T, ID> {
                 Predicate predicate = createPredicate(criteriaBuilder, fieldPath, filter);
 
                 if (predicate != null) {
-                    // Điều kiện đầu tiên luôn là AND
-                    if (i == 0) {
-                        andPredicates.add(predicate);
-                    } else {
-                        FilterLogicType logicType = filter.getLogicType() != null ?
-                                filter.getLogicType() : FilterLogicType.AND;
+                    FilterLogicType logicType = filter.getLogicType() != null ?
+                            filter.getLogicType() : FilterLogicType.AND;
 
-                        if (logicType == FilterLogicType.OR) {
-                            orPredicates.add(predicate);
-                        } else {
-                            andPredicates.add(predicate);
-                        }
+                    if (logicType == FilterLogicType.OR) {
+                        orPredicates.add(predicate);
+                    } else {
+                        andPredicates.add(predicate);
                     }
                 }
             }

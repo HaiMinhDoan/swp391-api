@@ -12,21 +12,14 @@ import lombok.experimental.FieldDefaults;
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class LoginRequest implements IBaseDTO<LoginRequest, User> {
+public class LoginDTO {
+
+    @NotBlank(message = "UserAgent is required")
+    String userAgent;
 
     @NotBlank(message = "Username or email is required")
     String usernameOrEmail;
 
     @NotBlank(message = "Password is required")
     String password;
-
-    @Override
-    public LoginRequest toDTO(User m) throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public User toModel() throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
 }
