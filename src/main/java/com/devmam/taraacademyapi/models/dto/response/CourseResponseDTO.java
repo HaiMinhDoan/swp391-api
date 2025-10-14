@@ -1,8 +1,6 @@
 package com.devmam.taraacademyapi.models.dto.response;
 
 import com.devmam.taraacademyapi.models.entities.Course;
-import com.devmam.taraacademyapi.models.entities.User;
-import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -11,6 +9,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -20,44 +19,49 @@ import java.util.stream.Collectors;
 @Builder
 @Getter
 @Setter
-public class CourseResponseDTO implements Serializable {
+public class CourseResponseDto implements Serializable {
     private final Integer id;
+    private final Integer categoryId;
+    private final String categoryName;
     private final String thumnail;
-    @Size(max = 255)
     private final String title;
-    @Size(max = 255)
     private final String summary;
     private final String description;
-    @Size(max = 255)
     private final String lang;
     private final BigDecimal price;
     private final Integer saleOff;
+    private final UUID createdById;
+    private final String createdByUsername;
     private final Instant createdAt;
     private final Instant updatedAt;
     private final Integer status;
     private final Integer isDeleted;
 
-    public static CourseResponseDTO toDTO(Course m) {
-        return CourseResponseDTO.builder()
-                .id(m.getId())
-                .thumnail(m.getThumnail())
-                .title(m.getTitle())
-                .summary(m.getSummary())
-                .description(m.getDescription())
-                .lang(m.getLang())
-                .price(m.getPrice())
-                .saleOff(m.getSaleOff())
-                .createdAt(m.getCreatedAt())
-                .updatedAt(m.getUpdatedAt())
-                .status(m.getStatus())
-                .isDeleted(m.getIsDeleted())
+    public static CourseResponseDto toDTO(Course course) {
+        return CourseResponseDto.builder()
+                .id(course.getId())
+                .categoryId(course.getCategory() != null ? course.getCategory().getId() : null)
+                .categoryName(course.getCategory() != null ? course.getCategory().getName() : null)
+                .thumnail(course.getThumnail())
+                .title(course.getTitle())
+                .summary(course.getSummary())
+                .description(course.getDescription())
+                .lang(course.getLang())
+                .price(course.getPrice())
+                .saleOff(course.getSaleOff())
+                .createdById(course.getCreatedBy() != null ? course.getCreatedBy().getId() : null)
+                .createdByUsername(course.getCreatedBy() != null ? course.getCreatedBy().getUsername() : null)
+                .createdAt(course.getCreatedAt())
+                .updatedAt(course.getUpdatedAt())
+                .status(course.getStatus())
+                .isDeleted(course.getIsDeleted())
                 .build();
     }
 
-    public static Page<CourseResponseDTO> convertPage(Page<Course> coursePage) {
-        List<CourseResponseDTO> courseResponseDTOs = coursePage.getContent()
+    public static Page<CourseResponseDto> convertPage(Page<Course> coursePage) {
+        List<CourseResponseDto> courseResponseDTOs = coursePage.getContent()
                 .stream()
-                .map(CourseResponseDTO::toDTO)
+                .map(CourseResponseDto::toDTO)
                 .collect(Collectors.toList());
 
         return new PageImpl<>(
