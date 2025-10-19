@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserResponseDTO implements Serializable {
+public class UserResponseDto implements Serializable {
     UUID id;
     String username;
     String email;
@@ -36,8 +36,8 @@ public class UserResponseDTO implements Serializable {
     Integer status;
     Integer isDeleted;
 
-    public static UserResponseDTO toDTO(User m) throws UnsupportedOperationException {
-        return UserResponseDTO.builder()
+    public static UserResponseDto toDTO(User m) throws UnsupportedOperationException {
+        return UserResponseDto.builder()
                 .id(m.getId())
                 .username(m.getUsername())
                 .email(m.getEmail())
@@ -57,14 +57,14 @@ public class UserResponseDTO implements Serializable {
     public static User toModel() throws UnsupportedOperationException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
-    public static Page<UserResponseDTO> convertPage(Page<User> userPage) {
-        List<UserResponseDTO> userResponseDTOs = userPage.getContent()
+    public static Page<UserResponseDto> convertPage(Page<User> userPage) {
+        List<UserResponseDto> userResponseDtos = userPage.getContent()
                 .stream()
-                .map(UserResponseDTO::toDTO)
+                .map(UserResponseDto::toDTO)
                 .collect(Collectors.toList());
 
         return new PageImpl<>(
-                userResponseDTOs,
+                userResponseDtos,
                 userPage.getPageable(),
                 userPage.getTotalElements()
         );
