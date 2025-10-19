@@ -29,7 +29,7 @@ public class StageLessonController extends BaseController<StageLesson, Integer, 
     @Override
     protected StageLesson toEntity(StageLessonRequestDto requestDto) {
         StageLesson stageLesson = new StageLesson();
-        stageLesson.setName(requestDto.getName());
+        stageLesson.setTitle(requestDto.getName());
         stageLesson.setDescription(requestDto.getDescription());
         stageLesson.setOrderIndex(requestDto.getOrderIndex() != null ? requestDto.getOrderIndex() : 0);
         stageLesson.setStatus(requestDto.getStatus() != null ? requestDto.getStatus() : 1);

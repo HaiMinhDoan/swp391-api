@@ -64,7 +64,7 @@ public class CourseController extends BaseController<Course, Integer, CourseRequ
 
         Course course = new Course();
         course.setCategory(category);
-        course.setThumnail(requestDto.getThumnail());
+        course.setThumbnail(requestDto.getThumnail());
         course.setTitle(requestDto.getTitle());
         course.setSummary(requestDto.getSummary());
         course.setDescription(requestDto.getDescription());

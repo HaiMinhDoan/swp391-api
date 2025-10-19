@@ -48,6 +48,9 @@ public class UserCourse {
     @Column(name = "expired_at", nullable = false)
     private Instant expiredAt;
 
+    @Column(name = "completed_at")
+    private Instant completedAt;
+
     @ColumnDefault("0")
     @Column(name = "progress", precision = 5, scale = 2)
     private BigDecimal progress;

@@ -29,8 +29,8 @@ public class Course {
     @JoinColumn(name = "category_id")
     private CourseCategory category;
 
-    @Column(name = "thumnail", length = Integer.MAX_VALUE)
-    private String thumnail;
+    @Column(name = "thumbnail", length = Integer.MAX_VALUE)
+    private String thumbnail;
 
     @Size(max = 255)
     @Column(name = "title")

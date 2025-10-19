@@ -42,9 +42,9 @@ public class QuizOptionController extends BaseController<QuizOption, Integer, Qu
 
         QuizOption quizOption = new QuizOption();
         quizOption.setQuiz(quiz);
-        quizOption.setOptionText(requestDto.getOptionText());
+        quizOption.setContent(requestDto.getOptionText());
         quizOption.setIsCorrect(requestDto.getIsCorrect());
-        quizOption.setOrderIndex(requestDto.getOrderIndex() != null ? requestDto.getOrderIndex() : 0);
+//        quizOption.setOrderIndex(requestDto.getOrderIndex() != null ? requestDto.getOrderIndex() : 0);
         quizOption.setStatus(requestDto.getStatus() != null ? requestDto.getStatus() : 1);
         quizOption.setIsDeleted(0);
         quizOption.setCreatedAt(Instant.now());

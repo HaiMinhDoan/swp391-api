@@ -27,9 +27,15 @@ public class StageLesson {
     @JoinColumn(name = "course_id")
     private Course course;
 
+
+
     @Size(max = 255)
     @Column(name = "title")
     private String title;
+
+
+    @Column(name = "description", length = Integer.MAX_VALUE)
+    private String description;
 
     @Column(name = "order_index")
     private Integer orderIndex;

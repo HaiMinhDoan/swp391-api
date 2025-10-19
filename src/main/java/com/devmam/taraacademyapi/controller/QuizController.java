@@ -44,8 +44,6 @@ public class QuizController extends BaseController<Quiz, Integer, QuizRequestDto
         quiz.setLesson(lesson);
         quiz.setType(requestDto.getType());
         quiz.setQuestion(requestDto.getQuestion());
-        quiz.setExplanation(requestDto.getExplanation());
-        quiz.setTimeLimit(requestDto.getTimeLimit());
         quiz.setStatus(requestDto.getStatus() != null ? requestDto.getStatus() : 1);
         quiz.setIsDeleted(0);
         quiz.setCreatedAt(Instant.now());

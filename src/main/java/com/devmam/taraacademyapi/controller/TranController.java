@@ -52,11 +52,11 @@ public class TranController extends BaseController<Tran, Integer, TranRequestDto
 
         Tran tran = new Tran();
         tran.setUser(user);
-        tran.setCourse(course);
+//        tran.setCourse(course);
         tran.setAmount(requestDto.getAmount());
-        tran.setPaymentMethod(requestDto.getPaymentMethod());
-        tran.setTransactionId(requestDto.getTransactionId());
-        tran.setTransactionDate(requestDto.getTransactionDate() != null ? requestDto.getTransactionDate() : Instant.now());
+//        tran.setPaymentMethod(requestDto.getPaymentMethod());
+//        tran.setTransactionId(requestDto.getTransactionId());
+//        tran.setTransactionDate(requestDto.getTransactionDate() != null ? requestDto.getTransactionDate() : Instant.now());
         tran.setStatus(requestDto.getStatus() != null ? requestDto.getStatus() : 1);
         tran.setIsDeleted(0);
         tran.setCreatedAt(Instant.now());

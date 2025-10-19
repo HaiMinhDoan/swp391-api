@@ -23,7 +23,7 @@ public class CourseResponseDto implements Serializable {
     private Integer id;
     private  Integer categoryId;
     private  String categoryName;
-    private  String thumnail;
+    private  String thumbnail;
     private  String title;
     private  String summary;
     private  String description;
@@ -42,7 +42,7 @@ public class CourseResponseDto implements Serializable {
                 .id(course.getId())
                 .categoryId(course.getCategory() != null ? course.getCategory().getId() : null)
                 .categoryName(course.getCategory() != null ? course.getCategory().getName() : null)
-                .thumnail(course.getThumnail())
+                .thumbnail(course.getThumbnail())
                 .title(course.getTitle())
                 .summary(course.getSummary())
                 .description(course.getDescription())

@@ -3,6 +3,7 @@ package com.devmam.taraacademyapi.models.dto.request;
 import lombok.*;
 
 import java.time.Instant;
+import java.util.UUID;
 
 /**
  * DTO for QuizSubmission creation and update requests
@@ -16,7 +17,7 @@ public class QuizSubmissionRequestDto {
     
     private Integer quizId;
     
-    private Integer userId;
+    private UUID userId;
     
     private String answers;
     

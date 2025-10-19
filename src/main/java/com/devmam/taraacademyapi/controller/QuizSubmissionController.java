@@ -53,8 +53,8 @@ public class QuizSubmissionController extends BaseController<QuizSubmission, Int
         QuizSubmission quizSubmission = new QuizSubmission();
         quizSubmission.setQuiz(quiz);
         quizSubmission.setUser(user);
-        quizSubmission.setAnswers(requestDto.getAnswers());
-        quizSubmission.setScore(requestDto.getScore());
+//        quizSubmission.setAnswers(requestDto.getAnswers());
+//        quizSubmission.setScore(requestDto.getScore());
         quizSubmission.setSubmittedAt(requestDto.getSubmittedAt() != null ? requestDto.getSubmittedAt() : Instant.now());
         quizSubmission.setStatus(requestDto.getStatus() != null ? requestDto.getStatus() : 1);
         quizSubmission.setIsDeleted(0);

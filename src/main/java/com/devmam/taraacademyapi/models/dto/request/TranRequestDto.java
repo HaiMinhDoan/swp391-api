@@ -4,6 +4,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.UUID;
 
 /**
  * DTO for Tran creation and update requests
@@ -15,7 +16,7 @@ import java.time.Instant;
 @Setter
 public class TranRequestDto {
     
-    private Integer userId;
+    private UUID userId;
     
     private Integer courseId;
     

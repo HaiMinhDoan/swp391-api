@@ -8,6 +8,7 @@ import org.hibernate.annotations.OnDeleteAction;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Set;
 
 @Builder
 @AllArgsConstructor
@@ -57,5 +58,8 @@ public class QuizSubmission {
     @ColumnDefault("0")
     @Column(name = "is_deleted")
     private Integer isDeleted;
+
+    @OneToMany(mappedBy = "submission", fetch = FetchType.LAZY)
+    private Set<QuizAnswer> answers;
 
 }
