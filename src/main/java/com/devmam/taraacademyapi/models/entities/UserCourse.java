@@ -52,11 +52,6 @@ public class UserCourse {
     @Column(name = "progress", precision = 5, scale = 2)
     private BigDecimal progress;
 
-    @Size(max = 20)
-    @ColumnDefault("'active'")
-    @Column(name = "status", length = 20)
-    private String status;
-
     @ColumnDefault("now()")
     @Column(name = "created_at")
     private Instant createdAt;
@@ -73,4 +68,11 @@ public class UserCourse {
     @Column(name = "current_stage_id")
     private Integer currentStageId;
 
+    @ColumnDefault("1")
+    @Column(name = "status")
+    private Integer status;
+
+    @ColumnDefault("0")
+    @Column(name = "is_deleted")
+    private Integer isDeleted;
 }

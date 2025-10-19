@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -31,7 +32,8 @@ public class MinioServiceImpl implements MinioService {
 
     @Override
     public String upload(MultipartFile file) throws Exception {
-        return upload(file, file.getOriginalFilename());
+        String objectName = file.getOriginalFilename() + new Date().getTime();
+        return upload(file, objectName);
     }
 
     @Override
@@ -123,6 +125,31 @@ public class MinioServiceImpl implements MinioService {
                         .expiry(expirySeconds)
                         .build()
         );
+    }
+
+    @Override
+    public InputStream getObjectRange(String objectName, Long start, Long end) throws Exception {
+        GetObjectArgs.Builder builder = GetObjectArgs.builder()
+                .bucket(minioBucketName)
+                .object(objectName);
+
+        if (start != null && end != null) {
+            builder.offset(start).length(end - start + 1);
+        } else if (start != null) {
+            builder.offset(start);
+        }
+
+        return minioClient.getObject(builder.build());
+    }
+
+    @Override
+    public String getBucketName() {
+        return minioBucketName;
+    }
+
+    @Override
+    public MinioClient getMinioClient() {
+        return minioClient;
     }
 }
 

@@ -26,8 +26,10 @@ public class OpenApiConfig {
                         .description(description)
                         .license(new License().name("Api license").url("https://www.fb.com/license"))
         ).servers(List.of(
-                new Server().url("http://localhost:8080/").description("Local server"))
-        ).components(
+                new Server().url("http://your-domain.com").description("Production server"),
+                new Server().url("http://localhost").description("Development server"),
+                new Server().url("http://localhost:9999").description("Direct API server")
+        )).components(
                 new Components().addSecuritySchemes(
                         "bearerAuth",
                         new SecurityScheme()

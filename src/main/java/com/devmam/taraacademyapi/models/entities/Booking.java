@@ -30,6 +30,10 @@ public class Booking {
     @Column(name = "booking_date")
     private Instant bookingDate;
 
+    @Size(max = 400)
+    @Column(name = "note")
+    private String note;
+
     @Size(max = 255)
     @Column(name = "full_name")
     private String fullName;

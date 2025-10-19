@@ -20,22 +20,22 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 public class CourseResponseDto implements Serializable {
-    private final Integer id;
-    private final Integer categoryId;
-    private final String categoryName;
-    private final String thumnail;
-    private final String title;
-    private final String summary;
-    private final String description;
-    private final String lang;
-    private final BigDecimal price;
-    private final Integer saleOff;
-    private final UUID createdById;
-    private final String createdByUsername;
-    private final Instant createdAt;
-    private final Instant updatedAt;
-    private final Integer status;
-    private final Integer isDeleted;
+    private Integer id;
+    private  Integer categoryId;
+    private  String categoryName;
+    private  String thumnail;
+    private  String title;
+    private  String summary;
+    private  String description;
+    private  String lang;
+    private  BigDecimal price;
+    private  Integer saleOff;
+    private  UUID createdById;
+    private  String createdByUsername;
+    private  Instant createdAt;
+    private  Instant updatedAt;
+    private  Integer status;
+    private  Integer isDeleted;
 
     public static CourseResponseDto toDTO(Course course) {
         return CourseResponseDto.builder()

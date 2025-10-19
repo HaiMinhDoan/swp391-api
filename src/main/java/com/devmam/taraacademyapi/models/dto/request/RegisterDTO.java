@@ -44,7 +44,6 @@ public class RegisterDTO {
                 .password(dto.getPassword())
                 .customerCode(dto.getCustomerCode())
                 .fullName(dto.getFirstName() + " " + dto.getLastName())
-                .role("ROLE_USER")
                 .build();
     }
 }
