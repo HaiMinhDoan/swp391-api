@@ -15,6 +15,7 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.UUID;
 
 @Service
 public class JwtServiceImpl implements JwtService {
@@ -49,8 +50,8 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public Long getUserId(String token) {
-        return (Long) getClaimsFromToken(token).getClaims().get("id");
+    public UUID getUserId(String token) {
+        return UUID.fromString((String) getClaimsFromToken(token).getClaims().get("id"));
     }
 
     @Override

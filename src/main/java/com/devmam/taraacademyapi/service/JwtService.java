@@ -3,13 +3,14 @@ package com.devmam.taraacademyapi.service;
 import com.nimbusds.jwt.JWTClaimsSet;
 
 import java.util.Set;
+import java.util.UUID;
 
 public interface JwtService {
     String buildScope(Set<String> roles);
 
     String generateToken(String id, String email, Set<String> roles, String userAgent);
 
-    Long getUserId(String token);
+    UUID getUserId(String token);
 
     String getKeycloakUserIdFromToken(String token);
 

@@ -7,11 +7,16 @@ import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class FileUploadService extends BaseServiceImpl<FileUpload, Integer> {
 
     @Autowired
     private EntityManager entityManager;
+
+    @Autowired
+    private FileUploadRepository repository;
 
     @Override
     protected EntityManager getEntityManager() {
@@ -20,5 +25,9 @@ public class FileUploadService extends BaseServiceImpl<FileUpload, Integer> {
 
     public FileUploadService(FileUploadRepository repository) {
         super(repository);
+    }
+
+    public Optional<FileUpload> findByFileTypeAndReferenceId(String fileType, Integer referenceId) {
+        return repository.findByFileTypeAndReferenceId(fileType, referenceId);
     }
 }
