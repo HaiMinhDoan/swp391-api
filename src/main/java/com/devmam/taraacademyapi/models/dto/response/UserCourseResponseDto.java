@@ -41,7 +41,7 @@ public class UserCourseResponseDto implements Serializable {
                 .courseTitle(userCourse.getCourse() != null ? userCourse.getCourse().getTitle() : null)
                 .enrolledAt(userCourse.getEnrolledAt())
                 .completedAt(userCourse.getCompletedAt())
-                .progress(userCourse.getProgress())
+//                .progress(userCourse.getProgress())
                 .createdAt(userCourse.getCreatedAt())
                 .updatedAt(userCourse.getUpdatedAt())
                 .status(userCourse.getStatus())

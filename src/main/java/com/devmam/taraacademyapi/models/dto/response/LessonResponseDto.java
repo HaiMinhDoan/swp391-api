@@ -34,7 +34,7 @@ public class LessonResponseDto implements Serializable {
         return LessonResponseDto.builder()
                 .id(lesson.getId())
                 .stageId(lesson.getStage() != null ? lesson.getStage().getId() : null)
-                .stageName(lesson.getStage() != null ? lesson.getStage().getName() : null)
+                .stageName(lesson.getStage() != null ? lesson.getStage().getTitle() : null)
                 .title(lesson.getTitle())
                 .content(lesson.getContent())
                 .videoUrl(lesson.getVideoUrl())
