@@ -55,7 +55,7 @@ public class UserCourseController extends BaseController<UserCourse, Integer, Us
         userCourse.setCourse(course);
         userCourse.setEnrolledAt(requestDto.getEnrolledAt() != null ? requestDto.getEnrolledAt() : Instant.now());
         userCourse.setCompletedAt(requestDto.getCompletedAt());
-        userCourse.setProgress(requestDto.getProgress() != null ? requestDto.getProgress() : 0);
+//        userCourse.setProgress(requestDto.getProgress() != null ? requestDto.getProgress() : 0);
         userCourse.setStatus(requestDto.getStatus() != null ? requestDto.getStatus() : 1);
         userCourse.setIsDeleted(0);
         userCourse.setCreatedAt(Instant.now());
