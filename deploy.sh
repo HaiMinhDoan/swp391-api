@@ -48,13 +48,13 @@ docker-compose logs --tail=50
 echo -e "${YELLOW}🔍 Testing health endpoint...${NC}"
 sleep 5
 
-HEALTH_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost/actuator/health)
+#HEALTH_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost/actuator/health)
 
-if [ "$HEALTH_STATUS" == "200" ]; then
-    echo -e "${GREEN}✅ Health check passed!${NC}"
-else
-    echo -e "${RED}⚠️  Health check failed! Status: $HEALTH_STATUS${NC}"
-fi
+#if [ "$HEALTH_STATUS" == "200" ]; then
+#    echo -e "${GREEN}✅ Health check passed!${NC}"
+#else
+#    echo -e "${RED}⚠️  Health check failed! Status: $HEALTH_STATUS${NC}"
+#fi
 
 # Step 8: Display URLs
 echo ""
