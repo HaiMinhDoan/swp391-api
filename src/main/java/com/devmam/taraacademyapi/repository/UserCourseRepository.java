@@ -15,4 +15,6 @@ public interface UserCourseRepository extends JpaRepository<UserCourse, Integer>
 
     @Query("SELECT uc FROM UserCourse uc WHERE uc.user.id = :userId AND uc.course.id = :courseId")
     Optional<UserCourse> findByUserIdAndCourseId(UUID userId, Integer courseId);
+
+    List<UserCourse> findByUserId(UUID userId);
 }

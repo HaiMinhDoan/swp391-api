@@ -1,7 +1,10 @@
 package com.devmam.taraacademyapi.models.dto.response;
 
 import com.devmam.taraacademyapi.models.entities.UserCourse;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 
@@ -19,18 +22,18 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 public class UserCourseResponseDto implements Serializable {
-    private final Integer id;
-    private final UUID userId;
-    private final String userUsername;
-    private final Integer courseId;
-    private final String courseTitle;
-    private final Instant enrolledAt;
-    private final Instant completedAt;
-    private final Integer progress;
-    private final Instant createdAt;
-    private final Instant updatedAt;
-    private final Integer status;
-    private final Integer isDeleted;
+    private Integer id;
+    private UUID userId;
+    private String userUsername;
+    private Integer courseId;
+    private String courseTitle;
+    private Instant enrolledAt;
+    private Instant completedAt;
+    private Integer progress;
+    private Instant createdAt;
+    private Instant updatedAt;
+    private Integer status;
+    private Integer isDeleted;
 
     public static UserCourseResponseDto toDTO(UserCourse userCourse) {
         return UserCourseResponseDto.builder()
