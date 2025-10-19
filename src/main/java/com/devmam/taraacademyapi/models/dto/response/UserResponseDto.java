@@ -1,5 +1,6 @@
 package com.devmam.taraacademyapi.models.dto.response;
 
+import com.devmam.taraacademyapi.models.dto.request.UserRequestDto;
 import com.devmam.taraacademyapi.models.entities.User;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -69,4 +70,5 @@ public class UserResponseDto implements Serializable {
                 userPage.getTotalElements()
         );
     }
+
 }
