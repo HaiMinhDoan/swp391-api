@@ -64,4 +64,9 @@ public class TranResponseDto implements Serializable {
                 tranPage.getTotalElements()
         );
     }
+    public static List<TranResponseDto> convertList(List<Tran> tranList) {
+        return tranList.stream()
+                .map(TranResponseDto::toDTO)
+                .collect(Collectors.toList());
+    }
 }

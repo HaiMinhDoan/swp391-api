@@ -7,11 +7,17 @@ import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.UUID;
+
 @Service
 public class TranService extends BaseServiceImpl<Tran, Integer> {
 
     @Autowired
     private EntityManager entityManager;
+
+    @Autowired
+    private TranRepository tranRepository;
 
     @Override
     protected EntityManager getEntityManager() {
@@ -20,5 +26,9 @@ public class TranService extends BaseServiceImpl<Tran, Integer> {
 
     public TranService(TranRepository repository) {
         super(repository);
+    }
+
+    public List<Tran> getByUserId(UUID userId) {
+        return tranRepository.findByUserId(userId);
     }
 }
