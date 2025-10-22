@@ -72,6 +72,6 @@ public class UserController extends BaseController<User, UUID, UserRequestDto, U
                         .error(null)
                         .data(TranResponseDto.convertList(tranService.getByUserId(userId)))
                         .build()
-        )
+        );
     }
 }
