@@ -18,7 +18,6 @@ import java.time.Instant;
 
 @RestController
 @RequestMapping("/api/v1/slides")
-@PreAuthorize("permitAll()")
 public class SlideController extends BaseController<Slide, Integer, SlideRequestDto, SlideResponseDto> {
 
     @Autowired
