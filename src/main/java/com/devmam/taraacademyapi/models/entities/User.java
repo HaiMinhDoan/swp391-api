@@ -1,9 +1,6 @@
 package com.devmam.taraacademyapi.models.entities;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -21,7 +18,8 @@ import java.util.UUID;
 @Table(name = "users")
 public class User {
     @Id
-    @Column(name = "id", nullable = false)
+    @Column(name = "id", nullable = false, columnDefinition = "uuid DEFAULT uuid_generate_v4()")
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
     @Size(max = 100)
