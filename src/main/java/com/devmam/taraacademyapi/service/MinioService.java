@@ -15,6 +15,7 @@ public interface MinioService {
     boolean exists(String objectName);
     String getPublicUrl(String objectName);
     String generatePresignedUploadUrl(String objectName, int expirySeconds) throws Exception;
+    String generatePresignedDownloadUrl(String objectName, int expirySeconds) throws Exception;
 
     InputStream getObjectRange(String objectName, Long start, Long end) throws Exception;
     String getBucketName();

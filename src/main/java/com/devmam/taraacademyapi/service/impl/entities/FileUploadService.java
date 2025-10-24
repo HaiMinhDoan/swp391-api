@@ -7,6 +7,7 @@ import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -29,5 +30,21 @@ public class FileUploadService extends BaseServiceImpl<FileUpload, Integer> {
 
     public Optional<FileUpload> findByFileTypeAndReferenceId(String fileType, Integer referenceId) {
         return repository.findByFileTypeAndReferenceId(fileType, referenceId);
+    }
+    
+    public List<FileUpload> findByFileType(String fileType) {
+        return repository.findByFileType(fileType);
+    }
+    
+    public List<FileUpload> findByReferenceId(Integer referenceId) {
+        return repository.findByReferenceId(referenceId);
+    }
+    
+    public List<FileUpload> findActiveFiles() {
+        return repository.findByIsDeleted(0);
+    }
+    
+    public List<FileUpload> findActiveFilesByTypeAndReference(String fileType, Integer referenceId) {
+        return repository.findActiveFilesByTypeAndReference(fileType, referenceId);
     }
 }

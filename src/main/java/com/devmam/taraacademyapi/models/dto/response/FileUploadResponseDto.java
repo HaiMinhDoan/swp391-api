@@ -18,15 +18,18 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 public class FileUploadResponseDto implements Serializable {
-    private final Integer id;
-    private final String fileName;
-    private final String filePath;
-    private final String fileType;
-    private final Long fileSize;
-    private final Instant createdAt;
-    private final Instant updatedAt;
-    private final Integer status;
-    private final Integer isDeleted;
+    private Integer id;
+    private String fileName;
+    private String filePath;
+    private String fileType;
+    private Long fileSize;
+    private Integer referenceId;
+    private String description;
+    private Instant createdAt;
+    private Instant updatedAt;
+    private Integer status;
+    private Integer isDeleted;
+    private String publicUrl;
 
     public static FileUploadResponseDto toDTO(FileUpload fileUpload) {
         return FileUploadResponseDto.builder()
@@ -35,10 +38,13 @@ public class FileUploadResponseDto implements Serializable {
                 .filePath(fileUpload.getFilePath())
                 .fileType(fileUpload.getFileType())
                 .fileSize(fileUpload.getFileSize())
+                .referenceId(fileUpload.getReferenceId())
+                .description(fileUpload.getDescription())
                 .createdAt(fileUpload.getCreatedAt())
                 .updatedAt(fileUpload.getUpdatedAt())
                 .status(fileUpload.getStatus())
                 .isDeleted(fileUpload.getIsDeleted())
+                .publicUrl(null) // Will be set by service layer
                 .build();
     }
 

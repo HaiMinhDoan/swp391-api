@@ -5,26 +5,21 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 
 /**
- * DTO for FileUpload creation and update requests
+ * DTO for bulk file upload
  */
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Getter
 @Setter
-public class FileUploadRequestDto {
+public class BulkFileUploadRequestDto {
     
-    @NotNull(message = "File name is required")
-    @Size(max = 255, message = "File name must not exceed 255 characters")
-    private String fileName;
-    
-    @Size(max = 255, message = "File path must not exceed 255 characters")
-    private String filePath;
+    @NotNull(message = "Files are required")
+    @Size(min = 1, max = 10, message = "Must upload between 1 and 10 files")
+    private java.util.List<org.springframework.web.multipart.MultipartFile> files;
     
     @Size(max = 100, message = "File type must not exceed 100 characters")
     private String fileType;
-    
-    private Long fileSize;
     
     private Integer referenceId;
     

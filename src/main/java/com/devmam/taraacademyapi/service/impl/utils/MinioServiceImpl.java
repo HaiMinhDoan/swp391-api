@@ -128,6 +128,18 @@ public class MinioServiceImpl implements MinioService {
     }
 
     @Override
+    public String generatePresignedDownloadUrl(String objectName, int expirySeconds) throws Exception {
+        return minioClient.getPresignedObjectUrl(
+                io.minio.GetPresignedObjectUrlArgs.builder()
+                        .method(Method.GET)
+                        .bucket(minioBucketName)
+                        .object(objectName)
+                        .expiry(expirySeconds)
+                        .build()
+        );
+    }
+
+    @Override
     public InputStream getObjectRange(String objectName, Long start, Long end) throws Exception {
         GetObjectArgs.Builder builder = GetObjectArgs.builder()
                 .bucket(minioBucketName)
