@@ -74,4 +74,15 @@ public class UserController extends BaseController<User, UUID, UserRequestDto, U
                         .build()
         );
     }
+
+    @GetMapping("/roles")
+    public ResponseEntity<ResponseData<List<String>>> getRoles() {
+        List<String> roles = List.of("ROLE_ADMIN", "ROLE_STUDENT", "ROLE_TEACHER");
+        return ResponseEntity.ok(ResponseData.<List<String>>builder()
+                .status(200)
+                .message("Roles retrieved successfully")
+                .error(null)
+                .data(roles)
+                .build());
+    }
 }
