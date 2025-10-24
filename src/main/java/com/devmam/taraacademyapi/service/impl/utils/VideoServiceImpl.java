@@ -23,6 +23,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.AccessDeniedException;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -57,32 +58,33 @@ public class VideoServiceImpl implements VideoService {
 
         Optional<Lesson> findingLesson = lessonService.getOne(id);
 
-        if(findingLesson.isEmpty()){
+        if (findingLesson.isEmpty()) {
             throw new CommonException("Lesson not found");
         }
         Lesson lesson = findingLesson.get();
 
-        if(lesson.getStatus() != 1 || lesson.getIsDeleted() == 1) {
+        if (lesson.getStatus() != 1 || lesson.getIsDeleted() == 1) {
 
-            if(authHeader == null) {
+            if (authHeader == null) {
                 throw new AccessDeniedException("Access denied");
             }
 
             UUID userId = jwtService.getUserId(jwtService.getTokenFromAuthHeader(authHeader));
 
-            Optional<UserCourse> findingUserCourse = userCourseService.findByUserIdAndCourseId(userId,lesson.getStage().getCourse().getId());
-            if(findingUserCourse.isEmpty()) {
+            Optional<UserCourse> findingUserCourse = userCourseService.findByUserIdAndCourseId(userId, lesson.getStage().getCourse().getId());
+            if (findingUserCourse.isEmpty()) {
                 throw new AccessDeniedException("Access denied");
             }
-            if(findingUserCourse.get().getStatus() != 1 || findingUserCourse.get().getIsDeleted() == 1) {
+            if (findingUserCourse.get().getStatus() != 1 || findingUserCourse.get().getIsDeleted() == 1
+                    || findingUserCourse.get().getExpiredAt().isBefore(Instant.now())) {
                 throw new AccessDeniedException("Access denied");
             }
 
         }
 
-        Optional<FileUpload> findingFileUpload =  fileUploadService.findByFileTypeAndReferenceId(TableNames.LESSON, lesson.getId());
+        Optional<FileUpload> findingFileUpload = fileUploadService.findByFileTypeAndReferenceId(TableNames.LESSON, lesson.getId());
 
-        if(findingFileUpload.isEmpty()) {
+        if (findingFileUpload.isEmpty()) {
             throw new FileNotFoundException("File not found");
         }
 

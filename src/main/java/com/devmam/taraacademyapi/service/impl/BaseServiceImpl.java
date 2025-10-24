@@ -81,9 +81,62 @@ public abstract class BaseServiceImpl<T, ID> implements BaseService<T, ID> {
     @Override
     @Transactional
     public T update(ID id, T entity) {
-        if (!repository.existsById(id)) {
+        Optional<T> optional = repository.findById(id);
+        if (optional.isEmpty()) {
             throw new IllegalArgumentException("Entity not found for id: " + id);
         }
+
+        setEntityId(entity, id);
+
+        return repository.save(entity);
+    }
+
+
+    /**
+     * Cập nhật entity từ HashMap, tự động bỏ qua trường @Id
+     * @param id ID của entity cần update
+     * @param updates HashMap chứa các trường cần cập nhật và giá trị mới
+     * @return Entity đã được cập nhật
+     */
+    @Transactional
+    public T updateFromMap(ID id, Map<String, Object> updates) {
+        Optional<T> optional = repository.findById(id);
+        T entity = optional.orElseThrow(() ->
+                new IllegalArgumentException("Entity not found for id: " + id));
+
+        if (updates == null || updates.isEmpty()) {
+            return entity;
+        }
+
+        Field idField = getIdField(entity.getClass());
+
+        for (Map.Entry<String, Object> entry : updates.entrySet()) {
+            String fieldName = entry.getKey();
+            Object value = entry.getValue();
+
+            try {
+                Field field = getField(entity.getClass(), fieldName);
+
+                // Bỏ qua trường @Id
+                if (field.equals(idField)) {
+                    continue;
+                }
+
+                field.setAccessible(true);
+                Object convertedValue = convertValue(value, field.getType());
+                field.set(entity, convertedValue);
+
+            } catch (NoSuchFieldException e) {
+                throw new InvalidFieldException(
+                        String.format("Field '%s' không tồn tại trong entity %s",
+                                fieldName, getEntityClass().getSimpleName()));
+            } catch (Exception e) {
+                throw new IllegalStateException(
+                        String.format("Không thể cập nhật field '%s': %s",
+                                fieldName, e.getMessage()), e);
+            }
+        }
+
         return repository.save(entity);
     }
 
@@ -385,5 +438,29 @@ public abstract class BaseServiceImpl<T, ID> implements BaseService<T, ID> {
             return Boolean.parseBoolean(str);
         }
         return value;
+    }
+
+
+    private void setEntityId(T entity, ID id) {
+        try {
+            Field idField = getIdField(entity.getClass());
+            idField.setAccessible(true);
+            idField.set(entity, id);
+        } catch (Exception e) {
+            throw new IllegalStateException("Không thể gán ID cho entity: " + e.getMessage(), e);
+        }
+    }
+
+    private Field getIdField(Class<?> clazz) {
+        Class<?> current = clazz;
+        while (current != null && current != Object.class) {
+            for (Field field : current.getDeclaredFields()) {
+                if (field.isAnnotationPresent(jakarta.persistence.Id.class)) {
+                    return field;
+                }
+            }
+            current = current.getSuperclass();
+        }
+        throw new IllegalStateException("Không tìm thấy field @Id trong class " + clazz.getSimpleName());
     }
 }

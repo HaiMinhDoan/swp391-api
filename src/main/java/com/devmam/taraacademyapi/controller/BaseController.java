@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -320,6 +321,27 @@ public abstract class BaseController<T, ID, RequestDto, ResponseDto> {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ResponseData.<Boolean>builder()
+                            .status(500)
+                            .message("Failed to check " + getEntityName() + " existence")
+                            .error(e.getMessage())
+                            .data(null)
+                            .build());
+        }
+    }
+
+    @PutMapping("/{id}/update-map")
+    public ResponseEntity<ResponseData<ResponseDto>> updateMap(@PathVariable ID id, @RequestBody Map<String, Object> map) {
+        try {
+            T updatedEntity = baseService.updateFromMap(id, map);
+            return ResponseEntity.ok(ResponseData.<ResponseDto>builder()
+                            .status(200)
+                            .message("Map updated successfully")
+                            .error(null)
+                            .data(toResponseDto(updatedEntity))
+                    .build());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ResponseData.<ResponseDto>builder()
                             .status(500)
                             .message("Failed to check " + getEntityName() + " existence")
                             .error(e.getMessage())
