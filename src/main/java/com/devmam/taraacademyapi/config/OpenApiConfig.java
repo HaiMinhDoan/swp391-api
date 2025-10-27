@@ -27,6 +27,7 @@ public class OpenApiConfig {
                         .license(new License().name("Api license").url("https://www.fb.com/license"))
         ).servers(List.of(
                 new Server().url("http://103.161.16.66").description("Production server"),
+                new Server().url("http://103.162.31.111").description("Production Tara server"),
                 new Server().url("http://localhost").description("Development server"),
                 new Server().url("http://localhost:9999").description("Direct API server")
         )).components(
