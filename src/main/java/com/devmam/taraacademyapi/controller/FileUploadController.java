@@ -74,40 +74,42 @@ public class FileUploadController extends BaseController<FileUpload, Integer, Fi
     public ResponseEntity<ResponseData<FileUploadResultDto>> uploadFile(
             @RequestParam("file") MultipartFile file,
             @RequestParam(value = "fileType", required = false) String fileType,
+            @RequestParam(value = "fileRef", required = false) String fileRef,
             @RequestParam(value = "referenceId", required = false) Integer referenceId,
             @RequestParam(value = "description", required = false) String description,
             @RequestParam(value = "status", required = false) Integer status,
             @RequestParam(value = "customFileName", required = false) String customFileName) {
-        
+
         try {
             FileUploadMultipartRequestDto request = FileUploadMultipartRequestDto.builder()
-                .file(file)
-                .fileType(fileType)
-                .referenceId(referenceId)
-                .description(description)
-                .status(status)
-                .customFileName(customFileName)
-                .build();
-                
+                    .file(file)
+                    .fileType(fileType)
+                    .fileRef(fileRef)
+                    .referenceId(referenceId)
+                    .description(description)
+                    .status(status)
+                    .customFileName(customFileName)
+                    .build();
+
             FileUploadResultDto result = fileOperationsService.uploadFile(request);
-            
+
             HttpStatus httpStatus = result.getSuccess() ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST;
-            
+
             return ResponseEntity.status(httpStatus)
-                .body(ResponseData.<FileUploadResultDto>builder()
-                    .status(httpStatus.value())
-                    .message(result.getSuccess() ? "File uploaded successfully" : "File upload failed")
-                    .error(result.getErrorMessage())
-                    .data(result)
-                    .build());
+                    .body(ResponseData.<FileUploadResultDto>builder()
+                            .status(httpStatus.value())
+                            .message(result.getSuccess() ? "File uploaded successfully" : "File upload failed")
+                            .error(result.getErrorMessage())
+                            .data(result)
+                            .build());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ResponseData.<FileUploadResultDto>builder()
-                    .status(500)
-                    .message("File upload failed")
-                    .error(e.getMessage())
-                    .data(null)
-                    .build());
+                    .body(ResponseData.<FileUploadResultDto>builder()
+                            .status(500)
+                            .message("File upload failed")
+                            .error(e.getMessage())
+                            .data(null)
+                            .build());
         }
     }
 
@@ -119,36 +121,38 @@ public class FileUploadController extends BaseController<FileUpload, Integer, Fi
     public ResponseEntity<ResponseData<BulkFileUploadResultDto>> uploadMultipleFiles(
             @RequestParam("files") List<MultipartFile> files,
             @RequestParam(value = "fileType", required = false) String fileType,
+            @RequestParam(value = "fileRef", required = false) String fileRef,
             @RequestParam(value = "referenceId", required = false) Integer referenceId,
             @RequestParam(value = "description", required = false) String description,
             @RequestParam(value = "status", required = false) Integer status) {
-        
+
         try {
             BulkFileUploadRequestDto request = BulkFileUploadRequestDto.builder()
-                .files(files)
-                .fileType(fileType)
-                .referenceId(referenceId)
-                .description(description)
-                .status(status)
-                .build();
-                
+                    .files(files)
+                    .fileType(fileType)
+                    .fileRef(fileRef)
+                    .referenceId(referenceId)
+                    .description(description)
+                    .status(status)
+                    .build();
+
             BulkFileUploadResultDto result = fileOperationsService.uploadMultipleFiles(request);
-            
+
             return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ResponseData.<BulkFileUploadResultDto>builder()
-                    .status(201)
-                    .message("Bulk file upload completed")
-                    .error(null)
-                    .data(result)
-                    .build());
+                    .body(ResponseData.<BulkFileUploadResultDto>builder()
+                            .status(201)
+                            .message("Bulk file upload completed")
+                            .error(null)
+                            .data(result)
+                            .build());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ResponseData.<BulkFileUploadResultDto>builder()
-                    .status(500)
-                    .message("Bulk file upload failed")
-                    .error(e.getMessage())
-                    .data(null)
-                    .build());
+                    .body(ResponseData.<BulkFileUploadResultDto>builder()
+                            .status(500)
+                            .message("Bulk file upload failed")
+                            .error(e.getMessage())
+                            .data(null)
+                            .build());
         }
     }
 
@@ -160,22 +164,22 @@ public class FileUploadController extends BaseController<FileUpload, Integer, Fi
         try {
             byte[] fileData = fileOperationsService.downloadFile(id);
             Optional<FileUpload> fileMetadata = fileOperationsService.getFileMetadata(id);
-            
+
             if (fileMetadata.isEmpty()) {
                 return ResponseEntity.notFound().build();
             }
-            
+
             FileUpload file = fileMetadata.get();
             String contentType = file.getFileType() != null ? file.getFileType() : "application/octet-stream";
-            
+
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.parseMediaType(contentType));
             headers.setContentDispositionFormData("attachment", file.getFileName());
             headers.setContentLength(fileData.length);
-            
+
             return ResponseEntity.ok()
-                .headers(headers)
-                .body(fileData);
+                    .headers(headers)
+                    .body(fileData);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
@@ -188,63 +192,63 @@ public class FileUploadController extends BaseController<FileUpload, Integer, Fi
     public ResponseEntity<ResponseData<FileUploadResponseDto>> getFileMetadata(@PathVariable Integer id) {
         try {
             Optional<FileUpload> fileMetadata = fileOperationsService.getFileMetadata(id);
-            
+
             if (fileMetadata.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(ResponseData.<FileUploadResponseDto>builder()
-                        .status(404)
-                        .message("File not found")
-                        .error("File with id " + id + " not found")
-                        .data(null)
-                        .build());
+                        .body(ResponseData.<FileUploadResponseDto>builder()
+                                .status(404)
+                                .message("File not found")
+                                .error("File with id " + id + " not found")
+                                .data(null)
+                                .build());
             }
-            
+
             FileUploadResponseDto responseDto = toResponseDto(fileMetadata.get());
-            
+
             return ResponseEntity.ok(ResponseData.<FileUploadResponseDto>builder()
-                .status(200)
-                .message("File metadata retrieved successfully")
-                .error(null)
-                .data(responseDto)
-                .build());
+                    .status(200)
+                    .message("File metadata retrieved successfully")
+                    .error(null)
+                    .data(responseDto)
+                    .build());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ResponseData.<FileUploadResponseDto>builder()
-                    .status(500)
-                    .message("Failed to get file metadata")
-                    .error(e.getMessage())
-                    .data(null)
-                    .build());
+                    .body(ResponseData.<FileUploadResponseDto>builder()
+                            .status(500)
+                            .message("Failed to get file metadata")
+                            .error(e.getMessage())
+                            .data(null)
+                            .build());
         }
     }
 
     /**
      * Get files by reference ID and type
      */
-    @GetMapping("/reference/{fileType}/{referenceId}")
+    @GetMapping("/reference/{fileRef}/{referenceId}")
     public ResponseEntity<ResponseData<List<FileUploadResponseDto>>> getFilesByReference(
-            @PathVariable String fileType,
+            @PathVariable String fileRef,
             @PathVariable Integer referenceId) {
         try {
-            List<FileUpload> files = fileOperationsService.getFilesByReference(fileType, referenceId);
+            List<FileUpload> files = fileOperationsService.getFilesByReference(fileRef, referenceId);
             List<FileUploadResponseDto> responseDtos = files.stream()
-                .map(this::toResponseDto)
-                .toList();
-            
+                    .map(this::toResponseDto)
+                    .toList();
+
             return ResponseEntity.ok(ResponseData.<List<FileUploadResponseDto>>builder()
-                .status(200)
-                .message("Files retrieved successfully")
-                .error(null)
-                .data(responseDtos)
-                .build());
+                    .status(200)
+                    .message("Files retrieved successfully")
+                    .error(null)
+                    .data(responseDtos)
+                    .build());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ResponseData.<List<FileUploadResponseDto>>builder()
-                    .status(500)
-                    .message("Failed to get files by reference")
-                    .error(e.getMessage())
-                    .data(null)
-                    .build());
+                    .body(ResponseData.<List<FileUploadResponseDto>>builder()
+                            .status(500)
+                            .message("Failed to get files by reference")
+                            .error(e.getMessage())
+                            .data(null)
+                            .build());
         }
     }
 
@@ -256,23 +260,23 @@ public class FileUploadController extends BaseController<FileUpload, Integer, Fi
         try {
             List<FileUpload> files = fileOperationsService.getFilesByType(fileType);
             List<FileUploadResponseDto> responseDtos = files.stream()
-                .map(this::toResponseDto)
-                .toList();
-            
+                    .map(this::toResponseDto)
+                    .toList();
+
             return ResponseEntity.ok(ResponseData.<List<FileUploadResponseDto>>builder()
-                .status(200)
-                .message("Files retrieved successfully")
-                .error(null)
-                .data(responseDtos)
-                .build());
+                    .status(200)
+                    .message("Files retrieved successfully")
+                    .error(null)
+                    .data(responseDtos)
+                    .build());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ResponseData.<List<FileUploadResponseDto>>builder()
-                    .status(500)
-                    .message("Failed to get files by type")
-                    .error(e.getMessage())
-                    .data(null)
-                    .build());
+                    .body(ResponseData.<List<FileUploadResponseDto>>builder()
+                            .status(500)
+                            .message("Failed to get files by type")
+                            .error(e.getMessage())
+                            .data(null)
+                            .build());
         }
     }
 
@@ -287,21 +291,21 @@ public class FileUploadController extends BaseController<FileUpload, Integer, Fi
             @RequestParam(defaultValue = "3600") int expirySeconds) {
         try {
             String presignedUrl = fileOperationsService.generatePresignedUploadUrl(fileName, contentType, expirySeconds);
-            
+
             return ResponseEntity.ok(ResponseData.<String>builder()
-                .status(200)
-                .message("Presigned upload URL generated successfully")
-                .error(null)
-                .data(presignedUrl)
-                .build());
+                    .status(200)
+                    .message("Presigned upload URL generated successfully")
+                    .error(null)
+                    .data(presignedUrl)
+                    .build());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ResponseData.<String>builder()
-                    .status(500)
-                    .message("Failed to generate presigned upload URL")
-                    .error(e.getMessage())
-                    .data(null)
-                    .build());
+                    .body(ResponseData.<String>builder()
+                            .status(500)
+                            .message("Failed to generate presigned upload URL")
+                            .error(e.getMessage())
+                            .data(null)
+                            .build());
         }
     }
 
@@ -314,21 +318,21 @@ public class FileUploadController extends BaseController<FileUpload, Integer, Fi
             @RequestParam(defaultValue = "3600") int expirySeconds) {
         try {
             String presignedUrl = fileOperationsService.generatePresignedDownloadUrl(objectName, expirySeconds);
-            
+
             return ResponseEntity.ok(ResponseData.<String>builder()
-                .status(200)
-                .message("Presigned download URL generated successfully")
-                .error(null)
-                .data(presignedUrl)
-                .build());
+                    .status(200)
+                    .message("Presigned download URL generated successfully")
+                    .error(null)
+                    .data(presignedUrl)
+                    .build());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ResponseData.<String>builder()
-                    .status(500)
-                    .message("Failed to generate presigned download URL")
-                    .error(e.getMessage())
-                    .data(null)
-                    .build());
+                    .body(ResponseData.<String>builder()
+                            .status(500)
+                            .message("Failed to generate presigned download URL")
+                            .error(e.getMessage())
+                            .data(null)
+                            .build());
         }
     }
 
@@ -344,21 +348,21 @@ public class FileUploadController extends BaseController<FileUpload, Integer, Fi
         try {
             FileUpload updatedFile = fileOperationsService.updateFileMetadata(id, description, status);
             FileUploadResponseDto responseDto = toResponseDto(updatedFile);
-            
+
             return ResponseEntity.ok(ResponseData.<FileUploadResponseDto>builder()
-                .status(200)
-                .message("File metadata updated successfully")
-                .error(null)
-                .data(responseDto)
-                .build());
+                    .status(200)
+                    .message("File metadata updated successfully")
+                    .error(null)
+                    .data(responseDto)
+                    .build());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ResponseData.<FileUploadResponseDto>builder()
-                    .status(500)
-                    .message("Failed to update file metadata")
-                    .error(e.getMessage())
-                    .data(null)
-                    .build());
+                    .body(ResponseData.<FileUploadResponseDto>builder()
+                            .status(500)
+                            .message("Failed to update file metadata")
+                            .error(e.getMessage())
+                            .data(null)
+                            .build());
         }
     }
 
@@ -370,21 +374,21 @@ public class FileUploadController extends BaseController<FileUpload, Integer, Fi
     public ResponseEntity<ResponseData<FileStatisticsDto>> getFileStatistics() {
         try {
             FileStatisticsDto statistics = fileOperationsService.getFileStatistics();
-            
+
             return ResponseEntity.ok(ResponseData.<FileStatisticsDto>builder()
-                .status(200)
-                .message("File statistics retrieved successfully")
-                .error(null)
-                .data(statistics)
-                .build());
+                    .status(200)
+                    .message("File statistics retrieved successfully")
+                    .error(null)
+                    .data(statistics)
+                    .build());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ResponseData.<FileStatisticsDto>builder()
-                    .status(500)
-                    .message("Failed to get file statistics")
-                    .error(e.getMessage())
-                    .data(null)
-                    .build());
+                    .body(ResponseData.<FileStatisticsDto>builder()
+                            .status(500)
+                            .message("Failed to get file statistics")
+                            .error(e.getMessage())
+                            .data(null)
+                            .build());
         }
     }
 
@@ -395,21 +399,21 @@ public class FileUploadController extends BaseController<FileUpload, Integer, Fi
     public ResponseEntity<ResponseData<Boolean>> checkFileExists(@RequestParam String objectName) {
         try {
             boolean exists = fileOperationsService.fileExists(objectName);
-            
+
             return ResponseEntity.ok(ResponseData.<Boolean>builder()
-                .status(200)
-                .message("File existence checked")
-                .error(null)
-                .data(exists)
-                .build());
+                    .status(200)
+                    .message("File existence checked")
+                    .error(null)
+                    .data(exists)
+                    .build());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ResponseData.<Boolean>builder()
-                    .status(500)
-                    .message("Failed to check file existence")
-                    .error(e.getMessage())
-                    .data(null)
-                    .build());
+                    .body(ResponseData.<Boolean>builder()
+                            .status(500)
+                            .message("Failed to check file existence")
+                            .error(e.getMessage())
+                            .data(null)
+                            .build());
         }
     }
 
@@ -421,21 +425,21 @@ public class FileUploadController extends BaseController<FileUpload, Integer, Fi
     public ResponseEntity<ResponseData<List<String>>> listFiles(@RequestParam(required = false) String prefix) {
         try {
             List<String> files = fileOperationsService.listFiles(prefix);
-            
+
             return ResponseEntity.ok(ResponseData.<List<String>>builder()
-                .status(200)
-                .message("Files listed successfully")
-                .error(null)
-                .data(files)
-                .build());
+                    .status(200)
+                    .message("Files listed successfully")
+                    .error(null)
+                    .data(files)
+                    .build());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ResponseData.<List<String>>builder()
-                    .status(500)
-                    .message("Failed to list files")
-                    .error(e.getMessage())
-                    .data(null)
-                    .build());
+                    .body(ResponseData.<List<String>>builder()
+                            .status(500)
+                            .message("Failed to list files")
+                            .error(e.getMessage())
+                            .data(null)
+                            .build());
         }
     }
 
@@ -448,31 +452,31 @@ public class FileUploadController extends BaseController<FileUpload, Integer, Fi
     public ResponseEntity<ResponseData<Void>> delete(@PathVariable Integer id) {
         try {
             boolean deleted = fileOperationsService.deleteFile(id);
-            
+
             if (!deleted) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(ResponseData.<Void>builder()
-                        .status(404)
-                        .message("File not found")
-                        .error("File with id " + id + " not found")
-                        .data(null)
-                        .build());
+                        .body(ResponseData.<Void>builder()
+                                .status(404)
+                                .message("File not found")
+                                .error("File with id " + id + " not found")
+                                .data(null)
+                                .build());
             }
-            
+
             return ResponseEntity.ok(ResponseData.<Void>builder()
-                .status(200)
-                .message("File deleted successfully")
-                .error(null)
-                .data(null)
-                .build());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ResponseData.<Void>builder()
-                    .status(500)
-                    .message("Failed to delete file")
-                    .error(e.getMessage())
+                    .status(200)
+                    .message("File deleted successfully")
+                    .error(null)
                     .data(null)
                     .build());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ResponseData.<Void>builder()
+                            .status(500)
+                            .message("Failed to delete file")
+                            .error(e.getMessage())
+                            .data(null)
+                            .build());
         }
     }
 }

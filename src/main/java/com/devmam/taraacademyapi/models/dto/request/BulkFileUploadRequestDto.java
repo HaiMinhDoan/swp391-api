@@ -20,6 +20,9 @@ public class BulkFileUploadRequestDto {
     
     @Size(max = 100, message = "File type must not exceed 100 characters")
     private String fileType;
+
+    @Size(max = 100, message = "File ref must not exceed 100 characters")
+    private String fileRef;
     
     private Integer referenceId;
     

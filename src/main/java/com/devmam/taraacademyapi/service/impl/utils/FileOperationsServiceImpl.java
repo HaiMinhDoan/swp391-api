@@ -25,49 +25,50 @@ import java.util.stream.Collectors;
 public class FileOperationsServiceImpl implements FileOperationsService {
 
     private static final Logger logger = LoggerFactory.getLogger(FileOperationsServiceImpl.class);
-    
+
     @Autowired
     private MinioService minioService;
-    
+
     @Autowired
     private FileUploadRepository fileUploadRepository;
-    
+
     // Maximum file size: 50MB
     private static final long MAX_FILE_SIZE = 50 * 1024 * 1024;
-    
+
     // Allowed file types
     private static final Set<String> ALLOWED_FILE_TYPES = Set.of(
-        "image/jpeg", "image/png", "image/gif", "image/webp",
-        "application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        "text/plain", "text/csv", "application/zip", "video/mp4", "audio/mpeg"
+            "image/jpeg", "image/png", "image/gif", "image/webp",
+            "application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "text/plain", "text/csv", "application/zip", "video/mp4", "audio/mpeg"
     );
 
     @Override
     public FileUploadResultDto uploadFile(FileUploadMultipartRequestDto request) {
         try {
             MultipartFile file = request.getFile();
-            
+
             // Validate file
             String validationError = validateFile(file);
             if (validationError != null) {
                 return FileUploadResultDto.builder()
-                    .success(false)
-                    .errorMessage(validationError)
-                    .build();
+                        .success(false)
+                        .errorMessage(validationError)
+                        .build();
             }
-            
+
             // Generate unique object name
             String objectName = generateObjectName(file, request.getCustomFileName());
-            
+
             // Upload to MinIO
             String uploadedObjectName = minioService.upload(file, objectName);
-            
+
             // Save metadata to database
             FileUpload fileUpload = new FileUpload();
             fileUpload.setFileName(file.getOriginalFilename());
             fileUpload.setFilePath(uploadedObjectName);
             fileUpload.setFileType(request.getFileType() != null ? request.getFileType() : file.getContentType());
+            fileUpload.setFileRef(request.getFileRef());
             fileUpload.setFileSize(file.getSize());
             fileUpload.setReferenceId(request.getReferenceId());
             fileUpload.setDescription(request.getDescription());
@@ -75,27 +76,27 @@ public class FileOperationsServiceImpl implements FileOperationsService {
             fileUpload.setIsDeleted(0);
             fileUpload.setCreatedAt(Instant.now());
             fileUpload.setUpdatedAt(Instant.now());
-            
+
             FileUpload savedFile = fileUploadRepository.save(fileUpload);
-            
+
             return FileUploadResultDto.builder()
-                .id(savedFile.getId())
-                .fileName(savedFile.getFileName())
-                .filePath(savedFile.getFilePath())
-                .fileType(savedFile.getFileType())
-                .fileSize(savedFile.getFileSize())
-                .publicUrl(minioService.getPublicUrl(uploadedObjectName))
-                .downloadUrl(minioService.generatePresignedDownloadUrl(uploadedObjectName, 3600))
-                .success(true)
-                .uploadedAt(savedFile.getCreatedAt())
-                .build();
-                
+                    .id(savedFile.getId())
+                    .fileName(savedFile.getFileName())
+                    .filePath(savedFile.getFilePath())
+                    .fileType(savedFile.getFileType())
+                    .fileSize(savedFile.getFileSize())
+                    .publicUrl(minioService.getPublicUrl(uploadedObjectName))
+                    .downloadUrl(minioService.generatePresignedDownloadUrl(uploadedObjectName, 3600))
+                    .success(true)
+                    .uploadedAt(savedFile.getCreatedAt())
+                    .build();
+
         } catch (Exception e) {
             logger.error("Error uploading file: {}", e.getMessage(), e);
             return FileUploadResultDto.builder()
-                .success(false)
-                .errorMessage("Upload failed: " + e.getMessage())
-                .build();
+                    .success(false)
+                    .errorMessage("Upload failed: " + e.getMessage())
+                    .build();
         }
     }
 
@@ -105,19 +106,20 @@ public class FileOperationsServiceImpl implements FileOperationsService {
         int successfulUploads = 0;
         int failedUploads = 0;
         long totalSize = 0;
-        
+
         for (MultipartFile file : request.getFiles()) {
             FileUploadMultipartRequestDto singleRequest = FileUploadMultipartRequestDto.builder()
-                .file(file)
-                .fileType(request.getFileType())
-                .referenceId(request.getReferenceId())
-                .description(request.getDescription())
-                .status(request.getStatus())
-                .build();
-                
+                    .file(file)
+                    .fileType(request.getFileType())
+                    .fileRef(request.getFileRef())
+                    .referenceId(request.getReferenceId())
+                    .description(request.getDescription())
+                    .status(request.getStatus())
+                    .build();
+
             FileUploadResultDto result = uploadFile(singleRequest);
             results.add(result);
-            
+
             if (result.getSuccess()) {
                 successfulUploads++;
                 totalSize += result.getFileSize() != null ? result.getFileSize() : 0;
@@ -125,18 +127,18 @@ public class FileOperationsServiceImpl implements FileOperationsService {
                 failedUploads++;
             }
         }
-        
-        String overallStatus = failedUploads == 0 ? "SUCCESS" : 
-                             successfulUploads == 0 ? "FAILED" : "PARTIAL";
-        
+
+        String overallStatus = failedUploads == 0 ? "SUCCESS" :
+                successfulUploads == 0 ? "FAILED" : "PARTIAL";
+
         return BulkFileUploadResultDto.builder()
-            .results(results)
-            .totalFiles(request.getFiles().size())
-            .successfulUploads(successfulUploads)
-            .failedUploads(failedUploads)
-            .totalSize(totalSize)
-            .overallStatus(overallStatus)
-            .build();
+                .results(results)
+                .totalFiles(request.getFiles().size())
+                .successfulUploads(successfulUploads)
+                .failedUploads(failedUploads)
+                .totalSize(totalSize)
+                .overallStatus(overallStatus)
+                .build();
     }
 
     @Override
@@ -145,7 +147,7 @@ public class FileOperationsServiceImpl implements FileOperationsService {
         if (fileUpload.isEmpty()) {
             throw new RuntimeException("File not found with ID: " + fileId);
         }
-        
+
         try {
             return minioService.download(fileUpload.get().getFilePath());
         } catch (Exception e) {
@@ -170,8 +172,8 @@ public class FileOperationsServiceImpl implements FileOperationsService {
     }
 
     @Override
-    public List<FileUpload> getFilesByReference(String fileType, Integer referenceId) {
-        return fileUploadRepository.findActiveFilesByTypeAndReference(fileType, referenceId);
+    public List<FileUpload> getFilesByReference(String fileRef, Integer referenceId) {
+        return fileUploadRepository.findActiveFilesByRefAndReference(fileRef, referenceId);
     }
 
     @Override
@@ -180,16 +182,16 @@ public class FileOperationsServiceImpl implements FileOperationsService {
         if (fileUpload.isEmpty()) {
             return false;
         }
-        
+
         try {
             // Delete from MinIO
             boolean minioDeleted = minioService.delete(fileUpload.get().getFilePath());
-            
+
             // Soft delete from database
             fileUpload.get().setIsDeleted(1);
             fileUpload.get().setUpdatedAt(Instant.now());
             fileUploadRepository.save(fileUpload.get());
-            
+
             return minioDeleted;
         } catch (Exception e) {
             logger.error("Error deleting file with ID {}: {}", fileId, e.getMessage());
@@ -242,10 +244,10 @@ public class FileOperationsServiceImpl implements FileOperationsService {
     public Long getFileSize(String objectName) {
         try {
             return minioService.getMinioClient().statObject(
-                io.minio.StatObjectArgs.builder()
-                    .bucket(minioService.getBucketName())
-                    .object(objectName)
-                    .build()
+                    io.minio.StatObjectArgs.builder()
+                            .bucket(minioService.getBucketName())
+                            .object(objectName)
+                            .build()
             ).size();
         } catch (Exception e) {
             logger.error("Error getting file size for {}: {}", objectName, e.getMessage());
@@ -269,7 +271,7 @@ public class FileOperationsServiceImpl implements FileOperationsService {
         if (fileUpload.isEmpty()) {
             throw new RuntimeException("File not found with ID: " + fileId);
         }
-        
+
         FileUpload file = fileUpload.get();
         if (description != null) {
             file.setDescription(description);
@@ -278,111 +280,111 @@ public class FileOperationsServiceImpl implements FileOperationsService {
             file.setStatus(status);
         }
         file.setUpdatedAt(Instant.now());
-        
+
         return fileUploadRepository.save(file);
     }
 
     @Override
     public List<FileUpload> getFilesByType(String fileType) {
         return fileUploadRepository.findByFileType(fileType).stream()
-            .filter(file -> file.getIsDeleted() == 0)
-            .collect(Collectors.toList());
+                .filter(file -> file.getIsDeleted() == 0)
+                .collect(Collectors.toList());
     }
 
     @Override
     public FileStatisticsDto getFileStatistics() {
         List<FileUpload> allFiles = fileUploadRepository.findAll().stream()
-            .filter(file -> file.getIsDeleted() == 0)
-            .collect(Collectors.toList());
-        
+                .filter(file -> file.getIsDeleted() == 0)
+                .collect(Collectors.toList());
+
         long totalFiles = allFiles.size();
         long totalSize = allFiles.stream()
-            .mapToLong(file -> file.getFileSize() != null ? file.getFileSize() : 0)
-            .sum();
+                .mapToLong(file -> file.getFileSize() != null ? file.getFileSize() : 0)
+                .sum();
         long averageFileSize = totalFiles > 0 ? totalSize / totalFiles : 0;
-        
+
         Map<String, Long> filesByType = allFiles.stream()
-            .collect(Collectors.groupingBy(
-                file -> file.getFileType() != null ? file.getFileType() : "unknown",
-                Collectors.counting()
-            ));
-        
+                .collect(Collectors.groupingBy(
+                        file -> file.getFileType() != null ? file.getFileType() : "unknown",
+                        Collectors.counting()
+                ));
+
         Map<String, Long> filesByStatus = allFiles.stream()
-            .collect(Collectors.groupingBy(
-                file -> file.getStatus() != null ? file.getStatus().toString() : "unknown",
-                Collectors.counting()
-            ));
-        
+                .collect(Collectors.groupingBy(
+                        file -> file.getStatus() != null ? file.getStatus().toString() : "unknown",
+                        Collectors.counting()
+                ));
+
         LocalDate today = LocalDate.now();
         LocalDate weekAgo = today.minusWeeks(1);
         LocalDate monthAgo = today.minusMonths(1);
-        
+
         long filesUploadedToday = allFiles.stream()
-            .filter(file -> file.getCreatedAt() != null && 
-                           file.getCreatedAt().atZone(ZoneId.systemDefault()).toLocalDate().equals(today))
-            .count();
-        
+                .filter(file -> file.getCreatedAt() != null &&
+                        file.getCreatedAt().atZone(ZoneId.systemDefault()).toLocalDate().equals(today))
+                .count();
+
         long filesUploadedThisWeek = allFiles.stream()
-            .filter(file -> file.getCreatedAt() != null && 
-                           file.getCreatedAt().atZone(ZoneId.systemDefault()).toLocalDate().isAfter(weekAgo))
-            .count();
-        
+                .filter(file -> file.getCreatedAt() != null &&
+                        file.getCreatedAt().atZone(ZoneId.systemDefault()).toLocalDate().isAfter(weekAgo))
+                .count();
+
         long filesUploadedThisMonth = allFiles.stream()
-            .filter(file -> file.getCreatedAt() != null && 
-                           file.getCreatedAt().atZone(ZoneId.systemDefault()).toLocalDate().isAfter(monthAgo))
-            .count();
-        
+                .filter(file -> file.getCreatedAt() != null &&
+                        file.getCreatedAt().atZone(ZoneId.systemDefault()).toLocalDate().isAfter(monthAgo))
+                .count();
+
         return FileStatisticsDto.builder()
-            .totalFiles(totalFiles)
-            .totalSize(totalSize)
-            .averageFileSize(averageFileSize)
-            .filesByType(filesByType)
-            .filesByStatus(filesByStatus)
-            .filesUploadedToday(filesUploadedToday)
-            .filesUploadedThisWeek(filesUploadedThisWeek)
-            .filesUploadedThisMonth(filesUploadedThisMonth)
-            .build();
+                .totalFiles(totalFiles)
+                .totalSize(totalSize)
+                .averageFileSize(averageFileSize)
+                .filesByType(filesByType)
+                .filesByStatus(filesByStatus)
+                .filesUploadedToday(filesUploadedToday)
+                .filesUploadedThisWeek(filesUploadedThisWeek)
+                .filesUploadedThisMonth(filesUploadedThisMonth)
+                .build();
     }
-    
+
     private String validateFile(MultipartFile file) {
         if (file.isEmpty()) {
             return "File is empty";
         }
-        
+
         if (file.getSize() > MAX_FILE_SIZE) {
             return "File size exceeds maximum allowed size of 50MB";
         }
-        
+
         String contentType = file.getContentType();
         if (contentType != null && !ALLOWED_FILE_TYPES.contains(contentType)) {
             return "File type not allowed: " + contentType;
         }
-        
+
         return null;
     }
-    
+
     private String generateObjectName(MultipartFile file, String customFileName) {
         String fileName = customFileName != null ? customFileName : file.getOriginalFilename();
         String timestamp = String.valueOf(System.currentTimeMillis());
         String extension = "";
-        
+
         if (fileName != null && fileName.contains(".")) {
             extension = fileName.substring(fileName.lastIndexOf("."));
             fileName = fileName.substring(0, fileName.lastIndexOf("."));
         }
-        
+
         return fileName + "_" + timestamp + extension;
     }
-    
+
     private String generateObjectName(String fileName) {
         String timestamp = String.valueOf(System.currentTimeMillis());
         String extension = "";
-        
+
         if (fileName.contains(".")) {
             extension = fileName.substring(fileName.lastIndexOf("."));
             fileName = fileName.substring(0, fileName.lastIndexOf("."));
         }
-        
+
         return fileName + "_" + timestamp + extension;
     }
 }

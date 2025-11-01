@@ -28,8 +28,8 @@ public class FileUploadService extends BaseServiceImpl<FileUpload, Integer> {
         super(repository);
     }
 
-    public Optional<FileUpload> findByFileTypeAndReferenceId(String fileType, Integer referenceId) {
-        return repository.findByFileTypeAndReferenceId(fileType, referenceId);
+    public Optional<FileUpload> findByFileRefAndReferenceId(String fileType, Integer referenceId) {
+        return repository.findByFileRefAndReferenceId(fileType, referenceId);
     }
     
     public List<FileUpload> findByFileType(String fileType) {
@@ -45,6 +45,6 @@ public class FileUploadService extends BaseServiceImpl<FileUpload, Integer> {
     }
     
     public List<FileUpload> findActiveFilesByTypeAndReference(String fileType, Integer referenceId) {
-        return repository.findActiveFilesByTypeAndReference(fileType, referenceId);
+        return repository.findActiveFilesByRefAndReference(fileType, referenceId);
     }
 }

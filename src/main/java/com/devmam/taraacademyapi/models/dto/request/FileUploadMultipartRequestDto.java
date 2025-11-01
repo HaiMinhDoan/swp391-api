@@ -20,7 +20,10 @@ public class FileUploadMultipartRequestDto {
     
     @Size(max = 100, message = "File type must not exceed 100 characters")
     private String fileType;
-    
+
+    @Size(max = 100, message = "File ref must not exceed 100 characters")
+    private String fileRef;
+
     private Integer referenceId;
     
     @Size(max = 1000, message = "Description must not exceed 1000 characters")

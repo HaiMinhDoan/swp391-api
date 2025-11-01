@@ -39,6 +39,10 @@ public class FileUpload {
     @Column(name = "file_type", length = 100)
     private String fileType;
 
+    @Size(max = 100)
+    @Column(name = "file_ref", length = 100)
+    private String fileRef;
+
     @Column(name = "reference_id")
     private Integer referenceId;
 

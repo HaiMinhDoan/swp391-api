@@ -44,7 +44,7 @@ public interface FileOperationsService {
     /**
      * Get files by reference ID and type
      */
-    List<FileUpload> getFilesByReference(String fileType, Integer referenceId);
+    List<FileUpload> getFilesByReference(String fileRef, Integer referenceId);
     
     /**
      * Delete file by ID

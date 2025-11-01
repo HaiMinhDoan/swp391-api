@@ -12,7 +12,7 @@ import java.util.Optional;
 @Repository
 public interface FileUploadRepository extends JpaRepository<FileUpload, Integer>, JpaSpecificationExecutor<FileUpload> {
 
-    Optional<FileUpload> findByFileTypeAndReferenceId(String fileType, Integer referenceId);
+    Optional<FileUpload> findByFileRefAndReferenceId(String fileRef, Integer referenceId);
     
     List<FileUpload> findByFileType(String fileType);
     
@@ -20,6 +20,6 @@ public interface FileUploadRepository extends JpaRepository<FileUpload, Integer>
     
     List<FileUpload> findByIsDeleted(Integer isDeleted);
     
-    @Query("SELECT f FROM FileUpload f WHERE f.fileType = :fileType AND f.referenceId = :referenceId AND f.isDeleted = 0")
-    List<FileUpload> findActiveFilesByTypeAndReference(String fileType, Integer referenceId);
+    @Query("SELECT f FROM FileUpload f WHERE f.fileRef = :fileRef AND f.referenceId = :referenceId AND f.isDeleted = 0")
+    List<FileUpload> findActiveFilesByRefAndReference(String fileRef, Integer referenceId);
 }

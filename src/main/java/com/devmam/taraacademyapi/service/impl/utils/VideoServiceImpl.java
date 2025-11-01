@@ -82,7 +82,7 @@ public class VideoServiceImpl implements VideoService {
 
         }
 
-        Optional<FileUpload> findingFileUpload = fileUploadService.findByFileTypeAndReferenceId(TableNames.LESSON, lesson.getId());
+        Optional<FileUpload> findingFileUpload = fileUploadService.findByFileRefAndReferenceId(TableNames.LESSON, lesson.getId());
 
         if (findingFileUpload.isEmpty()) {
             throw new FileNotFoundException("File not found");
