@@ -20,7 +20,11 @@ import java.util.stream.Collectors;
 @Setter
 public class TeacherCvResponseDto implements Serializable {
     private final Integer id;
-    private final UUID userId;
+    private final String username;
+    private final String email;
+    private final String fullName;
+    private final String phone;
+    private final String avatarUrl;
     private final String userUsername;
     private final String title;
     private final String description;
@@ -39,7 +43,11 @@ public class TeacherCvResponseDto implements Serializable {
     public static TeacherCvResponseDto toDTO(TeacherCv teacherCv) {
         return TeacherCvResponseDto.builder()
                 .id(teacherCv.getId())
-                .userId(teacherCv.getUser() != null ? teacherCv.getUser().getId() : null)
+                .username(teacherCv.getUser() != null ? teacherCv.getUser().getUsername() : null)
+                .email(teacherCv.getUser() != null ? teacherCv.getUser().getEmail() : null)
+                .fullName(teacherCv.getUser() != null ? teacherCv.getUser().getFullName() : null)
+                .avatarUrl(teacherCv.getUser() != null ? teacherCv.getUser().getAvt() : null)
+                .username(teacherCv.getUser() != null ? teacherCv.getUser().getUsername() : null)
                 .userUsername(teacherCv.getUser() != null ? teacherCv.getUser().getUsername() : null)
                 .title(teacherCv.getTitle())
                 .description(teacherCv.getDescription())
