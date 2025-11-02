@@ -9,6 +9,8 @@ import com.devmam.taraacademyapi.service.impl.entities.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,10 +21,13 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/auth")
+@PreAuthorize("permitAll()")
 public class AuthController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @PostMapping("/register-teacher")
     public ResponseEntity<ResponseData<Void>> registerTeacher(@Valid RegisterDTO dto) {
@@ -32,6 +37,7 @@ public class AuthController {
         }
         User user = RegisterDTO.toEntity(dto);
         user.setRole("ROLE_TEACHER");
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         user = userService.create(user);
         return ResponseEntity.ok()
                 .body(ResponseData.<Void>builder()
@@ -49,6 +55,7 @@ public class AuthController {
             throw new RuntimeException("User already exists");
         }
         User user = RegisterDTO.toEntity(dto);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRole("ROLE_STUDENT");
         user = userService.create(user);
         return ResponseEntity.ok()
