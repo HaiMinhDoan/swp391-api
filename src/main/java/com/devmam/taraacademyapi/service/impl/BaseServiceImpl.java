@@ -10,10 +10,7 @@ import com.devmam.taraacademyapi.service.BaseService;
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.Path;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -302,56 +299,53 @@ public abstract class BaseServiceImpl<T, ID> implements BaseService<T, ID> {
 
         switch (filter.getOperation()) {
             case EQUALS:
-                if (path.getJavaType().equals(UUID.class) && value instanceof String str) {
-                    return cb.equal(path, UUID.fromString(str));
-                }
                 return cb.equal(path, value);
 
             case LESS_THAN:
-                if (value instanceof Comparable comparable) {
-                    return cb.lessThan(path.as(Comparable.class), comparable);
+                if (Comparable.class.isAssignableFrom(path.getJavaType())) {
+                    return cb.lessThan((Expression<? extends Comparable>) path, (Comparable) value);
                 }
-                throw new IllegalArgumentException("Giá trị không phải Comparable cho toán tử LESS_THAN");
+                throw new IllegalArgumentException("Trường '" + filter.getFieldName() + "' không phải kiểu Comparable");
 
             case LESS_THAN_OR_EQUAL:
-                if (value instanceof Comparable comparable) {
-                    return cb.lessThanOrEqualTo(path.as(Comparable.class), comparable);
+                if (Comparable.class.isAssignableFrom(path.getJavaType())) {
+                    return cb.lessThanOrEqualTo((Expression<? extends Comparable>) path, (Comparable) value);
                 }
-                throw new IllegalArgumentException("Giá trị không phải Comparable cho toán tử LESS_THAN_OR_EQUAL");
+                throw new IllegalArgumentException("Trường '" + filter.getFieldName() + "' không phải kiểu Comparable");
 
             case GREATER_THAN:
-                if (value instanceof Comparable comparable) {
-                    return cb.greaterThan(path.as(Comparable.class), comparable);
+                if (Comparable.class.isAssignableFrom(path.getJavaType())) {
+                    return cb.greaterThan((Expression<? extends Comparable>) path, (Comparable) value);
                 }
-                throw new IllegalArgumentException("Giá trị không phải Comparable cho toán tử GREATER_THAN");
+                throw new IllegalArgumentException("Trường '" + filter.getFieldName() + "' không phải kiểu Comparable");
 
             case GREATER_THAN_OR_EQUAL:
-                if (value instanceof Comparable comparable) {
-                    return cb.greaterThanOrEqualTo(path.as(Comparable.class), comparable);
+                if (Comparable.class.isAssignableFrom(path.getJavaType())) {
+                    return cb.greaterThanOrEqualTo((Expression<? extends Comparable>) path, (Comparable) value);
                 }
-                throw new IllegalArgumentException("Giá trị không phải Comparable cho toán tử GREATER_THAN_OR_EQUAL");
+                throw new IllegalArgumentException("Trường '" + filter.getFieldName() + "' không phải kiểu Comparable");
 
             case LIKE:
                 if (value instanceof String str) {
-                    return cb.like(path.as(String.class), "%" + str + "%");
+                    return cb.like(cb.lower((Expression<String>) path), "%" + str.toLowerCase() + "%");
                 }
                 throw new IllegalArgumentException("LIKE chỉ áp dụng cho String");
 
             case ILIKE:
                 if (value instanceof String str) {
-                    return cb.like(cb.lower(path.as(String.class)), "%" + str.toLowerCase() + "%");
+                    return cb.like(cb.lower((Expression<String>) path), "%" + str.toLowerCase() + "%");
                 }
                 throw new IllegalArgumentException("ILIKE chỉ áp dụng cho String");
 
             case IN:
-                if (value instanceof Collection) {
-                    return path.in((Collection<?>) value);
+                if (value instanceof Collection<?> collection) {
+                    return path.in(collection);
                 }
                 return path.in(value);
 
             case NOT_IN:
-                if (value instanceof Collection) {
-                    return cb.not(path.in((Collection<?>) value));
+                if (value instanceof Collection<?> collection) {
+                    return cb.not(path.in(collection));
                 }
                 return cb.not(path.in(value));
 
