@@ -27,8 +27,6 @@ public class RegisterDTO {
     @Size(min = 8, message = "Password must be at least 8 characters")
     String password;
 
-    String customerCode;
-
     @NotBlank(message = "Full name is required")
     @Size(max = 255, message = "Full name must not exceed 255 characters")
     String firstName;
@@ -37,12 +35,14 @@ public class RegisterDTO {
     @Size(max = 255, message = "Full name must not exceed 255 characters")
     String lastName;
 
+    int roleType;
+
     public static User toEntity(RegisterDTO dto) {
         return User.builder()
                 .username(dto.getUsername())
                 .email(dto.getEmail())
                 .password(dto.getPassword())
-                .customerCode(dto.getCustomerCode())
+                .customerCode("")
                 .fullName(dto.getFirstName() + " " + dto.getLastName())
                 .build();
     }

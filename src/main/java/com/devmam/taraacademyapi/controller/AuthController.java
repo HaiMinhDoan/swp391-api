@@ -29,42 +29,39 @@ public class AuthController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @PostMapping("/register-teacher")
-    public ResponseEntity<ResponseData<Void>> registerTeacher(@Valid RegisterDTO dto) {
-        Optional<User> existingUser = userService.findByUsernameOrEmailOrPhone(dto.getUsername(), dto.getEmail());
-        if (existingUser.isPresent()) {
-            throw new RuntimeException("User already exists");
+    @PostMapping("/register")
+    public ResponseEntity<ResponseData<User>> registerStudent(@Valid RegisterDTO dto) {
+        try{
+            Optional<User> existingUser = userService.findByUsernameOrEmailOrPhone(dto.getUsername(), dto.getEmail());
+            if (existingUser.isPresent()) {
+                throw new RuntimeException("User already exists");
+            }
+            User user = RegisterDTO.toEntity(dto);
+            if (dto.getRoleType() == 1) {
+                user.setRole("ROLE_TEACHER");
+            } else {
+                user.setRole("ROLE_STUDENT");
+            }
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+            user = userService.create(user);
+            return ResponseEntity.ok()
+                    .body(ResponseData.<User>builder()
+                            .status(200)
+                            .message("User registered successfully")
+                            .error(null)
+                            .data(user)
+                            .build());
+        }catch(Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(500)
+                    .body(ResponseData.<User>builder()
+                            .status(500)
+                            .message("Failed to register user")
+                            .error(e.getMessage())
+                            .data(null)
+                            .build());
         }
-        User user = RegisterDTO.toEntity(dto);
-        user.setRole("ROLE_TEACHER");
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user = userService.create(user);
-        return ResponseEntity.ok()
-                .body(ResponseData.<Void>builder()
-                        .status(200)
-                        .message("User registered successfully")
-                        .error(null)
-                        .data(null)
-                        .build());
-    }
 
-    @PostMapping("/register-student")
-    public ResponseEntity<ResponseData<Void>> registerStudent(@Valid RegisterDTO dto) {
-        Optional<User> existingUser = userService.findByUsernameOrEmailOrPhone(dto.getUsername(), dto.getEmail());
-        if (existingUser.isPresent()) {
-            throw new RuntimeException("User already exists");
-        }
-        User user = RegisterDTO.toEntity(dto);
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRole("ROLE_STUDENT");
-        user = userService.create(user);
-        return ResponseEntity.ok()
-                .body(ResponseData.<Void>builder()
-                        .status(200)
-                        .message("User registered successfully")
-                        .error(null)
-                        .data(null)
-                        .build());
     }
 
     @PostMapping("/login")
