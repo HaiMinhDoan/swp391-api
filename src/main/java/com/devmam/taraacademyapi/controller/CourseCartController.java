@@ -45,7 +45,7 @@ public class CourseCartController extends BaseController<CourseCart, Integer, Co
     @PostMapping("/add")
     public ResponseEntity<ResponseData<CourseCartResponseDto>> addCourseToCart(
             @RequestBody CourseCartRequestDto courseCartRequestDto,
-            @RequestHeader(value = "Authorization",required = false) String authHeader
+            @RequestHeader(value = "Authorization") String authHeader
     ) {
         String token = jwtService.getTokenFromAuthHeader(authHeader);
         UUID userId = jwtService.getUserId(token);
@@ -54,6 +54,10 @@ public class CourseCartController extends BaseController<CourseCart, Integer, Co
 
         if (findingUser.isEmpty()) {
             throw new EntityNotFoundException("User not found");
+        }
+        Optional<CourseCart> findingCourseCart = this.courseCartService.getByUserIdAndCourseId(userId, courseCartRequestDto.getCourseId());
+        if (findingCourseCart.isPresent()) {
+            throw new CommonException("Course already added to cart");
         }
         CourseCart courseCart = toEntity(courseCartRequestDto);
         courseCart.setUser(findingUser.get());
