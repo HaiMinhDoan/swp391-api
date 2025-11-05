@@ -33,7 +33,7 @@ public class UserController extends BaseController<User, UUID, UserRequestDto, U
 
     @Override
     protected UserResponseDto toResponseDto(User user) {
-        return UserResponseDto.toDTO(user);
+        return UserResponseDto.toDto(user);
     }
 
     @Override

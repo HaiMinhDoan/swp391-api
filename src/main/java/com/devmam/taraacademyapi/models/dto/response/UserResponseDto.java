@@ -1,6 +1,5 @@
 package com.devmam.taraacademyapi.models.dto.response;
 
-import com.devmam.taraacademyapi.models.dto.request.UserRequestDto;
 import com.devmam.taraacademyapi.models.entities.User;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -37,7 +36,7 @@ public class UserResponseDto implements Serializable {
     Integer status;
     Integer isDeleted;
 
-    public static UserResponseDto toDTO(User m) throws UnsupportedOperationException {
+    public static UserResponseDto toDto(User m) throws UnsupportedOperationException {
         return UserResponseDto.builder()
                 .id(m.getId())
                 .username(m.getUsername())
@@ -61,7 +60,7 @@ public class UserResponseDto implements Serializable {
     public static Page<UserResponseDto> convertPage(Page<User> userPage) {
         List<UserResponseDto> userResponseDtos = userPage.getContent()
                 .stream()
-                .map(UserResponseDto::toDTO)
+                .map(UserResponseDto::toDto)
                 .collect(Collectors.toList());
 
         return new PageImpl<>(

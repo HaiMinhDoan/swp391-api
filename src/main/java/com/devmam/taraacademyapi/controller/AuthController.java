@@ -66,7 +66,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<ResponseData<AuthenticationResponse>> login(@Valid LoginDTO dto) throws AuthenticationException {
-        AuthenticationResponse auth = userService.authenticate(dto.getUsernameOrEmail(), dto.getPassword(), dto.getUserAgent());
+        AuthenticationResponse auth = userService.authenticate(dto.getUsernameOrEmail(), dto.getPassword(), "Chrome");
         if (!auth.isAuthenticated()) {
             throw new RuntimeException(auth.getMessage());
         }

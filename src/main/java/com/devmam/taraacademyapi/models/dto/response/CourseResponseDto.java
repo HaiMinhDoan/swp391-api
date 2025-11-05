@@ -42,7 +42,7 @@ public class CourseResponseDto implements Serializable {
     private  Integer status;
     private  Integer isDeleted;
 
-    public static CourseResponseDto toDTO(Course course) {
+    public static CourseResponseDto toDto(Course course) {
         return CourseResponseDto.builder()
                 .id(course.getId())
                 .categoryId(course.getCategory() != null ? course.getCategory().getId() : null)
@@ -71,7 +71,7 @@ public class CourseResponseDto implements Serializable {
     public static Page<CourseResponseDto> convertPage(Page<Course> coursePage) {
         List<CourseResponseDto> courseResponseDTOs = coursePage.getContent()
                 .stream()
-                .map(CourseResponseDto::toDTO)
+                .map(CourseResponseDto::toDto)
                 .collect(Collectors.toList());
 
         return new PageImpl<>(

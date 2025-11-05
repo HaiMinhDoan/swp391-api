@@ -3,7 +3,6 @@ package com.devmam.taraacademyapi.models.dto.response;
 import com.devmam.taraacademyapi.models.entities.UserCourse;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.springframework.data.domain.Page;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -35,8 +34,8 @@ public class HistoryUserCourse {
     public static HistoryUserCourse toDTO(UserCourse userCourse) {
         return HistoryUserCourse.builder()
                 .id(userCourse.getId())
-                .user(UserResponseDto.toDTO(userCourse.getUser()))
-                .course(CourseResponseDto.toDTO(userCourse.getCourse()))
+                .user(UserResponseDto.toDto(userCourse.getUser()))
+                .course(CourseResponseDto.toDto(userCourse.getCourse()))
                 .tran(TranResponseDto.toDTO(userCourse.getTran()))
                 .enrolledAt(userCourse.getEnrolledAt())
                 .expiredAt(userCourse.getExpiredAt())

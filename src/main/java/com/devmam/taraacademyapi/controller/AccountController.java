@@ -4,7 +4,6 @@ import com.devmam.taraacademyapi.exception.customize.CommonException;
 import com.devmam.taraacademyapi.models.dto.request.ChangePasswordRequest;
 import com.devmam.taraacademyapi.models.dto.response.*;
 import com.devmam.taraacademyapi.models.entities.User;
-import com.devmam.taraacademyapi.models.entities.UserCourse;
 import com.devmam.taraacademyapi.service.JwtService;
 import com.devmam.taraacademyapi.service.impl.entities.UserCourseService;
 import com.devmam.taraacademyapi.service.impl.entities.UserService;
@@ -45,7 +44,7 @@ public class AccountController {
         if (findingUser.isEmpty()) {
             throw new CommonException("User not found");
         }
-        UserResponseDto userResponseDto = UserResponseDto.toDTO(findingUser.get());
+        UserResponseDto userResponseDto = UserResponseDto.toDto(findingUser.get());
         return ResponseEntity.ok(ResponseData.<UserResponseDto>builder()
                 .status(200)
                 .message("User profile retrieved successfully")

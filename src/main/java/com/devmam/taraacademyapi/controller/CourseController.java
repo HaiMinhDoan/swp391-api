@@ -10,17 +10,14 @@ import com.devmam.taraacademyapi.service.JwtService;
 import com.devmam.taraacademyapi.service.impl.entities.CourseCategoryService;
 import com.devmam.taraacademyapi.service.impl.entities.CourseService;
 import com.devmam.taraacademyapi.service.impl.entities.UserService;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -44,7 +41,7 @@ public class CourseController extends BaseController<Course, Integer, CourseRequ
 
     @Override
     protected CourseResponseDto toResponseDto(Course course) {
-        return CourseResponseDto.toDTO(course);
+        return CourseResponseDto.toDto(course);
     }
 
     @Override

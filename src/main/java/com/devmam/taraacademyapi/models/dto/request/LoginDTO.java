@@ -14,9 +14,6 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class LoginDTO {
 
-    @NotBlank(message = "UserAgent is required")
-    String userAgent;
-
     @NotBlank(message = "Username or email is required")
     String usernameOrEmail;
 
