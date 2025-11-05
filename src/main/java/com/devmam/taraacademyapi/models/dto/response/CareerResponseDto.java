@@ -24,6 +24,11 @@ public class CareerResponseDto implements Serializable {
     private final String description;
     private final UUID createdById;
     private final String createdByUsername;
+    private final String createdByFullName;
+    private final String createdByPhone;
+    private final String createdByAvatarUrl;
+    private final String createdByUserUsername;
+    private final String createdByEmail;
     private final Instant createdAt;
     private final Instant updatedAt;
     private final Integer status;
@@ -36,6 +41,11 @@ public class CareerResponseDto implements Serializable {
                 .description(career.getDescription())
                 .createdById(career.getCreatedBy() != null ? career.getCreatedBy().getId() : null)
                 .createdByUsername(career.getCreatedBy() != null ? career.getCreatedBy().getUsername() : null)
+                .createdByFullName(career.getCreatedBy() != null ? career.getCreatedBy().getFullName() : null)
+                .createdByPhone(career.getCreatedBy() != null ? career.getCreatedBy().getPhone() : null)
+                .createdByAvatarUrl(career.getCreatedBy() != null ? career.getCreatedBy().getAvt() : null)
+                .createdByUserUsername(career.getCreatedBy() != null ? career.getCreatedBy().getUsername() : null)
+                .createdByEmail(career.getCreatedBy() != null ? career.getCreatedBy().getEmail() : null)
                 .createdAt(career.getCreatedAt())
                 .updatedAt(career.getUpdatedAt())
                 .status(career.getStatus())

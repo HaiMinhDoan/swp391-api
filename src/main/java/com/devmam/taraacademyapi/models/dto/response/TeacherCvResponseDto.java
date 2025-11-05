@@ -35,6 +35,11 @@ public class TeacherCvResponseDto implements Serializable {
     private final String certificates;
     private final UUID createdById;
     private final String createdByUsername;
+    private final String createdByFullName;
+    private final String createdByPhone;
+    private final String createdByAvatarUrl;
+    private final String createdByUserUsername;
+    private final String createdByEmail;
     private final Instant createdAt;
     private final Instant updatedAt;
     private final Integer status;
@@ -58,6 +63,11 @@ public class TeacherCvResponseDto implements Serializable {
                 .certificates(teacherCv.getCertificates())
                 .createdById(teacherCv.getCreatedBy() != null ? teacherCv.getCreatedBy().getId() : null)
                 .createdByUsername(teacherCv.getCreatedBy() != null ? teacherCv.getCreatedBy().getUsername() : null)
+                .createdByFullName(teacherCv.getCreatedBy() != null ? teacherCv.getCreatedBy().getFullName() : null)
+                .createdByPhone(teacherCv.getCreatedBy() != null ? teacherCv.getCreatedBy().getPhone() : null)
+                .createdByAvatarUrl(teacherCv.getCreatedBy() != null ? teacherCv.getCreatedBy().getAvt() : null)
+                .createdByUserUsername(teacherCv.getCreatedBy() != null ? teacherCv.getCreatedBy().getUsername() : null)
+                .createdByEmail(teacherCv.getCreatedBy() != null ? teacherCv.getCreatedBy().getEmail() : null)
                 .createdAt(teacherCv.getCreatedAt())
                 .updatedAt(teacherCv.getUpdatedAt())
                 .status(teacherCv.getStatus())

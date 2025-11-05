@@ -27,6 +27,11 @@ public class SlideResponseDto implements Serializable {
     private final Integer orderIndex;
     private final UUID createdById;
     private final String createdByUsername;
+    private final String createdByFullName;
+    private final String createdByPhone;
+    private final String createdByAvatarUrl;
+    private final String createdByUserUsername;
+    private final String createdByEmail;
     private final Instant createdAt;
     private final Instant updatedAt;
     private final Integer status;
@@ -42,6 +47,11 @@ public class SlideResponseDto implements Serializable {
                 .orderIndex(slide.getOrderIndex())
                 .createdById(slide.getCreatedBy() != null ? slide.getCreatedBy().getId() : null)
                 .createdByUsername(slide.getCreatedBy() != null ? slide.getCreatedBy().getUsername() : null)
+                .createdByFullName(slide.getCreatedBy() != null ? slide.getCreatedBy().getFullName() : null)
+                .createdByPhone(slide.getCreatedBy() != null ? slide.getCreatedBy().getPhone() : null)
+                .createdByAvatarUrl(slide.getCreatedBy() != null ? slide.getCreatedBy().getAvt() : null)
+                .createdByUserUsername(slide.getCreatedBy() != null ? slide.getCreatedBy().getUsername() : null)
+                .createdByEmail(slide.getCreatedBy() != null ? slide.getCreatedBy().getEmail() : null)
                 .createdAt(slide.getCreatedAt())
                 .updatedAt(slide.getUpdatedAt())
                 .status(slide.getStatus())

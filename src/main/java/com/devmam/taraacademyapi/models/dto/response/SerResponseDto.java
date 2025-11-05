@@ -28,6 +28,11 @@ public class SerResponseDto implements Serializable {
     private final String thumnail;
     private final UUID createdById;
     private final String createdByUsername;
+    private final String createdByFullName;
+    private final String createdByPhone;
+    private final String createdByAvatarUrl;
+    private final String createdByUserUsername;
+    private final String createdByEmail;
     private final Instant createdAt;
     private final Instant updatedAt;
     private final Integer status;
@@ -43,6 +48,11 @@ public class SerResponseDto implements Serializable {
                 .thumnail(ser.getThumnail())
                 .createdById(ser.getCreatedBy() != null ? ser.getCreatedBy().getId() : null)
                 .createdByUsername(ser.getCreatedBy() != null ? ser.getCreatedBy().getUsername() : null)
+                .createdByFullName(ser.getCreatedBy() != null ? ser.getCreatedBy().getFullName() : null)
+                .createdByPhone(ser.getCreatedBy() != null ? ser.getCreatedBy().getPhone() : null)
+                .createdByAvatarUrl(ser.getCreatedBy() != null ? ser.getCreatedBy().getAvt() : null)
+                .createdByUserUsername(ser.getCreatedBy() != null ? ser.getCreatedBy().getUsername() : null)
+                .createdByEmail(ser.getCreatedBy() != null ? ser.getCreatedBy().getEmail() : null)
                 .createdAt(ser.getCreatedAt())
                 .updatedAt(ser.getUpdatedAt())
                 .status(ser.getStatus())

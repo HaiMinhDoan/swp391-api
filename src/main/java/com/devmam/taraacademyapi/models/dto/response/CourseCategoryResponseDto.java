@@ -24,6 +24,11 @@ public class CourseCategoryResponseDto implements Serializable {
     private final String description;
     private final UUID createdById;
     private final String createdByUsername;
+    private final String createdByFullName;
+    private final String createdByPhone;
+    private final String createdByAvatarUrl;
+    private final String createdByUserUsername;
+    private final String createdByEmail;
     private final Instant createdAt;
     private final Instant updatedAt;
     private final Integer status;
@@ -36,6 +41,11 @@ public class CourseCategoryResponseDto implements Serializable {
                 .description(courseCategory.getDescription())
                 .createdById(courseCategory.getCreatedBy() != null ? courseCategory.getCreatedBy().getId() : null)
                 .createdByUsername(courseCategory.getCreatedBy() != null ? courseCategory.getCreatedBy().getUsername() : null)
+                .createdByFullName(courseCategory.getCreatedBy() != null ? courseCategory.getCreatedBy().getFullName() : null)
+                .createdByPhone(courseCategory.getCreatedBy() != null ? courseCategory.getCreatedBy().getPhone() : null)
+                .createdByAvatarUrl(courseCategory.getCreatedBy() != null ? courseCategory.getCreatedBy().getAvt() : null)
+                .createdByUserUsername(courseCategory.getCreatedBy() != null ? courseCategory.getCreatedBy().getUsername() : null)
+                .createdByEmail(courseCategory.getCreatedBy() != null ? courseCategory.getCreatedBy().getEmail() : null)
                 .createdAt(courseCategory.getCreatedAt())
                 .updatedAt(courseCategory.getUpdatedAt())
                 .status(courseCategory.getStatus())

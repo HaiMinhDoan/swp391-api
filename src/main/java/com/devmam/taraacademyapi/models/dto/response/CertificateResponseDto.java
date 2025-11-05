@@ -27,6 +27,11 @@ public class CertificateResponseDto implements Serializable {
     private final String imgUrl;
     private final UUID createdById;
     private final String createdByUsername;
+    private final String createdByFullName;
+    private final String createdByPhone;
+    private final String createdByAvatarUrl;
+    private final String createdByUserUsername;
+    private final String createdByEmail;
     private final Instant createdAt;
     private final Instant updatedAt;
     private final Integer status;
@@ -42,6 +47,11 @@ public class CertificateResponseDto implements Serializable {
                 .imgUrl(certificate.getImgUrl())
                 .createdById(certificate.getCreatedBy() != null ? certificate.getCreatedBy().getId() : null)
                 .createdByUsername(certificate.getCreatedBy() != null ? certificate.getCreatedBy().getUsername() : null)
+                .createdByFullName(certificate.getCreatedBy() != null ? certificate.getCreatedBy().getFullName() : null)
+                .createdByPhone(certificate.getCreatedBy() != null ? certificate.getCreatedBy().getPhone() : null)
+                .createdByAvatarUrl(certificate.getCreatedBy() != null ? certificate.getCreatedBy().getAvt() : null)
+                .createdByUserUsername(certificate.getCreatedBy() != null ? certificate.getCreatedBy().getUsername() : null)
+                .createdByEmail(certificate.getCreatedBy() != null ? certificate.getCreatedBy().getEmail() : null)
                 .createdAt(certificate.getCreatedAt())
                 .updatedAt(certificate.getUpdatedAt())
                 .status(certificate.getStatus())

@@ -32,6 +32,11 @@ public class CourseResponseDto implements Serializable {
     private  Integer saleOff;
     private  UUID createdById;
     private  String createdByUsername;
+    private  String createdByFullName;
+    private  String createdByPhone;
+    private  String createdByAvatarUrl;
+    private  String createdByUserUsername;
+    private  String createdByEmail;
     private  Instant createdAt;
     private  Instant updatedAt;
     private  Integer status;
@@ -51,6 +56,11 @@ public class CourseResponseDto implements Serializable {
                 .saleOff(course.getSaleOff())
                 .createdById(course.getCreatedBy() != null ? course.getCreatedBy().getId() : null)
                 .createdByUsername(course.getCreatedBy() != null ? course.getCreatedBy().getUsername() : null)
+                .createdByFullName(course.getCreatedBy() != null ? course.getCreatedBy().getFullName() : null)
+                .createdByPhone(course.getCreatedBy() != null ? course.getCreatedBy().getPhone() : null)
+                .createdByAvatarUrl(course.getCreatedBy() != null ? course.getCreatedBy().getAvt() : null)
+                .createdByUserUsername(course.getCreatedBy() != null ? course.getCreatedBy().getUsername() : null)
+                .createdByEmail(course.getCreatedBy() != null ? course.getCreatedBy().getEmail() : null)
                 .createdAt(course.getCreatedAt())
                 .updatedAt(course.getUpdatedAt())
                 .status(course.getStatus())
