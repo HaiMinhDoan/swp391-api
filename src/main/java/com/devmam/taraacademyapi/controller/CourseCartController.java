@@ -99,7 +99,7 @@ public class CourseCartController extends BaseController<CourseCart, Integer, Co
 
     @Override
     protected String getEntityName() {
-        return "";
+        return "CourseCart";
     }
 
 }
