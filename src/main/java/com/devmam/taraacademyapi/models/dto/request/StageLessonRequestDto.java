@@ -13,6 +13,8 @@ import lombok.*;
 @Setter
 public class StageLessonRequestDto {
     
+    private Integer courseId;
+    
     @Size(max = 255, message = "Name must not exceed 255 characters")
     private String name;
     

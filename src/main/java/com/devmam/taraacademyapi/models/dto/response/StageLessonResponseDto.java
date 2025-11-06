@@ -30,7 +30,7 @@ public class StageLessonResponseDto implements Serializable {
     public static StageLessonResponseDto toDTO(StageLesson stageLesson) {
         return StageLessonResponseDto.builder()
                 .id(stageLesson.getId())
-//                .name(stageLesson.getName())
+                .name(stageLesson.getTitle())
                 .description(stageLesson.getDescription())
                 .orderIndex(stageLesson.getOrderIndex())
                 .createdAt(stageLesson.getCreatedAt())
