@@ -16,6 +16,7 @@ import com.devmam.taraacademyapi.service.JwtService;
 import com.devmam.taraacademyapi.service.impl.BaseServiceImpl;
 import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,6 +44,9 @@ public class LessonService extends BaseServiceImpl<Lesson, Integer> {
 
     @Autowired
     private UserService userService;
+    
+    @Autowired
+    private LessonRepository lessonRepository;
 
     @Override
     protected EntityManager getEntityManager() {
@@ -51,6 +55,53 @@ public class LessonService extends BaseServiceImpl<Lesson, Integer> {
 
     public LessonService(LessonRepository repository) {
         super(repository);
+    }
+    
+    @Override
+    @Transactional
+    public Lesson create(Lesson entity) {
+        // Validate unique constraint: stage_id + order_index
+        if (entity.getStage() != null && entity.getStage().getId() != null && entity.getOrderIndex() != null) {
+            Optional<Lesson> existing = lessonRepository.findByStageIdAndOrderIndex(
+                    entity.getStage().getId(), 
+                    entity.getOrderIndex()
+            );
+            if (existing.isPresent()) {
+                CommonException exception = new CommonException(
+                        String.format("Lesson với stage_id=%d và order_index=%d đã tồn tại", 
+                                entity.getStage().getId(), 
+                                entity.getOrderIndex())
+                );
+                exception.setHttpStatus(HttpStatus.CONFLICT);
+                exception.setData(null);
+                throw exception;
+            }
+        }
+        return super.create(entity);
+    }
+    
+    @Override
+    @Transactional
+    public Lesson update(Integer id, Lesson entity) {
+        // Validate unique constraint: stage_id + order_index (excluding current id)
+        if (entity.getStage() != null && entity.getStage().getId() != null && entity.getOrderIndex() != null) {
+            Optional<Lesson> existing = lessonRepository.findByStageIdAndOrderIndexExcludingId(
+                    entity.getStage().getId(), 
+                    entity.getOrderIndex(),
+                    id
+            );
+            if (existing.isPresent()) {
+                CommonException exception = new CommonException(
+                        String.format("Lesson với stage_id=%d và order_index=%d đã tồn tại", 
+                                entity.getStage().getId(), 
+                                entity.getOrderIndex())
+                );
+                exception.setHttpStatus(HttpStatus.CONFLICT);
+                exception.setData(null);
+                throw exception;
+            }
+        }
+        return super.update(id, entity);
     }
 
     @Transactional
