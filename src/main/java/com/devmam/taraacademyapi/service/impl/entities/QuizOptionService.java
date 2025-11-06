@@ -6,12 +6,16 @@ import com.devmam.taraacademyapi.service.impl.BaseServiceImpl;
 import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class QuizOptionService extends BaseServiceImpl<QuizOption, Integer> {
 
     @Autowired
     private EntityManager entityManager;
+    
+    @Autowired
+    private QuizOptionRepository quizOptionRepository;
 
     @Override
     protected EntityManager getEntityManager() {
@@ -20,5 +24,14 @@ public class QuizOptionService extends BaseServiceImpl<QuizOption, Integer> {
 
     public QuizOptionService(QuizOptionRepository repository) {
         super(repository);
+    }
+    
+    @Transactional
+    public void deleteAllByQuizId(Integer quizId) {
+        quizOptionRepository.deleteAllByQuizId(quizId);
+    }
+    
+    public long countByQuizId(Integer quizId) {
+        return quizOptionRepository.findByQuizId(quizId).size();
     }
 }

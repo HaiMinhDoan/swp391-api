@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 public class QuizOptionResponseDto implements Serializable {
     private final Integer id;
     private final Integer quizId;
-    private final String quizQuestion;
     private final String optionText;
     private final Boolean isCorrect;
     private final Integer orderIndex;
@@ -33,9 +32,8 @@ public class QuizOptionResponseDto implements Serializable {
         return QuizOptionResponseDto.builder()
                 .id(quizOption.getId())
                 .quizId(quizOption.getQuiz() != null ? quizOption.getQuiz().getId() : null)
-                .quizQuestion(quizOption.getQuiz() != null ? quizOption.getQuiz().getQuestion() : null)
-//                .optionText(quizOption.getOptionText())
                 .isCorrect(quizOption.getIsCorrect())
+                .optionText(quizOption.getContent())
 //                .orderIndex(quizOption.getOrderIndex())
                 .createdAt(quizOption.getCreatedAt())
                 .updatedAt(quizOption.getUpdatedAt())
