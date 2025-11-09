@@ -94,6 +94,9 @@ public class CourseCartController extends BaseController<CourseCart, Integer, Co
 
     @Override
     protected Page<CourseCartResponseDto> convertPage(Page<CourseCart> entityPage) {
+        if (entityPage != null) {
+
+        }
         return null;
     }
 
