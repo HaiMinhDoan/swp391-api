@@ -6,10 +6,12 @@ import com.devmam.taraacademyapi.models.dto.response.LessonResponseDto;
 import com.devmam.taraacademyapi.models.dto.response.ResponseData;
 import com.devmam.taraacademyapi.models.entities.Lesson;
 import com.devmam.taraacademyapi.models.entities.StageLesson;
+import com.devmam.taraacademyapi.repository.QuizRepository;
 import com.devmam.taraacademyapi.service.impl.entities.LessonService;
 import com.devmam.taraacademyapi.service.impl.entities.StageLessonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Instant;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/lessons")
@@ -28,6 +31,9 @@ public class LessonController extends BaseController<Lesson, Integer, LessonRequ
 
     @Autowired
     private LessonService lessonService;
+
+    @Autowired
+    private QuizRepository quizRepository;
 
     public LessonController(LessonService lessonService) {
         super(lessonService);
@@ -78,5 +84,41 @@ public class LessonController extends BaseController<Lesson, Integer, LessonRequ
     @Override
     protected String getEntityName() {
         return "Lesson";
+    }
+
+    @Override
+    @GetMapping("/{id}")
+    public ResponseEntity<ResponseData<LessonResponseDto>> getById(@PathVariable Integer id) {
+        try {
+            Optional<Lesson> entity = lessonService.getOne(id);
+            if (entity.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(ResponseData.<LessonResponseDto>builder()
+                                .status(404)
+                                .message(getEntityName() + " not found")
+                                .error(getEntityName() + " with id " + id + " not found")
+                                .data(null)
+                                .build());
+            }
+
+            Lesson lesson = entity.get();
+            Long quizCount = quizRepository.countByLessonId(lesson.getId());
+            LessonResponseDto responseDto = LessonResponseDto.toDTOWithQuizCount(lesson, quizCount);
+            
+            return ResponseEntity.ok(ResponseData.<LessonResponseDto>builder()
+                    .status(200)
+                    .message(getEntityName() + " found")
+                    .error(null)
+                    .data(responseDto)
+                    .build());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ResponseData.<LessonResponseDto>builder()
+                            .status(500)
+                            .message("Failed to get " + getEntityName())
+                            .error(e.getMessage())
+                            .data(null)
+                            .build());
+        }
     }
 }

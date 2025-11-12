@@ -7,6 +7,7 @@ import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -31,6 +32,10 @@ public class UserCourseService extends BaseServiceImpl<UserCourse, Integer> {
 
     public Optional<UserCourse> findByUserIdAndCourseId(UUID userId, Integer courseId) {
         return userCourseRepository.findByUserIdAndCourseId(userId, courseId);
+    }
+
+    public Optional<UserCourse> findByUserIdAndCourseIdActive(UUID userId, Integer courseId) {
+        return userCourseRepository.findByUserIdAndCourseIdActive(userId, courseId, Instant.now());
     }
 
     public List<UserCourse> getByUserId(UUID userId) {

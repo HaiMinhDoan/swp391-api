@@ -34,6 +34,8 @@ public class UserCourseResponseDto implements Serializable {
     private Instant updatedAt;
     private Integer status;
     private Integer isDeleted;
+    private Integer currentStageId;
+    private Integer currentLessonId;
 
     public static UserCourseResponseDto toDTO(UserCourse userCourse) {
         return UserCourseResponseDto.builder()
@@ -44,7 +46,9 @@ public class UserCourseResponseDto implements Serializable {
                 .courseTitle(userCourse.getCourse() != null ? userCourse.getCourse().getTitle() : null)
                 .enrolledAt(userCourse.getEnrolledAt())
                 .completedAt(userCourse.getCompletedAt())
-//                .progress(userCourse.getProgress())
+                .progress(userCourse.getProgress().intValue())
+                .currentStageId(userCourse.getCurrentStageId())
+                .currentLessonId(userCourse.getCurrentLessonId())
                 .createdAt(userCourse.getCreatedAt())
                 .updatedAt(userCourse.getUpdatedAt())
                 .status(userCourse.getStatus())

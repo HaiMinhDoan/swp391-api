@@ -29,6 +29,7 @@ public class LessonResponseDto implements Serializable {
     private final Instant updatedAt;
     private final Integer status;
     private final Integer isDeleted;
+    private final Long quizCount;
 
     public static LessonResponseDto toDTO(Lesson lesson) {
         return LessonResponseDto.builder()
@@ -43,6 +44,24 @@ public class LessonResponseDto implements Serializable {
                 .updatedAt(lesson.getUpdatedAt())
                 .status(lesson.getStatus())
                 .isDeleted(lesson.getIsDeleted())
+                .quizCount(null)
+                .build();
+    }
+
+    public static LessonResponseDto toDTOWithQuizCount(Lesson lesson, Long quizCount) {
+        return LessonResponseDto.builder()
+                .id(lesson.getId())
+                .stageId(lesson.getStage() != null ? lesson.getStage().getId() : null)
+                .stageName(lesson.getStage() != null ? lesson.getStage().getTitle() : null)
+                .title(lesson.getTitle())
+                .content(lesson.getContent())
+                .videoUrl(lesson.getVideoUrl())
+                .orderIndex(lesson.getOrderIndex())
+                .createdAt(lesson.getCreatedAt())
+                .updatedAt(lesson.getUpdatedAt())
+                .status(lesson.getStatus())
+                .isDeleted(lesson.getIsDeleted())
+                .quizCount(quizCount)
                 .build();
     }
 

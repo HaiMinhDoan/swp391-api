@@ -1,6 +1,7 @@
 package com.devmam.taraacademyapi.controller;
 
 import com.devmam.taraacademyapi.models.dto.request.UserCourseRequestDto;
+import com.devmam.taraacademyapi.models.dto.response.ResponseData;
 import com.devmam.taraacademyapi.models.dto.response.UserCourseResponseDto;
 import com.devmam.taraacademyapi.models.entities.Course;
 import com.devmam.taraacademyapi.models.entities.User;
@@ -10,12 +11,14 @@ import com.devmam.taraacademyapi.service.impl.entities.UserCourseService;
 import com.devmam.taraacademyapi.service.impl.entities.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
+import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/user-courses")
@@ -28,8 +31,11 @@ public class UserCourseController extends BaseController<UserCourse, Integer, Us
     @Autowired
     private CourseService courseService;
 
+    private final UserCourseService userCourseService;
+
     public UserCourseController(UserCourseService userCourseService) {
         super(userCourseService);
+        this.userCourseService = userCourseService;
     }
 
     @Override
@@ -72,5 +78,40 @@ public class UserCourseController extends BaseController<UserCourse, Integer, Us
     @Override
     protected String getEntityName() {
         return "UserCourse";
+    }
+
+    @GetMapping("/detail")
+    public ResponseEntity<ResponseData<UserCourseResponseDto>> getDetailByUserIdAndCourseId(
+            @RequestParam UUID userId,
+            @RequestParam Integer courseId) {
+        try {
+            Optional<UserCourse> userCourse = userCourseService.findByUserIdAndCourseIdActive(userId, courseId);
+            
+            if (userCourse.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(ResponseData.<UserCourseResponseDto>builder()
+                                .status(404)
+                                .message("UserCourse not found or expired")
+                                .error("UserCourse with userId " + userId + " and courseId " + courseId + " not found, expired, or inactive")
+                                .data(null)
+                                .build());
+            }
+
+            UserCourseResponseDto responseDto = toResponseDto(userCourse.get());
+            return ResponseEntity.ok(ResponseData.<UserCourseResponseDto>builder()
+                    .status(200)
+                    .message("UserCourse found successfully")
+                    .error(null)
+                    .data(responseDto)
+                    .build());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ResponseData.<UserCourseResponseDto>builder()
+                            .status(500)
+                            .message("Failed to get UserCourse detail")
+                            .error(e.getMessage())
+                            .data(null)
+                            .build());
+        }
     }
 }

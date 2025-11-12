@@ -1,0 +1,203 @@
+═══════════════════════════════════════════════════════════════
+  HƯỚNG DẪN SỬ DỤNG API FILTER
+═══════════════════════════════════════════════════════════════
+
+1. ENDPOINT
+───────────────────────────────────────────────────────────────
+POST /api/v1/{resource}/filter
+
+Ví dụ:
+- POST /api/v1/careers/filter
+- POST /api/v1/slides/filter
+- POST /api/v1/courses/filter
+
+
+2. REQUEST BODY
+───────────────────────────────────────────────────────────────
+{
+  "filters": [...],      // Danh sách điều kiện lọc
+  "sorts": [...],        // Danh sách sắp xếp
+  "page": 0,             // Số trang (mặc định: 0)
+  "size": 20             // Số bản ghi/trang (mặc định: 20)
+}
+
+
+3. FILTER CRITERIA
+───────────────────────────────────────────────────────────────
+Mỗi filter có cấu trúc:
+{
+  "fieldName": "tên_trường",     // Tên trường cần lọc
+  "operation": "TOÁN_TỬ",        // Toán tử so sánh
+  "value": giá_trị,              // Giá trị so sánh
+  "logicType": "AND"             // AND hoặc OR (mặc định: AND)
+}
+
+
+4. CÁC TOÁN TỬ FILTER (FilterOperation)
+───────────────────────────────────────────────────────────────
+EQUALS                  → Bằng chính xác
+LIKE                    → Chứa chuỗi (phân biệt hoa thường)
+ILIKE                   → Chứa chuỗi (không phân biệt hoa thường)
+GREATER_THAN            → Lớn hơn
+GREATER_THAN_OR_EQUAL   → Lớn hơn hoặc bằng
+LESS_THAN               → Nhỏ hơn
+LESS_THAN_OR_EQUAL      → Nhỏ hơn hoặc bằng
+IN                      → Nằm trong danh sách
+NOT_IN                  → Không nằm trong danh sách
+
+
+5. LOGIC TYPE
+───────────────────────────────────────────────────────────────
+AND  → Kết hợp với điều kiện trước bằng AND
+OR   → Kết hợp với điều kiện trước bằng OR
+
+Lưu ý: Tất cả điều kiện AND được nhóm lại, 
+       tất cả điều kiện OR được nhóm lại,
+       sau đó kết hợp: (ANDs) AND (ORs)
+
+
+6. SORT CRITERIA
+───────────────────────────────────────────────────────────────
+Mỗi sort có cấu trúc:
+{
+  "fieldName": "tên_trường",
+  "direction": "ASC" hoặc "DESC"
+}
+
+
+7. VÍ DỤ SỬ DỤNG
+───────────────────────────────────────────────────────────────
+
+Ví dụ 1: Tìm kiếm đơn giản
+POST /api/v1/careers/filter
+{
+  "filters": [
+    {
+      "fieldName": "title",
+      "operation": "LIKE",
+      "value": "engineer"
+    }
+  ],
+  "page": 0,
+  "size": 10
+}
+
+Ví dụ 2: Nhiều điều kiện AND
+POST /api/v1/slides/filter
+{
+  "filters": [
+    {
+      "fieldName": "title",
+      "operation": "LIKE",
+      "value": "slide",
+      "logicType": "AND"
+    },
+    {
+      "fieldName": "status",
+      "operation": "EQUALS",
+      "value": 1,
+      "logicType": "AND"
+    }
+  ],
+  "sorts": [
+    {
+      "fieldName": "orderIndex",
+      "direction": "ASC"
+    }
+  ],
+  "page": 0,
+  "size": 10
+}
+
+Ví dụ 3: Sử dụng IN
+POST /api/v1/courses/filter
+{
+  "filters": [
+    {
+      "fieldName": "status",
+      "operation": "IN",
+      "value": [1, 2, 3]
+    }
+  ],
+  "page": 0,
+  "size": 20
+}
+
+Ví dụ 4: So sánh số
+POST /api/v1/courses/filter
+{
+  "filters": [
+    {
+      "fieldName": "price",
+      "operation": "GREATER_THAN_OR_EQUAL",
+      "value": 1000000
+    },
+    {
+      "fieldName": "price",
+      "operation": "LESS_THAN_OR_EQUAL",
+      "value": 5000000
+    }
+  ],
+  "sorts": [
+    {
+      "fieldName": "price",
+      "direction": "ASC"
+    }
+  ]
+}
+
+Ví dụ 5: Lọc trường nested (quan hệ)
+POST /api/v1/courses/filter
+{
+  "filters": [
+    {
+      "fieldName": "category.name",
+      "operation": "EQUALS",
+      "value": "Programming"
+    }
+  ]
+}
+
+
+8. RESPONSE
+───────────────────────────────────────────────────────────────
+{
+  "status": 200,
+  "message": "... filtered successfully",
+  "error": null,
+  "data": {
+    "content": [...],           // Danh sách kết quả
+    "pageable": {...},          // Thông tin phân trang
+    "totalElements": 100,       // Tổng số bản ghi
+    "totalPages": 5,            // Tổng số trang
+    "size": 20,                 // Số bản ghi/trang
+    "number": 0,                 // Trang hiện tại
+    "first": true,              // Trang đầu?
+    "last": false               // Trang cuối?
+  }
+}
+
+
+9. LƯU Ý QUAN TRỌNG
+───────────────────────────────────────────────────────────────
+✓ fieldName phải đúng tên trường trong entity
+✓ LIKE và ILIKE chỉ dùng cho String
+✓ Các toán tử so sánh (<, >, <=, >=) chỉ dùng cho Comparable
+✓ IN và NOT_IN nhận giá trị là mảng hoặc giá trị đơn
+✓ Có thể lọc trường nested bằng dấu chấm: "category.name"
+✓ page bắt đầu từ 0
+✓ Nếu không có filters, sẽ trả về tất cả bản ghi
+✓ Nếu không có sorts, sẽ không sắp xếp
+
+
+10. CÁC RESOURCE HỖ TRỢ FILTER
+───────────────────────────────────────────────────────────────
+Tất cả các controller kế thừa từ BaseController đều hỗ trợ filter:
+- /api/v1/careers/filter
+- /api/v1/slides/filter
+- /api/v1/courses/filter
+- /api/v1/users/filter
+- ... và các resource khác
+
+═══════════════════════════════════════════════════════════════
+
