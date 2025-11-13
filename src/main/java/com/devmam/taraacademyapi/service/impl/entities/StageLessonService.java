@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -28,6 +29,10 @@ public class StageLessonService extends BaseServiceImpl<StageLesson, Integer> {
 
     public StageLessonService(StageLessonRepository repository) {
         super(repository);
+    }
+    
+    public List<StageLesson> findByCourseId(Integer courseId) {
+        return stageLessonRepository.findByCourseId(courseId);
     }
     
     @Override

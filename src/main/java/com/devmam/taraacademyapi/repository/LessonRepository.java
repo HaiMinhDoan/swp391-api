@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -17,4 +18,7 @@ public interface LessonRepository extends JpaRepository<Lesson, Integer>, JpaSpe
     
     @Query("SELECT l FROM Lesson l WHERE l.stage.id = :stageId AND l.orderIndex = :orderIndex AND l.id != :excludeId AND l.isDeleted = 0")
     Optional<Lesson> findByStageIdAndOrderIndexExcludingId(@Param("stageId") Integer stageId, @Param("orderIndex") Integer orderIndex, @Param("excludeId") Integer excludeId);
+    
+    @Query("SELECT l FROM Lesson l WHERE l.stage.id = :stageId AND l.isDeleted = 0 ORDER BY l.orderIndex ASC")
+    List<Lesson> findByStageId(@Param("stageId") Integer stageId);
 }
