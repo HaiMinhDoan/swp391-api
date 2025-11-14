@@ -281,13 +281,58 @@ public abstract class BaseServiceImpl<T, ID> implements BaseService<T, ID> {
 
     protected Path<?> getFieldPath(Root<T> root, String fieldName) {
         String[] parts = fieldName.split("\\.");
-        Path<?> path = root.get(parts[0]);
+
+        // Start from root and a currentClass pointer for reflection lookups
+        Path<?> path = root.get(resolveFieldName(getEntityClass(), parts[0]));
+        Class<?> currentClass = getFieldType(getEntityClass(), parts[0]);
 
         for (int i = 1; i < parts.length; i++) {
-            path = path.get(parts[i]);
+            String rawPart = parts[i];
+            String actualPart = resolveFieldName(currentClass, rawPart);
+            path = path.get(actualPart);
+            currentClass = getFieldType(currentClass, actualPart);
         }
 
         return path;
+    }
+
+    private String resolveFieldName(Class<?> clazz, String name) {
+        try {
+            Field f = getField(clazz, name);
+            return f.getName();
+        } catch (NoSuchFieldException e) {
+            // Try case-insensitive lookup
+            Class<?> current = clazz;
+            while (current != null && current != Object.class) {
+                for (Field field : current.getDeclaredFields()) {
+                    if (field.getName().equalsIgnoreCase(name)) {
+                        return field.getName();
+                    }
+                }
+                current = current.getSuperclass();
+            }
+            // If still not found, throw original exception to surface the issue
+            throw new IllegalArgumentException("Field '" + name + "' not found in class " + clazz.getSimpleName());
+        }
+    }
+
+    private Class<?> getFieldType(Class<?> clazz, String fieldName) {
+        try {
+            Field f = getField(clazz, fieldName);
+            return f.getType();
+        } catch (NoSuchFieldException e) {
+            // fallback to case-insensitive search
+            Class<?> current = clazz;
+            while (current != null && current != Object.class) {
+                for (Field field : current.getDeclaredFields()) {
+                    if (field.getName().equalsIgnoreCase(fieldName)) {
+                        return field.getType();
+                    }
+                }
+                current = current.getSuperclass();
+            }
+            throw new IllegalArgumentException("Field '" + fieldName + "' not found in class " + clazz.getSimpleName());
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -297,57 +342,80 @@ public abstract class BaseServiceImpl<T, ID> implements BaseService<T, ID> {
             return null;
         }
 
+        Class<?> targetType = path.getJavaType();
+
+        // Convert single value or collection elements to the targetType
+        Object convertedValue = value;
+        switch (filter.getOperation()) {
+            case IN, NOT_IN -> {
+                if (value instanceof Collection<?> collection) {
+                    List<Object> converted = ((Collection<?>) collection).stream()
+                            .map(v -> convertValue(v, targetType))
+                            .collect(Collectors.toList());
+                    convertedValue = converted;
+                } else {
+                    convertedValue = convertValue(value, targetType);
+                }
+            }
+            case LIKE, ILIKE -> {
+                // ensure target is String
+                if (!String.class.equals(targetType) && !CharSequence.class.isAssignableFrom(targetType)) {
+                    throw new IllegalArgumentException("LIKE/ILIKE chỉ áp dụng cho String");
+                }
+                if (!(value instanceof String)) {
+                    convertedValue = String.valueOf(value);
+                }
+            }
+            default -> convertedValue = convertValue(value, targetType);
+        }
+
         switch (filter.getOperation()) {
             case EQUALS:
-                return cb.equal(path, value);
+                return cb.equal(path, convertedValue);
 
             case LESS_THAN:
-                if (Comparable.class.isAssignableFrom(path.getJavaType())) {
-                    return cb.lessThan((Expression<? extends Comparable>) path, (Comparable) value);
+                if (Comparable.class.isAssignableFrom(targetType)) {
+                    return cb.lessThan((Expression<? extends Comparable>) path, (Comparable) convertedValue);
                 }
                 throw new IllegalArgumentException("Trường '" + filter.getFieldName() + "' không phải kiểu Comparable");
 
             case LESS_THAN_OR_EQUAL:
-                if (Comparable.class.isAssignableFrom(path.getJavaType())) {
-                    return cb.lessThanOrEqualTo((Expression<? extends Comparable>) path, (Comparable) value);
+                if (Comparable.class.isAssignableFrom(targetType)) {
+                    return cb.lessThanOrEqualTo((Expression<? extends Comparable>) path, (Comparable) convertedValue);
                 }
                 throw new IllegalArgumentException("Trường '" + filter.getFieldName() + "' không phải kiểu Comparable");
 
             case GREATER_THAN:
-                if (Comparable.class.isAssignableFrom(path.getJavaType())) {
-                    return cb.greaterThan((Expression<? extends Comparable>) path, (Comparable) value);
+                if (Comparable.class.isAssignableFrom(targetType)) {
+                    return cb.greaterThan((Expression<? extends Comparable>) path, (Comparable) convertedValue);
                 }
                 throw new IllegalArgumentException("Trường '" + filter.getFieldName() + "' không phải kiểu Comparable");
 
             case GREATER_THAN_OR_EQUAL:
-                if (Comparable.class.isAssignableFrom(path.getJavaType())) {
-                    return cb.greaterThanOrEqualTo((Expression<? extends Comparable>) path, (Comparable) value);
+                if (Comparable.class.isAssignableFrom(targetType)) {
+                    return cb.greaterThanOrEqualTo((Expression<? extends Comparable>) path, (Comparable) convertedValue);
                 }
                 throw new IllegalArgumentException("Trường '" + filter.getFieldName() + "' không phải kiểu Comparable");
 
             case LIKE:
-                if (value instanceof String str) {
-                    return cb.like(cb.lower((Expression<String>) path), "%" + str.toLowerCase() + "%");
-                }
-                throw new IllegalArgumentException("LIKE chỉ áp dụng cho String");
+                String likeStr = ((String) convertedValue).toLowerCase();
+                return cb.like(cb.lower((Expression<String>) path), "%" + likeStr + "%");
 
             case ILIKE:
-                if (value instanceof String str) {
-                    return cb.like(cb.lower((Expression<String>) path), "%" + str.toLowerCase() + "%");
-                }
-                throw new IllegalArgumentException("ILIKE chỉ áp dụng cho String");
+                String ilikeStr = ((String) convertedValue).toLowerCase();
+                return cb.like(cb.lower((Expression<String>) path), "%" + ilikeStr + "%");
 
             case IN:
-                if (value instanceof Collection<?> collection) {
-                    return path.in(collection);
+                if (convertedValue instanceof Collection<?> coll) {
+                    return path.in(coll);
                 }
-                return path.in(value);
+                return path.in(convertedValue);
 
             case NOT_IN:
-                if (value instanceof Collection<?> collection) {
-                    return cb.not(path.in(collection));
+                if (convertedValue instanceof Collection<?> coll) {
+                    return cb.not(path.in(coll));
                 }
-                return cb.not(path.in(value));
+                return cb.not(path.in(convertedValue));
 
             default:
                 throw new IllegalArgumentException("Không hỗ trợ operation: " + filter.getOperation());

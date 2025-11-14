@@ -27,6 +27,9 @@ public class UserCourseResponseDto implements Serializable {
     private String userUsername;
     private Integer courseId;
     private String courseTitle;
+    private String thumbnail;
+    private String summary;
+    private String lang;
     private Instant enrolledAt;
     private Instant completedAt;
     private Integer progress;
@@ -46,6 +49,9 @@ public class UserCourseResponseDto implements Serializable {
                 .courseTitle(userCourse.getCourse() != null ? userCourse.getCourse().getTitle() : null)
                 .enrolledAt(userCourse.getEnrolledAt())
                 .completedAt(userCourse.getCompletedAt())
+                .thumbnail(userCourse.getCourse() != null ? userCourse.getCourse().getThumbnail() : null)
+                .summary(userCourse.getCourse() != null ? userCourse.getCourse().getSummary() : null)
+                .lang(userCourse.getCourse() != null ? userCourse.getCourse().getLang() : null)
                 .progress(userCourse.getProgress().intValue())
                 .currentStageId(userCourse.getCurrentStageId())
                 .currentLessonId(userCourse.getCurrentLessonId())
