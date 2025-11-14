@@ -32,6 +32,9 @@ public class StageLessonController extends BaseController<StageLesson, Integer, 
 
     @Autowired
     private LessonRepository lessonRepository;
+    
+    @Autowired
+    private com.devmam.taraacademyapi.repository.QuizRepository quizRepository;
 
     private final StageLessonService stageLessonService;
 
