@@ -87,7 +87,14 @@ public class StageLessonController extends BaseController<StageLesson, Integer, 
                         // Get lessons for this stage
                         List<Lesson> lessons = lessonRepository.findByStageId(stageLesson.getId());
                         List<LessonResponseDto> lessonDtos = lessons.stream()
-                                .map(LessonResponseDto::toDTO)
+                                .map(lesson -> {
+                                    Long quizCount = 0L;
+                                    try {
+                                        quizCount = quizRepository.countByLessonId(lesson.getId());
+                                    } catch (Exception ignored) {
+                                    }
+                                    return LessonResponseDto.toDTOWithQuizCount(lesson, quizCount);
+                                })
                                 .collect(Collectors.toList());
                         
                         return StageLessonWithLessonsResponseDto.builder()
