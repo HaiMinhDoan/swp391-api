@@ -2,6 +2,7 @@ package com.devmam.taraacademyapi.models.dto.request;
 
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -23,7 +24,7 @@ public class UserCourseRequestDto {
     
     private Instant completedAt;
     
-    private Integer progress;
+    private BigDecimal progress;
     
     private Integer status;
 }

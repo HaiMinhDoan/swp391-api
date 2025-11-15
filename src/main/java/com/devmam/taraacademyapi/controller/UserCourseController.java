@@ -14,8 +14,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
@@ -61,9 +65,11 @@ public class UserCourseController extends BaseController<UserCourse, Integer, Us
         userCourse.setCourse(course);
         userCourse.setEnrolledAt(requestDto.getEnrolledAt() != null ? requestDto.getEnrolledAt() : Instant.now());
         userCourse.setCompletedAt(requestDto.getCompletedAt());
-//        userCourse.setProgress(requestDto.getProgress() != null ? requestDto.getProgress() : 0);
+        userCourse.setProgress(requestDto.getProgress() != null ? requestDto.getProgress() : BigDecimal.ZERO);
         userCourse.setStatus(requestDto.getStatus() != null ? requestDto.getStatus() : 1);
         userCourse.setIsDeleted(0);
+        // 1 nam het han
+        userCourse.setExpiredAt(Instant.now().plusSeconds(60 * 60 * 24 * 365));
         userCourse.setCreatedAt(Instant.now());
         userCourse.setUpdatedAt(Instant.now());
 
@@ -86,7 +92,7 @@ public class UserCourseController extends BaseController<UserCourse, Integer, Us
             @RequestParam Integer courseId) {
         try {
             Optional<UserCourse> userCourse = userCourseService.findByUserIdAndCourseIdActive(userId, courseId);
-            
+
             if (userCourse.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(ResponseData.<UserCourseResponseDto>builder()
