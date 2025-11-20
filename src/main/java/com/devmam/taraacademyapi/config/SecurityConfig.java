@@ -28,7 +28,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                         .requestMatchers("/**").permitAll()
 //                        .requestMatchers("/private/**").hasAnyAuthority("SCOPE_ROLE_ADMIN", "SCOPE_ROLE_CUSTOMER")
                         .anyRequest().authenticated())
-                .csrf().disable();
+                .cors().and().csrf().disable();
         http.oauth2ResourceServer(oauth2 -> {
             oauth2.jwt(jwtConfigurer -> {
                 jwtConfigurer.decoder(jwtDecoder());
