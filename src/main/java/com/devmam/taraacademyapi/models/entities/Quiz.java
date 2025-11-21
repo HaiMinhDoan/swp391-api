@@ -6,8 +6,8 @@ import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-
 import java.time.Instant;
+import java.util.List;
 
 @Builder
 @AllArgsConstructor
@@ -52,5 +52,8 @@ public class Quiz {
     @ColumnDefault("0")
     @Column(name = "is_deleted")
     private Integer isDeleted;
+
+    @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<QuizOption> options;
 
 }

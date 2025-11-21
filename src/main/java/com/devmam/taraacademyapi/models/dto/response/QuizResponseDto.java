@@ -25,12 +25,20 @@ public class QuizResponseDto implements Serializable {
     private final String question;
     private final String explanation;
     private final Integer timeLimit;
+    private final List<QuizOptionResponseDto> options;
     private final Instant createdAt;
     private final Instant updatedAt;
     private final Integer status;
     private final Integer isDeleted;
 
     public static QuizResponseDto toDTO(Quiz quiz) {
+        List<QuizOptionResponseDto> optionsDto = null;
+        if (quiz.getOptions() != null) {
+            optionsDto = quiz.getOptions().stream()
+                    .map(QuizOptionResponseDto::toDTO)
+                    .collect(Collectors.toList());
+        }
+        
         return QuizResponseDto.builder()
                 .id(quiz.getId())
                 .lessonId(quiz.getLesson() != null ? quiz.getLesson().getId() : null)
@@ -39,6 +47,7 @@ public class QuizResponseDto implements Serializable {
                 .question(quiz.getQuestion())
 //                .explanation(quiz.getExplanation())
 //                .timeLimit(quiz.getTimeLimit())
+                .options(optionsDto)
                 .createdAt(quiz.getCreatedAt())
                 .updatedAt(quiz.getUpdatedAt())
                 .status(quiz.getStatus())

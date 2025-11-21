@@ -2,15 +2,14 @@ package com.devmam.taraacademyapi.controller;
 
 import com.devmam.taraacademyapi.models.dto.request.QuizSubmissionRequestDto;
 import com.devmam.taraacademyapi.models.dto.response.QuizSubmissionResponseDto;
-import com.devmam.taraacademyapi.models.entities.Quiz;
+import com.devmam.taraacademyapi.models.entities.Lesson;
 import com.devmam.taraacademyapi.models.entities.QuizSubmission;
 import com.devmam.taraacademyapi.models.entities.User;
-import com.devmam.taraacademyapi.service.impl.entities.QuizService;
+import com.devmam.taraacademyapi.service.impl.entities.LessonService;
 import com.devmam.taraacademyapi.service.impl.entities.QuizSubmissionService;
 import com.devmam.taraacademyapi.service.impl.entities.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,7 +22,7 @@ import java.time.Instant;
 public class QuizSubmissionController extends BaseController<QuizSubmission, Integer, QuizSubmissionRequestDto, QuizSubmissionResponseDto> {
 
     @Autowired
-    private QuizService quizService;
+    private LessonService lessonService;
 
     @Autowired
     private UserService userService;
@@ -39,10 +38,10 @@ public class QuizSubmissionController extends BaseController<QuizSubmission, Int
 
     @Override
     protected QuizSubmission toEntity(QuizSubmissionRequestDto requestDto) {
-        // Get quiz and user entities
-        Quiz quiz = null;
-        if (requestDto.getQuizId() != null) {
-            quiz = quizService.getOne(requestDto.getQuizId()).orElse(null);
+        // Get lesson and user entities
+        Lesson lesson = null;
+        if (requestDto.getLessonId() != null) {
+            lesson = lessonService.getOne(requestDto.getLessonId()).orElse(null);
         }
 
         User user = null;
@@ -51,11 +50,11 @@ public class QuizSubmissionController extends BaseController<QuizSubmission, Int
         }
 
         QuizSubmission quizSubmission = new QuizSubmission();
-        quizSubmission.setQuiz(quiz);
+        quizSubmission.setLesson(lesson);
         quizSubmission.setUser(user);
-//        quizSubmission.setAnswers(requestDto.getAnswers());
-//        quizSubmission.setScore(requestDto.getScore());
-        quizSubmission.setSubmittedAt(requestDto.getSubmittedAt() != null ? requestDto.getSubmittedAt() : Instant.now());
+        quizSubmission.setStartedAt(requestDto.getStartedAt() != null ? requestDto.getStartedAt() : Instant.now());
+        quizSubmission.setSubmittedAt(requestDto.getSubmittedAt());
+        quizSubmission.setScore(requestDto.getScore());
         quizSubmission.setStatus(requestDto.getStatus() != null ? requestDto.getStatus() : 1);
         quizSubmission.setIsDeleted(0);
         quizSubmission.setCreatedAt(Instant.now());

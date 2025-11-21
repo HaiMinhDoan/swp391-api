@@ -8,7 +8,6 @@ import org.springframework.data.domain.PageImpl;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -20,26 +19,42 @@ import java.util.stream.Collectors;
 @Setter
 public class QuizAnswerResponseDto implements Serializable {
     private final Integer id;
-    private final Integer quizId;
-    private final String quizQuestion;
-    private final UUID userId;
-    private final String userUsername;
-    private final String answer;
-    private final Boolean isCorrect;
+    private final Integer submissionId;
+    private final QuizSubmissionResponseDto submission;
+    private final Integer questionId;
+    private final QuizResponseDto question;
+    private final Integer selectedOptionId;
+    private final String answerText;
+    // private final Boolean isCorrect;
     private final Instant createdAt;
     private final Instant updatedAt;
     private final Integer status;
     private final Integer isDeleted;
 
     public static QuizAnswerResponseDto toDTO(QuizAnswer quizAnswer) {
+        return toDTO(quizAnswer, true);
+    }
+
+    public static QuizAnswerResponseDto toDTO(QuizAnswer quizAnswer, boolean includeSubmission) {
+        QuizResponseDto questionDto = null;
+        if (quizAnswer.getQuestion() != null) {
+            questionDto = QuizResponseDto.toDTO(quizAnswer.getQuestion());
+        }
+        
+        QuizSubmissionResponseDto submissionDto = null;
+        if (includeSubmission && quizAnswer.getSubmission() != null) {
+            submissionDto = QuizSubmissionResponseDto.toDTO(quizAnswer.getSubmission());
+        }
+        
         return QuizAnswerResponseDto.builder()
                 .id(quizAnswer.getId())
-//                .quizId(quizAnswer.getQuiz() != null ? quizAnswer.getQuiz().getId() : null)
-//                .quizQuestion(quizAnswer.getQuiz() != null ? quizAnswer.getQuiz().getQuestion() : null)
-//                .userId(quizAnswer.getUser() != null ? quizAnswer.getUser().getId() : null)
-//                .userUsername(quizAnswer.getUser() != null ? quizAnswer.getUser().getUsername() : null)
-//                .answer(quizAnswer.getAnswer())
-                .isCorrect(quizAnswer.getIsCorrect())
+                .submissionId(quizAnswer.getSubmission() != null ? quizAnswer.getSubmission().getId() : null)
+                .submission(submissionDto)
+                .questionId(quizAnswer.getQuestion() != null ? quizAnswer.getQuestion().getId() : null)
+                .question(questionDto)
+                .selectedOptionId(quizAnswer.getSelectedOptionId())
+                .answerText(quizAnswer.getAnswerText())
+                // .isCorrect(quizAnswer.getIsCorrect())
                 .createdAt(quizAnswer.getCreatedAt())
                 .updatedAt(quizAnswer.getUpdatedAt())
                 .status(quizAnswer.getStatus())

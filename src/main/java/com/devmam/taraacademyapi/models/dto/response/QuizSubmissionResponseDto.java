@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -20,28 +21,43 @@ import java.util.stream.Collectors;
 @Setter
 public class QuizSubmissionResponseDto implements Serializable {
     private final Integer id;
-    private final Integer quizId;
-    private final String quizQuestion;
+    private final Integer lessonId;
+    private final LessonResponseDto lesson;
     private final UUID userId;
     private final String userUsername;
-    private final String answers;
-    private final Integer score;
+    private final Instant startedAt;
     private final Instant submittedAt;
+    private final BigDecimal score;
+    private final List<QuizAnswerResponseDto> answers;
     private final Instant createdAt;
     private final Instant updatedAt;
     private final Integer status;
     private final Integer isDeleted;
 
     public static QuizSubmissionResponseDto toDTO(QuizSubmission quizSubmission) {
+        LessonResponseDto lessonDto = null;
+        if (quizSubmission.getLesson() != null) {
+            lessonDto = LessonResponseDto.toDTO(quizSubmission.getLesson());
+        }
+        
+        List<QuizAnswerResponseDto> answersDto = null;
+        if (quizSubmission.getAnswers() != null && !quizSubmission.getAnswers().isEmpty()) {
+            // Use toDTO without submission to avoid circular reference
+            answersDto = quizSubmission.getAnswers().stream()
+                    .map(answer -> QuizAnswerResponseDto.toDTO(answer, false))
+                    .collect(Collectors.toList());
+        }
+        
         return QuizSubmissionResponseDto.builder()
                 .id(quizSubmission.getId())
-                .quizId(quizSubmission.getQuiz() != null ? quizSubmission.getQuiz().getId() : null)
-                .quizQuestion(quizSubmission.getQuiz() != null ? quizSubmission.getQuiz().getQuestion() : null)
+                .lessonId(quizSubmission.getLesson() != null ? quizSubmission.getLesson().getId() : null)
+                .lesson(lessonDto)
                 .userId(quizSubmission.getUser() != null ? quizSubmission.getUser().getId() : null)
                 .userUsername(quizSubmission.getUser() != null ? quizSubmission.getUser().getUsername() : null)
-//                .answers(quizSubmission.getAnswers())
-//                .score(quizSubmission.getScore())
+                .startedAt(quizSubmission.getStartedAt())
                 .submittedAt(quizSubmission.getSubmittedAt())
+                .score(quizSubmission.getScore())
+                .answers(answersDto)
                 .createdAt(quizSubmission.getCreatedAt())
                 .updatedAt(quizSubmission.getUpdatedAt())
                 .status(quizSubmission.getStatus())

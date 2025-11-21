@@ -2,8 +2,6 @@ package com.devmam.taraacademyapi.models.dto.request;
 
 import lombok.*;
 
-import java.util.UUID;
-
 /**
  * DTO for QuizAnswer creation and update requests
  */
@@ -14,11 +12,13 @@ import java.util.UUID;
 @Setter
 public class QuizAnswerRequestDto {
     
-    private Integer quizId;
+    private Integer submissionId;
     
-    private UUID userId;
+    private Integer questionId;
     
-    private String answer;
+    private Integer selectedOptionId;
+    
+    // private String answerText;
     
     private Boolean isCorrect;
     

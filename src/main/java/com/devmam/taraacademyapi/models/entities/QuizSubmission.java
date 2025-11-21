@@ -25,9 +25,9 @@ public class QuizSubmission {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "quiz_id")
-    private Quiz quiz;
-
+    @JoinColumn(name = "lesson_id", nullable = false)
+    private Lesson lesson;
+    
     @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "user_id")

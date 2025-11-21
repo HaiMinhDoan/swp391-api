@@ -2,6 +2,7 @@ package com.devmam.taraacademyapi.models.dto.request;
 
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -15,15 +16,15 @@ import java.util.UUID;
 @Setter
 public class QuizSubmissionRequestDto {
     
-    private Integer quizId;
+    private Integer lessonId;
     
     private UUID userId;
     
-    private String answers;
-    
-    private Integer score;
+    private Instant startedAt;
     
     private Instant submittedAt;
+    
+    private BigDecimal score;
     
     private Integer status;
 }
