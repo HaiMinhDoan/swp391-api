@@ -10,6 +10,8 @@ import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -46,8 +48,9 @@ class QuizTest {
         Instant updatedAt = Instant.now();
         Integer status = 1;
         Integer isDeleted = 0;
+        List<QuizOption> options = new ArrayList<>();
 
-        Quiz quiz = new Quiz(id, null, type, question, answer, createdAt, updatedAt, status, isDeleted);
+        Quiz quiz = new Quiz(id, null, type, question, answer, createdAt, updatedAt, status, isDeleted, options);
 
         assertEquals(id, quiz.getId());
         assertEquals(type, quiz.getType());
