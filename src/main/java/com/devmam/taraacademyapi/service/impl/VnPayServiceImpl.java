@@ -34,6 +34,9 @@ public class VnPayServiceImpl implements VnPayService {
     @Value("${vnpay.ipnUrl}")
     private String ipnUrl;
 
+    @Value("${vnpay.timeoutMinutes:60}")
+    private int timeoutMinutes;
+
     @Override
     public String createPaymentUrl(BigDecimal amount, String orderInfo, String orderType,
                                    String bankCode, String language, String ipAddress, Integer transactionId) {
@@ -85,13 +88,16 @@ public class VnPayServiceImpl implements VnPayService {
             vnp_Params.put("vnp_ReturnUrl", returnUrl);
             vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
             
-            Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
+            // Use Vietnam timezone (GMT+7) - Asia/Ho_Chi_Minh is the standard timezone ID
+            TimeZone vietnamTimeZone = TimeZone.getTimeZone("Asia/Ho_Chi_Minh");
+            Calendar cld = Calendar.getInstance(vietnamTimeZone);
             SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
+            formatter.setTimeZone(vietnamTimeZone); // Set timezone for formatter
             String vnp_CreateDate = formatter.format(cld.getTime());
             vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
             
-            // Set expiration time to 30 minutes (increased from 15 minutes)
-            cld.add(Calendar.MINUTE, 30);
+            // Set expiration time (configurable, default 60 minutes)
+            cld.add(Calendar.MINUTE, timeoutMinutes);
             String vnp_ExpireDate = formatter.format(cld.getTime());
             vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
             

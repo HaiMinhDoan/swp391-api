@@ -33,4 +33,6 @@ public class FeedbackRequestDto {
     private String comment;
     
     private Integer status;
+    
+    private String imgUrl;
 }

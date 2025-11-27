@@ -30,6 +30,8 @@ public class FeedbackResponseDto implements Serializable {
     private final Instant updatedAt;
     private final Integer status;
     private final Integer isDeleted;
+    private final String imgUrl;
+
 
     public static FeedbackResponseDto toDTO(Feedback feedback) {
         return FeedbackResponseDto.builder()
@@ -44,6 +46,7 @@ public class FeedbackResponseDto implements Serializable {
                 .updatedAt(feedback.getUpdatedAt())
                 .status(feedback.getStatus())
                 .isDeleted(feedback.getIsDeleted())
+                .imgUrl(feedback.getImgUrl())
                 .build();
     }
 

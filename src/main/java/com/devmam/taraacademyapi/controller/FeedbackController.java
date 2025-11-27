@@ -52,6 +52,7 @@ public class FeedbackController extends BaseController<Feedback, Integer, Feedba
         feedback.setStatus(requestDto.getStatus() != null ? requestDto.getStatus() : 1);
         feedback.setIsDeleted(0);
         feedback.setCreatedAt(Instant.now());
+        feedback.setImgUrl(requestDto.getImgUrl());
         feedback.setUpdatedAt(Instant.now());
 
         return feedback;

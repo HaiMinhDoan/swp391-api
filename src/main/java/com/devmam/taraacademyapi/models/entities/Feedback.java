@@ -53,4 +53,8 @@ public class Feedback {
     @Column(name = "is_deleted")
     private Integer isDeleted;
 
+    @Column(name = "img_url", length = 1000)
+    private String imgUrl;
+
+
 }

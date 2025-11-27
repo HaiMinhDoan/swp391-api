@@ -31,7 +31,6 @@ import java.util.Optional;
  */
 @RestController
 @RequestMapping("/api/v1/payment/vnpay")
-@PreAuthorize("permitAll()")
 public class VnPayController {
 
     @Autowired
