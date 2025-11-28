@@ -46,6 +46,8 @@ public class FeedbackController extends BaseController<Feedback, Integer, Feedba
         }
 
         Feedback feedback = new Feedback();
+        feedback.setReferenceType(requestDto.getReferenceType());
+        feedback.setReferenceId(requestDto.getReferenceId());
         feedback.setUser(currentUser);
         feedback.setRating(requestDto.getRating());
         feedback.setComment(requestDto.getComment());

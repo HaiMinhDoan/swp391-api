@@ -7,6 +7,7 @@ import com.devmam.taraacademyapi.models.dto.response.FavoriteCourseResponseDto;
 import com.devmam.taraacademyapi.models.entities.Course;
 import com.devmam.taraacademyapi.models.entities.CourseCart;
 import com.devmam.taraacademyapi.models.entities.FavoriteCourse;
+import com.devmam.taraacademyapi.models.entities.User;
 import com.devmam.taraacademyapi.service.BaseService;
 import com.devmam.taraacademyapi.service.JwtService;
 import com.devmam.taraacademyapi.service.impl.entities.CourseService;
@@ -51,7 +52,14 @@ public class FavoriteCourseController extends BaseController<FavoriteCourse, Int
         if (findingCourse.isEmpty()) {
             throw new EntityNotFoundException("Course not found");
         }
+        
+        Optional<User> findingUser = userService.getOne(favoriteCourseRequestDto.getUserId());
+        if (findingUser.isEmpty()) {
+            throw new EntityNotFoundException("User not found");
+        }
+        
         return FavoriteCourse.builder()
+                .user(findingUser.get())
                 .course(findingCourse.get())
                 .build();
     }

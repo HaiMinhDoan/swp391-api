@@ -47,8 +47,8 @@ class FeedbackTest {
         Instant updatedAt = Instant.now();
         Integer status = 1;
         Integer isDeleted = 0;
-
-        Feedback feedback = new Feedback(id, null, referenceType, referenceId, rating, comment, createdAt, updatedAt, status, isDeleted);
+        String imgUrl = "Image.png";
+        Feedback feedback = new Feedback(id, null, referenceType, referenceId, rating, comment, createdAt, updatedAt, status, isDeleted,imgUrl);
 
         assertEquals(id, feedback.getId());
         assertEquals(referenceType, feedback.getReferenceType());

@@ -355,6 +355,9 @@ public class VnPayController {
                 UserCourse userCourse = existingUserCourse.get();
                 userCourse.setTran(transaction);
                 userCourse.setStatus(1);
+                userCourse.setProgress(BigDecimal.ZERO);
+                userCourse.setCurrentLessonId(1);
+                userCourse.setCurrentStageId(1);
                 userCourse.setExpiredAt(Instant.now().plusSeconds(6L * 30 * 24 * 60 * 60)); // 6 months
                 userCourse.setUpdatedAt(Instant.now());
                 userCourseService.update(userCourse.getId(), userCourse);
@@ -364,6 +367,9 @@ public class VnPayController {
                 userCourse.setUser(transaction.getUser());
                 userCourse.setCourse(courseOpt.get());
                 userCourse.setTran(transaction);
+                userCourse.setProgress(BigDecimal.ZERO);
+                userCourse.setCurrentLessonId(1);
+                userCourse.setCurrentStageId(1);
                 userCourse.setEnrolledAt(Instant.now());
                 userCourse.setExpiredAt(Instant.now().plusSeconds(6L * 30 * 24 * 60 * 60)); // 6 months
                 userCourse.setStatus(1);
