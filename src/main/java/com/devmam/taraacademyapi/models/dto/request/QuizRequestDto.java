@@ -26,4 +26,8 @@ public class QuizRequestDto {
     private Integer timeLimit;
     
     private Integer status;
+    
+    private String fileUrl;
+    
+    private String teacherNote;
 }

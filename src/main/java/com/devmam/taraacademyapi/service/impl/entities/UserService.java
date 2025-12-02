@@ -70,6 +70,10 @@ public class UserService extends BaseServiceImpl<User, UUID> {
                 .authenticated(true)
                 .token(token)
                 .message("Success")
+                .role(user.getRole())
+                .userId(user.getId())
+                .username(user.getUsername())
+                .avt(user.getAvt())
                 .build();
     }
 

@@ -53,6 +53,12 @@ public class Quiz {
     @Column(name = "is_deleted")
     private Integer isDeleted;
 
+    @Column(name = "file_url")
+    private String fileUrl;
+
+    @Column(name = "teacher_note")
+    private String teacherNote;
+
     @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<QuizOption> options;
 

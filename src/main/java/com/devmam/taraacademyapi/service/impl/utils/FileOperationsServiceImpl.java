@@ -32,8 +32,8 @@ public class FileOperationsServiceImpl implements FileOperationsService {
     @Autowired
     private FileUploadRepository fileUploadRepository;
 
-    // Maximum file size: 50MB
-    private static final long MAX_FILE_SIZE = 50 * 1024 * 1024;
+    // Maximum file size: 500MB
+    private static final long MAX_FILE_SIZE = 500 * 1024 * 1024;
 
     // Allowed file types
     private static final Set<String> ALLOWED_FILE_TYPES = Set.of(
@@ -352,7 +352,7 @@ public class FileOperationsServiceImpl implements FileOperationsService {
         }
 
         if (file.getSize() > MAX_FILE_SIZE) {
-            return "File size exceeds maximum allowed size of 50MB";
+            return "File size exceeds maximum allowed size of 500MB";
         }
 
         String contentType = file.getContentType();

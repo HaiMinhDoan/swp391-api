@@ -30,6 +30,8 @@ public class QuizResponseDto implements Serializable {
     private final Instant updatedAt;
     private final Integer status;
     private final Integer isDeleted;
+    private final String fileUrl;
+    private final String teacherNote;
 
     public static QuizResponseDto toDTO(Quiz quiz) {
         List<QuizOptionResponseDto> optionsDto = null;
@@ -52,6 +54,8 @@ public class QuizResponseDto implements Serializable {
                 .updatedAt(quiz.getUpdatedAt())
                 .status(quiz.getStatus())
                 .isDeleted(quiz.getIsDeleted())
+                .fileUrl(quiz.getFileUrl())
+                .teacherNote(quiz.getTeacherNote())
                 .build();
     }
 
