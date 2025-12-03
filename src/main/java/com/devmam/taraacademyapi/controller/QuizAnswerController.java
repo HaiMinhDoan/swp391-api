@@ -62,8 +62,9 @@ public class QuizAnswerController extends BaseController<QuizAnswer, Integer, Qu
         quizAnswer.setSubmission(submission);
         quizAnswer.setQuestion(question);
         quizAnswer.setSelectedOptionId(requestDto.getSelectedOptionId());
-        // quizAnswer.setAnswerText(requestDto.getAnswerText());
+        quizAnswer.setAnswerText(requestDto.getAnswerText());
         quizAnswer.setIsCorrect(requestDto.getIsCorrect());
+        quizAnswer.setTeacherNote(requestDto.getTeacherNote());
         quizAnswer.setStatus(requestDto.getStatus() != null ? requestDto.getStatus() : 1);
         quizAnswer.setIsDeleted(0);
         quizAnswer.setCreatedAt(Instant.now());

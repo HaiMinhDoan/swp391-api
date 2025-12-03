@@ -18,9 +18,11 @@ public class QuizAnswerRequestDto {
     
     private Integer selectedOptionId;
     
-    // private String answerText;
+    private String answerText;
     
     private Boolean isCorrect;
+    
+    private String teacherNote;
     
     private Integer status;
 }

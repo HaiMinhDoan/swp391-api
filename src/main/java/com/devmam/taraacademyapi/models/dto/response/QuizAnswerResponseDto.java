@@ -25,6 +25,7 @@ public class QuizAnswerResponseDto implements Serializable {
     private final QuizResponseDto question;
     private final Integer selectedOptionId;
     private final String answerText;
+    private final String teacherNote;
     private final Instant createdAt;
     private final Instant updatedAt;
     private final Integer status;
@@ -53,6 +54,7 @@ public class QuizAnswerResponseDto implements Serializable {
                 .question(questionDto)
                 .selectedOptionId(quizAnswer.getSelectedOptionId())
                 .answerText(quizAnswer.getAnswerText())
+                .teacherNote(quizAnswer.getTeacherNote())
                 .createdAt(quizAnswer.getCreatedAt())
                 .updatedAt(quizAnswer.getUpdatedAt())
                 .status(quizAnswer.getStatus())

@@ -40,6 +40,9 @@ public class QuizAnswer {
     @Column(name = "is_correct")
     private Boolean isCorrect;
 
+    @Column(name = "teacher_note")
+    private String teacherNote;
+
     @ColumnDefault("now()")
     @Column(name = "created_at")
     private Instant createdAt;
