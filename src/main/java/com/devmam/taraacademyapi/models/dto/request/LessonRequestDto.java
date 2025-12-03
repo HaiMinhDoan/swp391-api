@@ -1,8 +1,9 @@
 package com.devmam.taraacademyapi.models.dto.request;
 
-import com.devmam.taraacademyapi.models.entities.Lesson;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+
+import java.util.UUID;
 
 /**
  * DTO for Lesson creation and update requests
@@ -27,4 +28,6 @@ public class LessonRequestDto {
     private Integer orderIndex;
     
     private Integer status;
+    
+    private UUID createdBy;
 }

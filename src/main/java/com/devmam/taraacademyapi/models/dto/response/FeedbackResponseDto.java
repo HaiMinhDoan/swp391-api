@@ -24,6 +24,7 @@ public class FeedbackResponseDto implements Serializable {
     private final String userUsername;
     private final String referenceType;
     private final Integer referenceId;
+    private final UUID referenceUserId;
     private final Integer rating;
     private final String comment;
     private final Instant createdAt;
@@ -40,6 +41,7 @@ public class FeedbackResponseDto implements Serializable {
                 .userUsername(feedback.getUser() != null ? feedback.getUser().getUsername() : null)
                 .referenceType(feedback.getReferenceType())
                 .referenceId(feedback.getReferenceId())
+                .referenceUserId(feedback.getReferenceUserId())
                 .rating(feedback.getRating())
                 .comment(feedback.getComment())
                 .createdAt(feedback.getCreatedAt())

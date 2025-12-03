@@ -38,6 +38,10 @@ public class User {
     @Column(name = "phone", length = 20)
     private String phone;
 
+    @Size(max = 250)
+    @Column(name = "avt", length = 250)
+    private String avt;
+
     @Size(max = 50)
     @Column(name = "customer_code", length = 50)
     private String customerCode;
@@ -45,10 +49,6 @@ public class User {
     @ColumnDefault("0")
     @Column(name = "account_balance", precision = 15, scale = 2)
     private BigDecimal accountBalance;
-
-    @Size(max = 250)
-    @Column(name = "avt", length = 250)
-    private String avt;
 
     @Size(max = 250)
     @Column(name = "role", length = 250)

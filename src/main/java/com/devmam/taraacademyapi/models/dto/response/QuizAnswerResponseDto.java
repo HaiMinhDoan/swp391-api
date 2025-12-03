@@ -30,6 +30,7 @@ public class QuizAnswerResponseDto implements Serializable {
     private final Instant updatedAt;
     private final Integer status;
     private final Integer isDeleted;
+    private Boolean isCorrect;
 
     public static QuizAnswerResponseDto toDTO(QuizAnswer quizAnswer) {
         return toDTO(quizAnswer, true);
@@ -59,6 +60,7 @@ public class QuizAnswerResponseDto implements Serializable {
                 .updatedAt(quizAnswer.getUpdatedAt())
                 .status(quizAnswer.getStatus())
                 .isDeleted(quizAnswer.getIsDeleted())
+                .isCorrect(quizAnswer.getIsCorrect())
                 .build();
     }
 

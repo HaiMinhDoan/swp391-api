@@ -9,7 +9,6 @@ import com.devmam.taraacademyapi.service.impl.entities.FeedbackService;
 import com.devmam.taraacademyapi.service.impl.entities.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -48,6 +47,7 @@ public class FeedbackController extends BaseController<Feedback, Integer, Feedba
         Feedback feedback = new Feedback();
         feedback.setReferenceType(requestDto.getReferenceType());
         feedback.setReferenceId(requestDto.getReferenceId());
+        feedback.setReferenceUserId(requestDto.getReferenceUserId());
         feedback.setUser(currentUser);
         feedback.setRating(requestDto.getRating());
         feedback.setComment(requestDto.getComment());

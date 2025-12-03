@@ -6,9 +6,11 @@ import com.devmam.taraacademyapi.models.dto.response.LessonResponseDto;
 import com.devmam.taraacademyapi.models.dto.response.ResponseData;
 import com.devmam.taraacademyapi.models.entities.Lesson;
 import com.devmam.taraacademyapi.models.entities.StageLesson;
+import com.devmam.taraacademyapi.models.entities.User;
 import com.devmam.taraacademyapi.repository.QuizRepository;
 import com.devmam.taraacademyapi.service.impl.entities.LessonService;
 import com.devmam.taraacademyapi.service.impl.entities.StageLessonService;
+import com.devmam.taraacademyapi.service.impl.entities.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -34,6 +36,9 @@ public class LessonController extends BaseController<Lesson, Integer, LessonRequ
 
     @Autowired
     private QuizRepository quizRepository;
+
+    @Autowired
+    private UserService userService;
 
     public LessonController(LessonService lessonService) {
         super(lessonService);
@@ -62,6 +67,12 @@ public class LessonController extends BaseController<Lesson, Integer, LessonRequ
             stage = stageLessonService.getOne(requestDto.getStageId()).orElse(null);
         }
 
+        // Get createdBy user entity
+        User createdBy = null;
+        if (requestDto.getCreatedBy() != null) {
+            createdBy = userService.getOne(requestDto.getCreatedBy()).orElse(null);
+        }
+
         Lesson lesson = new Lesson();
         lesson.setStage(stage);
         lesson.setTitle(requestDto.getTitle());
@@ -69,6 +80,7 @@ public class LessonController extends BaseController<Lesson, Integer, LessonRequ
         lesson.setVideoUrl(requestDto.getVideoUrl());
         lesson.setOrderIndex(requestDto.getOrderIndex() != null ? requestDto.getOrderIndex() : 0);
         lesson.setStatus(requestDto.getStatus() != null ? requestDto.getStatus() : 1);
+        lesson.setCreatedBy(createdBy);
         lesson.setIsDeleted(0);
         lesson.setCreatedAt(Instant.now());
         lesson.setUpdatedAt(Instant.now());

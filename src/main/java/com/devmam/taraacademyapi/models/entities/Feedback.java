@@ -6,6 +6,7 @@ import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.time.Instant;
+import java.util.UUID;
 
 @Builder
 @AllArgsConstructor
@@ -30,6 +31,9 @@ public class Feedback {
 
     @Column(name = "reference_id")
     private Integer referenceId;
+
+    @Column(name = "reference_userid", columnDefinition = "uuid")
+    private UUID referenceUserId;
 
     @Column(name = "rating")
     private Integer rating;
