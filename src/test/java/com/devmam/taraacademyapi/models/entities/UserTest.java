@@ -56,8 +56,8 @@ class UserTest {
         Integer isDeleted = 0;
         String password = "hashedPassword123";
 
-        User user = new User(id, username, email, fullName, phone, customerCode,
-                accountBalance, avt, role, createdAt, updatedAt, status, isDeleted, password);
+        User user = new User(id, username, email, fullName, phone, avt, customerCode,
+                accountBalance, role, createdAt, updatedAt, status, isDeleted, password);
 
         assertNotNull(user);
         assertEquals(id, user.getId());
