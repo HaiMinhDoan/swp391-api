@@ -70,8 +70,8 @@ public class Application {
     @Column(name = "gender")
     private Short gender;
 
-    @Column(name = "interview_datetime")
-    private Instant interviewDatetime;
+    @Column(name = "oboard_date")
+    private Instant oboardDate;
 
     @Size(max = 255)
     @Column(name = "interview_type")

@@ -33,7 +33,7 @@ public class ApplicationResponseDto implements Serializable {
     private final String email;
     private final String phone;
     private final Short gender;
-    private final Instant interviewDatetime;
+    private final Instant oboardDate;
     private final String interviewType;
     private final String meetingLink;
 
@@ -54,7 +54,7 @@ public class ApplicationResponseDto implements Serializable {
                 .email(application.getEmail())
                 .phone(application.getPhone())
                 .gender(application.getGender())
-                .interviewDatetime(application.getInterviewDatetime())
+                .oboardDate(application.getOboardDate())
                 .interviewType(application.getInterviewType())
                 .meetingLink(application.getMeetingLink())
                 .build();

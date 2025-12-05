@@ -40,7 +40,7 @@ public class ApplicationRequestDto {
     
     private Short gender;
     
-    private Instant interviewDatetime;
+    private Instant oboardDate;
     
     @Size(max = 255, message = "Interview type must not exceed 255 characters")
     private String interviewType;

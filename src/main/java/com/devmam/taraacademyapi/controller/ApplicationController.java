@@ -51,7 +51,7 @@ public class ApplicationController extends BaseController<Application, Integer, 
         application.setEmail(requestDto.getEmail());
         application.setPhone(requestDto.getPhone());
         application.setGender(requestDto.getGender());
-        application.setInterviewDatetime(requestDto.getInterviewDatetime());
+        application.setOboardDate(requestDto.getOboardDate());
         application.setInterviewType(requestDto.getInterviewType());
         application.setMeetingLink(requestDto.getMeetingLink());
         application.setIsDeleted(0);
