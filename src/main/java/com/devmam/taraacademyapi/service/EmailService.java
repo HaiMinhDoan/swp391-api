@@ -17,4 +17,21 @@ public interface EmailService {
     String loadTemplate(String templateFileName) throws CommonException;
     void clearTemplateCache();
     void clearTemplate(String templateFileName);
+    
+    /**
+     * Gửi email và lưu vào EmailHistory
+     * @param to Email người nhận
+     * @param subject Tiêu đề email
+     * @param content Nội dung email (có thể là HTML)
+     * @param isHtml true nếu content là HTML
+     * @param parameters Parameters để thay thế trong template (nếu có)
+     * @param createdById ID của user gửi email (optional)
+     * @param applyId ID của application liên quan (optional)
+     * @return EmailHistory đã được lưu
+     * @throws CommonException
+     */
+    com.devmam.taraacademyapi.models.entities.EmailHistory sendEmailAndSaveHistory(
+            String to, String subject, String content, Boolean isHtml,
+            java.util.Map<String, Object> parameters, java.util.UUID createdById, Integer applyId
+    ) throws CommonException;
 }

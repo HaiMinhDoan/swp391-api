@@ -2,9 +2,14 @@ package com.devmam.taraacademyapi.service.impl.utils;
 
 
 import com.devmam.taraacademyapi.exception.customize.CommonException;
+import com.devmam.taraacademyapi.models.entities.Application;
+import com.devmam.taraacademyapi.models.entities.EmailHistory;
 import com.devmam.taraacademyapi.models.entities.User;
 import com.devmam.taraacademyapi.repository.UserRepository;
 import com.devmam.taraacademyapi.service.EmailService;
+import com.devmam.taraacademyapi.service.impl.entities.ApplicationService;
+import com.devmam.taraacademyapi.service.impl.entities.EmailHistoryService;
+import com.devmam.taraacademyapi.service.impl.entities.UserService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.persistence.EntityNotFoundException;
@@ -33,6 +38,9 @@ import java.util.regex.Pattern;
 public class EmailServiceImpl implements EmailService {
     private final JavaMailSender mailSender;
     private final UserRepository userRepository;
+    private final EmailHistoryService emailHistoryService;
+    private final UserService userService;
+    private final ApplicationService applicationService;
     private static final Logger logger = LoggerFactory.getLogger(EmailServiceImpl.class);
 
     // Cache template
@@ -292,5 +300,96 @@ public class EmailServiceImpl implements EmailService {
     public void clearTemplate(String templateFileName) {
         templateCache.remove(templateFileName);
         logger.info("[clearTemplate] Template {} cleared from cache", templateFileName);
+    }
+
+    /**
+     * Gửi email và lưu vào EmailHistory
+     * @param to Email người nhận
+     * @param subject Tiêu đề email
+     * @param content Nội dung email (có thể là HTML)
+     * @param isHtml true nếu content là HTML
+     * @param parameters Parameters để thay thế trong template (nếu có)
+     * @param createdById ID của user gửi email (optional)
+     * @param applyId ID của application liên quan (optional)
+     * @return EmailHistory đã được lưu
+     * @throws CommonException
+     */
+    @Override
+    public EmailHistory sendEmailAndSaveHistory(
+            String to, String subject, String content, Boolean isHtml,
+            java.util.Map<String, Object> parameters, java.util.UUID createdById, Integer applyId
+    ) throws CommonException {
+        EmailHistory emailHistory = new EmailHistory();
+        emailHistory.setRecipientEmail(to);
+        emailHistory.setSubject(subject);
+        emailHistory.setStatus("PENDING");
+        emailHistory.setCreatedAt(java.time.Instant.now());
+
+        // Set created by user
+        if (createdById != null) {
+            User createdBy = userService.getOne(createdById).orElse(null);
+            emailHistory.setCreatedBy(createdBy);
+        }
+
+        // Set application
+        if (applyId != null) {
+            Application apply = applicationService.getOne(applyId).orElse(null);
+            emailHistory.setApply(apply);
+        }
+
+        try {
+            String processedContent = content;
+            
+            // Process template if parameters provided
+            if (parameters != null && !parameters.isEmpty()) {
+                processedContent = processTemplate(content, parameters);
+            }
+            
+            emailHistory.setContent(processedContent);
+
+            // Send email
+            if (Boolean.TRUE.equals(isHtml)) {
+                // Send HTML email
+                MimeMessage mimeMessage = mailSender.createMimeMessage();
+                MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+                helper.setTo(to);
+                helper.setSubject(subject);
+                helper.setText(processedContent, true); // true = isHtml
+                mailSender.send(mimeMessage);
+            } else {
+                // Send plain text email
+                SimpleMailMessage message = new SimpleMailMessage();
+                message.setTo(to);
+                message.setSubject(subject);
+                message.setText(processedContent);
+                mailSender.send(message);
+            }
+
+            // Update status to success
+            emailHistory.setStatus("SUCCESS");
+            logger.info("[sendEmailAndSaveHistory] Email sent successfully to: {}", to);
+
+        } catch (MessagingException e) {
+            emailHistory.setStatus("FAILED");
+            emailHistory.setErrorMessage(e.getMessage());
+            logger.error("[sendEmailAndSaveHistory] Error sending email to: {}", to, e);
+            throw new CommonException("Error sending email to: " + to, e);
+        } catch (Exception e) {
+            emailHistory.setStatus("FAILED");
+            emailHistory.setErrorMessage(e.getMessage());
+            logger.error("[sendEmailAndSaveHistory] Error sending email to: {}", to, e);
+            throw new CommonException("Error sending email to: " + to, e);
+        } finally {
+            // Save email history regardless of success or failure
+            try {
+                emailHistoryService.create(emailHistory);
+                logger.info("[sendEmailAndSaveHistory] Email history saved with status: {}", emailHistory.getStatus());
+            } catch (Exception e) {
+                logger.error("[sendEmailAndSaveHistory] Error saving email history", e);
+                // Don't throw exception here, email was already sent/failed
+            }
+        }
+
+        return emailHistory;
     }
 }
