@@ -7,6 +7,7 @@ import com.devmam.taraacademyapi.models.entities.Course;
 import com.devmam.taraacademyapi.models.entities.Tran;
 import com.devmam.taraacademyapi.models.entities.User;
 import com.devmam.taraacademyapi.models.entities.UserCourse;
+import com.devmam.taraacademyapi.service.JwtService;
 import com.devmam.taraacademyapi.service.VnPayService;
 import com.devmam.taraacademyapi.service.impl.entities.CourseService;
 import com.devmam.taraacademyapi.service.impl.entities.TranService;
@@ -17,7 +18,6 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -48,14 +48,66 @@ public class VnPayController {
     @Autowired
     private UserCourseService userCourseService;
 
+    @Autowired
+    private JwtService jwtService;
+
+    /**
+     * Validate JWT token and ensure user is authenticated
+     */
+    private User validateUser(@RequestHeader(value = "Authorization", required = false) String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new RuntimeException("Authorization header is required. Please provide a valid Bearer token.");
+        }
+
+        String token = jwtService.getTokenFromAuthHeader(authHeader);
+        if (token == null) {
+            throw new RuntimeException("Invalid authorization header format");
+        }
+
+        String userEmail;
+        try {
+            String emailFromContext = jwtService.getCurrentUserId();
+            if (emailFromContext != null && !emailFromContext.isEmpty()) {
+                userEmail = emailFromContext;
+            } else {
+                com.nimbusds.jwt.JWTClaimsSet claims = jwtService.getClaimsFromToken(token);
+                userEmail = claims.getSubject();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Invalid or expired token: " + e.getMessage());
+        }
+
+        if (userEmail == null || userEmail.isEmpty()) {
+            throw new RuntimeException("Invalid token: user email not found");
+        }
+
+        final String finalUserEmail = userEmail;
+        return userService.findByEmail(finalUserEmail)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + finalUserEmail));
+    }
+
     /**
      * Create payment URL and insert transaction
      */
     @PostMapping("/create")
     public ResponseEntity<ResponseData<VnPayPaymentResponse>> createPayment(
             @Valid @RequestBody VnPayPaymentRequest request,
-            HttpServletRequest httpRequest) {
+            HttpServletRequest httpRequest,
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
         try {
+            // Validate JWT
+            User authenticatedUser = validateUser(authHeader);
+            
+            // Verify that the user in request matches authenticated user
+            if (!authenticatedUser.getId().equals(request.getUserId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(ResponseData.<VnPayPaymentResponse>builder()
+                                .status(403)
+                                .message("Access denied")
+                                .error("You can only create payment for your own account")
+                                .data(null)
+                                .build());
+            }
             // Validate user exists
             Optional<User> userOpt = userService.getOne(request.getUserId());
             if (userOpt.isEmpty()) {

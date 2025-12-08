@@ -2,8 +2,12 @@ package com.devmam.taraacademyapi.controller;
 
 import com.devmam.taraacademyapi.models.dto.request.BaseFilterRequest;
 import com.devmam.taraacademyapi.models.dto.response.ResponseData;
+import com.devmam.taraacademyapi.models.entities.User;
 import com.devmam.taraacademyapi.service.BaseService;
+import com.devmam.taraacademyapi.service.JwtService;
+import com.devmam.taraacademyapi.service.impl.entities.UserService;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,8 +30,74 @@ public abstract class BaseController<T, ID, RequestDto, ResponseDto> {
 
     protected final BaseService<T, ID> baseService;
 
+    @Autowired(required = false)
+    protected JwtService jwtService;
+
+    @Autowired(required = false)
+    protected UserService userService;
+
     public BaseController(BaseService<T, ID> baseService) {
         this.baseService = baseService;
+    }
+
+    /**
+     * Validate JWT token and ensure user is authenticated
+     * @param authHeader Authorization header containing Bearer token
+     * @return User entity if valid, throws exception otherwise
+     */
+    protected User validateUser(@RequestHeader(value = "Authorization", required = false) String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new RuntimeException("Authorization header is required. Please provide a valid Bearer token.");
+        }
+
+        if (jwtService == null || userService == null) {
+            throw new RuntimeException("JWT service not available");
+        }
+
+        String token = jwtService.getTokenFromAuthHeader(authHeader);
+        if (token == null) {
+            throw new RuntimeException("Invalid authorization header format");
+        }
+
+        // Get user email from token
+        String userEmail;
+        try {
+            // Try to get from SecurityContext first (if Spring Security has processed it)
+            String emailFromContext = jwtService.getCurrentUserId();
+            
+            // If not available, parse token directly
+            if (emailFromContext != null && !emailFromContext.isEmpty()) {
+                userEmail = emailFromContext;
+            } else {
+                com.nimbusds.jwt.JWTClaimsSet claims = jwtService.getClaimsFromToken(token);
+                userEmail = claims.getSubject();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Invalid or expired token: " + e.getMessage());
+        }
+
+        if (userEmail == null || userEmail.isEmpty()) {
+            throw new RuntimeException("Invalid token: user email not found");
+        }
+
+        final String finalUserEmail = userEmail;
+        return userService.findByEmail(finalUserEmail)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + finalUserEmail));
+    }
+
+    /**
+     * Validate JWT token and ensure user has ADMIN role
+     * @param authHeader Authorization header containing Bearer token
+     * @return User entity if valid ADMIN, throws exception otherwise
+     */
+    protected User validateAdminUser(@RequestHeader(value = "Authorization", required = false) String authHeader) {
+        User user = validateUser(authHeader);
+        
+        if (user.getRole() == null || !user.getRole().contains("ADMIN")) {
+            throw new RuntimeException("Access denied. Admin role required. Current role: " + user.getRole());
+        }
+
+        return user;
     }
 
     /**
@@ -55,8 +125,13 @@ public abstract class BaseController<T, ID, RequestDto, ResponseDto> {
      */
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ResponseData<ResponseDto>> create(@Valid @RequestBody RequestDto requestDto) {
+    public ResponseEntity<ResponseData<ResponseDto>> create(
+            @Valid @RequestBody RequestDto requestDto,
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
         try {
+            // Validate JWT and admin role
+            validateUser(authHeader);
+            
             T entity = toEntity(requestDto);
             T createdEntity = baseService.create(entity);
             ResponseDto responseDto = toResponseDto(createdEntity);
@@ -119,8 +194,14 @@ public abstract class BaseController<T, ID, RequestDto, ResponseDto> {
      */
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ResponseData<ResponseDto>> update(@PathVariable ID id, @Valid @RequestBody RequestDto requestDto) {
+    public ResponseEntity<ResponseData<ResponseDto>> update(
+            @PathVariable ID id, 
+            @Valid @RequestBody RequestDto requestDto,
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
         try {
+            // Validate JWT and admin role
+            validateUser(authHeader);
+            
             Optional<T> existingEntity = baseService.getOne(id);
             if (existingEntity.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -158,8 +239,11 @@ public abstract class BaseController<T, ID, RequestDto, ResponseDto> {
      */
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ResponseData<Void>> delete(@PathVariable ID id) {
+    public ResponseEntity<ResponseData<Void>> delete(@PathVariable ID id,
+        @RequestHeader(value = "Authorization", required = false) String authHeader) {
         try {
+            User user = validateUser(authHeader);
+
             Optional<T> entity = baseService.getOne(id);
             if (entity.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)

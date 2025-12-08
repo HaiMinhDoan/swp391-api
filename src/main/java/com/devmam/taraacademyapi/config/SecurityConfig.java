@@ -25,8 +25,13 @@ public class SecurityConfig implements WebMvcConfigurer {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(auth -> auth
+                        // Public endpoints
+                        .requestMatchers("/api/v1/auth/**").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
+                        // Admin endpoints require authentication
+                        .requestMatchers("/api/v1/admin/**").authenticated()
+                        // Other endpoints
                         .requestMatchers("/**").permitAll()
-//                        .requestMatchers("/private/**").hasAnyAuthority("SCOPE_ROLE_ADMIN", "SCOPE_ROLE_CUSTOMER")
                         .anyRequest().authenticated())
                 .cors().and().csrf().disable();
         http.oauth2ResourceServer(oauth2 -> {

@@ -9,6 +9,8 @@ import com.devmam.taraacademyapi.repository.CourseRepository;
 import com.devmam.taraacademyapi.repository.TranRepository;
 import com.devmam.taraacademyapi.repository.UserCourseRepository;
 import com.devmam.taraacademyapi.repository.UserRepository;
+import com.devmam.taraacademyapi.service.JwtService;
+import com.devmam.taraacademyapi.service.impl.entities.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,14 +43,70 @@ public class AdminDashboardController {
     @Autowired
     private TranRepository tranRepository;
 
+    @Autowired
+    private JwtService jwtService;
+
+    @Autowired
+    private UserService userService;
+
+    /**
+     * Validate JWT token and ensure user has ADMIN role
+     * @param authHeader Authorization header containing Bearer token
+     * @return User entity if valid ADMIN, throws exception otherwise
+     */
+    private User validateAdminUser(@RequestHeader(value = "Authorization", required = false) String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new RuntimeException("Authorization header is required. Please provide a valid Bearer token.");
+        }
+
+        String token = jwtService.getTokenFromAuthHeader(authHeader);
+        if (token == null) {
+            throw new RuntimeException("Invalid authorization header format");
+        }
+
+        // Get user email from token
+        String userEmail;
+        try {
+            // Try to get from SecurityContext first (if Spring Security has processed it)
+            String emailFromContext = jwtService.getCurrentUserId();
+            
+            // If not available, parse token directly
+            if (emailFromContext != null && !emailFromContext.isEmpty()) {
+                userEmail = emailFromContext;
+            } else {
+                com.nimbusds.jwt.JWTClaimsSet claims = jwtService.getClaimsFromToken(token);
+                userEmail = claims.getSubject();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Invalid or expired token: " + e.getMessage());
+        }
+
+        if (userEmail == null || userEmail.isEmpty()) {
+            throw new RuntimeException("Invalid token: user email not found");
+        }
+
+        final String finalUserEmail = userEmail;
+        User user = userService.findByEmail(finalUserEmail)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + finalUserEmail));
+
+        if (user.getRole() == null || !user.getRole().contains("ADMIN")) {
+            throw new RuntimeException("Access denied. Admin role required. Current role: " + user.getRole());
+        }
+
+        return user;
+    }
+
     /**
      * API 1: Tổng quan thống kê dashboard
      * GET /api/v1/admin/dashboard/overview
      */
     @GetMapping("/overview")
     @Transactional(readOnly = true)
-    public ResponseEntity<ResponseData<AdminDashboardOverviewDto>> getOverview() {
+    public ResponseEntity<ResponseData<AdminDashboardOverviewDto>> getOverview(
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
         try {
+            // Validate JWT and admin role
+            validateAdminUser(authHeader);
             // Lấy users với null safety
             List<User> allUsers = new ArrayList<>();
             try {
@@ -189,8 +247,11 @@ public class AdminDashboardController {
     @Transactional(readOnly = true)
     public ResponseEntity<ResponseData<List<AdminLineChartDataDto>>> getRevenueLineChart(
             @RequestParam(defaultValue = "month") String period,
-            @RequestParam(defaultValue = "12") Integer months) {
+            @RequestParam(defaultValue = "12") Integer months,
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
         try {
+            // Validate JWT and admin role
+            validateAdminUser(authHeader);
             List<Tran> transactions = tranRepository.findAll().stream()
                     .filter(t -> t.getIsDeleted() == 0 
                             && t.getAmount() != null 
@@ -293,8 +354,11 @@ public class AdminDashboardController {
     @Transactional(readOnly = true)
     public ResponseEntity<ResponseData<List<AdminLineChartDataDto>>> getUsersLineChart(
             @RequestParam(defaultValue = "month") String period,
-            @RequestParam(defaultValue = "12") Integer months) {
+            @RequestParam(defaultValue = "12") Integer months,
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
         try {
+            // Validate JWT and admin role
+            validateAdminUser(authHeader);
             List<User> users = new ArrayList<>();
             try {
                 Instant cutoffDate = Instant.now().minusSeconds(months * 30L * 24 * 60 * 60);
@@ -416,8 +480,11 @@ public class AdminDashboardController {
     @Transactional(readOnly = true)
     public ResponseEntity<ResponseData<List<AdminLineChartDataDto>>> getCoursesLineChart(
             @RequestParam(defaultValue = "month") String period,
-            @RequestParam(defaultValue = "12") Integer months) {
+            @RequestParam(defaultValue = "12") Integer months,
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
         try {
+            // Validate JWT and admin role
+            validateAdminUser(authHeader);
             List<Course> courses = courseRepository.findAll().stream()
                     .filter(c -> c.getIsDeleted() == 0 
                             && c.getCreatedAt() != null
@@ -489,8 +556,11 @@ public class AdminDashboardController {
      */
     @GetMapping("/charts/users-pie")
     @Transactional(readOnly = true)
-    public ResponseEntity<ResponseData<List<AdminPieChartDataDto>>> getUsersPieChart() {
+    public ResponseEntity<ResponseData<List<AdminPieChartDataDto>>> getUsersPieChart(
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
         try {
+            // Validate JWT and admin role
+            validateAdminUser(authHeader);
             List<User> users = new ArrayList<>();
             try {
                 users = userRepository.findAll().stream()
@@ -575,8 +645,11 @@ public class AdminDashboardController {
      */
     @GetMapping("/charts/courses-pie")
     @Transactional(readOnly = true)
-    public ResponseEntity<ResponseData<List<AdminPieChartDataDto>>> getCoursesPieChart() {
+    public ResponseEntity<ResponseData<List<AdminPieChartDataDto>>> getCoursesPieChart(
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
         try {
+            // Validate JWT and admin role
+            validateAdminUser(authHeader);
             List<Course> courses = new ArrayList<>();
             try {
                 courses = courseRepository.findAll().stream()
@@ -659,8 +732,11 @@ public class AdminDashboardController {
      */
     @GetMapping("/charts/revenue-pie")
     @Transactional(readOnly = true)
-    public ResponseEntity<ResponseData<List<AdminPieChartDataDto>>> getRevenuePieChart() {
+    public ResponseEntity<ResponseData<List<AdminPieChartDataDto>>> getRevenuePieChart(
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
         try {
+            // Validate JWT and admin role
+            validateAdminUser(authHeader);
             List<UserCourse> userCourses = new ArrayList<>();
             try {
                 userCourses = userCourseRepository.findAll().stream()

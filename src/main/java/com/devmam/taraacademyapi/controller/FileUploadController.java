@@ -78,9 +78,12 @@ public class FileUploadController extends BaseController<FileUpload, Integer, Fi
             @RequestParam(value = "referenceId", required = false) Integer referenceId,
             @RequestParam(value = "description", required = false) String description,
             @RequestParam(value = "status", required = false) Integer status,
-            @RequestParam(value = "customFileName", required = false) String customFileName) {
+            @RequestParam(value = "customFileName", required = false) String customFileName,
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
 
         try {
+            // Validate JWT
+            validateUser(authHeader);
             FileUploadMultipartRequestDto request = FileUploadMultipartRequestDto.builder()
                     .file(file)
                     .fileType(fileType)
@@ -124,9 +127,12 @@ public class FileUploadController extends BaseController<FileUpload, Integer, Fi
             @RequestParam(value = "fileRef", required = false) String fileRef,
             @RequestParam(value = "referenceId", required = false) Integer referenceId,
             @RequestParam(value = "description", required = false) String description,
-            @RequestParam(value = "status", required = false) Integer status) {
+            @RequestParam(value = "status", required = false) Integer status,
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
 
         try {
+            // Validate JWT
+            validateUser(authHeader);
             BulkFileUploadRequestDto request = BulkFileUploadRequestDto.builder()
                     .files(files)
                     .fileType(fileType)
@@ -344,8 +350,14 @@ public class FileUploadController extends BaseController<FileUpload, Integer, Fi
     public ResponseEntity<ResponseData<FileUploadResponseDto>> updateFileMetadata(
             @PathVariable Integer id,
             @RequestParam(required = false) String description,
-            @RequestParam(required = false) Integer status) {
+            @RequestParam(required = false) Integer status,
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
         try {
+            // Validate JWT - using method from BaseController
+            if (jwtService != null && userService != null) {
+                validateUser(authHeader);
+            }
+            
             FileUpload updatedFile = fileOperationsService.updateFileMetadata(id, description, status);
             FileUploadResponseDto responseDto = toResponseDto(updatedFile);
 
@@ -449,8 +461,10 @@ public class FileUploadController extends BaseController<FileUpload, Integer, Fi
     @Override
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ResponseData<Void>> delete(@PathVariable Integer id) {
+    public ResponseEntity<ResponseData<Void>> delete(@PathVariable Integer id, @RequestHeader(value = "Authorization", required = false) String authHeader) {
         try {
+            // Validate JWT
+            validateUser(authHeader);
             boolean deleted = fileOperationsService.deleteFile(id);
 
             if (!deleted) {
