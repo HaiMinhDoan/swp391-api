@@ -22,6 +22,7 @@ public class FileUploadResponseDto implements Serializable {
     private String fileName;
     private String filePath;
     private String fileType;
+    private String fileRef;
     private Long fileSize;
     private Integer referenceId;
     private String description;
@@ -37,6 +38,7 @@ public class FileUploadResponseDto implements Serializable {
                 .fileName(fileUpload.getFileName())
                 .filePath(fileUpload.getFilePath())
                 .fileType(fileUpload.getFileType())
+                .fileRef(fileUpload.getFileRef())
                 .fileSize(fileUpload.getFileSize())
                 .referenceId(fileUpload.getReferenceId())
                 .description(fileUpload.getDescription())

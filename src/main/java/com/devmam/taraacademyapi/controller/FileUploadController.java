@@ -46,6 +46,7 @@ public class FileUploadController extends BaseController<FileUpload, Integer, Fi
         fileUpload.setFileName(requestDto.getFileName());
         fileUpload.setFilePath(requestDto.getFilePath());
         fileUpload.setFileType(requestDto.getFileType());
+        fileUpload.setFileRef(requestDto.getFileRef());
         fileUpload.setFileSize(requestDto.getFileSize());
         fileUpload.setReferenceId(requestDto.getReferenceId());
         fileUpload.setDescription(requestDto.getDescription());
