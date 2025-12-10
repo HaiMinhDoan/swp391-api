@@ -8,6 +8,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 
 @Builder
 @AllArgsConstructor
@@ -60,6 +61,6 @@ public class Quiz {
     private String teacherNote;
 
     @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<QuizOption> options;
+    private Set<QuizOption> options;
 
 }
