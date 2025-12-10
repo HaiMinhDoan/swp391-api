@@ -24,6 +24,9 @@ public class FileUploadRequestDto {
     @Size(max = 100, message = "File type must not exceed 100 characters")
     private String fileType;
     
+    @Size(max = 100, message = "File ref must not exceed 100 characters")
+    private String fileRef;
+    
     private Long fileSize;
     
     private Integer referenceId;
