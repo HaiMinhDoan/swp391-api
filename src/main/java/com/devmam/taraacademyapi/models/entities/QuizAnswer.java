@@ -43,6 +43,9 @@ public class QuizAnswer {
     @Column(name = "teacher_note")
     private String teacherNote;
 
+    @Column(name = "score")
+    private Integer score;
+
     @ColumnDefault("now()")
     @Column(name = "created_at")
     private Instant createdAt;

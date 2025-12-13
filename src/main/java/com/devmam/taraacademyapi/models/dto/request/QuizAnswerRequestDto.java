@@ -24,5 +24,7 @@ public class QuizAnswerRequestDto {
     
     private String teacherNote;
     
+    private Integer score;
+    
     private Integer status;
 }

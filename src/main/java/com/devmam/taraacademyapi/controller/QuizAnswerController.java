@@ -65,6 +65,7 @@ public class QuizAnswerController extends BaseController<QuizAnswer, Integer, Qu
         quizAnswer.setAnswerText(requestDto.getAnswerText());
         quizAnswer.setIsCorrect(requestDto.getIsCorrect());
         quizAnswer.setTeacherNote(requestDto.getTeacherNote());
+        quizAnswer.setScore(requestDto.getScore());
         quizAnswer.setStatus(requestDto.getStatus() != null ? requestDto.getStatus() : 1);
         quizAnswer.setIsDeleted(0);
         quizAnswer.setCreatedAt(Instant.now());

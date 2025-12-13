@@ -38,7 +38,7 @@ class QuizAnswerTest {
         Integer status = 1;
         Integer isDeleted = 0;
 
-        QuizAnswer quizAnswer = new QuizAnswer(id, null, null, selectedOptionId, answerText, isCorrect, "", createdAt, updatedAt, status, isDeleted);
+        QuizAnswer quizAnswer = new QuizAnswer(id, null, null, selectedOptionId, answerText, isCorrect, "",0, createdAt, updatedAt, status, isDeleted);
 
         assertEquals(id, quizAnswer.getId());
         assertEquals(selectedOptionId, quizAnswer.getSelectedOptionId());
