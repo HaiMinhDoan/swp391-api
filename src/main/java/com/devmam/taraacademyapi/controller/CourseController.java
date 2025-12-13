@@ -70,6 +70,7 @@ public class CourseController extends BaseController<Course, Integer, CourseRequ
         course.setSaleOff(requestDto.getSaleOff() != null ? requestDto.getSaleOff() : 0);
         course.setCreatedBy(currentUser);
         course.setStatus(requestDto.getStatus() != null ? requestDto.getStatus() : 1);
+        course.setRejectReason(requestDto.getRejectReason());
         course.setIsDeleted(0);
         course.setCreatedAt(Instant.now());
         course.setUpdatedAt(Instant.now());

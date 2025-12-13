@@ -41,6 +41,7 @@ public class CourseResponseDto implements Serializable {
     private  Instant updatedAt;
     private  Integer status;
     private  Integer isDeleted;
+    private  String rejectReason;
 
     public static CourseResponseDto toDto(Course course) {
         return CourseResponseDto.builder()
@@ -65,6 +66,7 @@ public class CourseResponseDto implements Serializable {
                 .updatedAt(course.getUpdatedAt())
                 .status(course.getStatus())
                 .isDeleted(course.getIsDeleted())
+                .rejectReason(course.getRejectReason())
                 .build();
     }
 

@@ -75,4 +75,8 @@ public class Course {
     @Column(name = "is_deleted")
     private Integer isDeleted;
 
+    @Size(max = 255)
+    @Column(name = "reject_reason")
+    private String rejectReason;
+
 }

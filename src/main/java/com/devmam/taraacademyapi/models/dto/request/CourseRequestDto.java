@@ -4,7 +4,6 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 
 /**
  * DTO for Course creation and update requests
@@ -40,4 +39,7 @@ public class CourseRequestDto {
     private Integer status;
     
     private String createdByUsername;
+    
+    @Size(max = 255, message = "Reject reason must not exceed 255 characters")
+    private String rejectReason;
 }
