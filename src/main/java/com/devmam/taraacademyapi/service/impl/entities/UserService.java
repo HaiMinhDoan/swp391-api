@@ -54,7 +54,7 @@ public class UserService extends BaseServiceImpl<User, UUID> {
         }
         User user = existing.get();
 
-        if (user.getStatus() == null || !user.getStatus().equals(1)) {
+        if (user.getStatus() != 1) {
             return AuthenticationResponse.builder()
                     .authenticated(false)
                     .message("Tài khoản chưa được kích hoạt")
