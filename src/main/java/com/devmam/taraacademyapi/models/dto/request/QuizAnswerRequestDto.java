@@ -11,20 +11,20 @@ import lombok.*;
 @Getter
 @Setter
 public class QuizAnswerRequestDto {
-    
+
     private Integer submissionId;
-    
+
     private Integer questionId;
-    
+
     private Integer selectedOptionId;
-    
+
     private String answerText;
-    
+
     private Boolean isCorrect;
-    
+
     private String teacherNote;
-    
+
     private Integer score;
-    
+
     private Integer status;
 }

@@ -42,12 +42,12 @@ public class QuizAnswerResponseDto implements Serializable {
         if (quizAnswer.getQuestion() != null) {
             questionDto = QuizResponseDto.toDTO(quizAnswer.getQuestion());
         }
-        
+
         QuizSubmissionResponseDto submissionDto = null;
         if (includeSubmission && quizAnswer.getSubmission() != null) {
             submissionDto = QuizSubmissionResponseDto.toDTO(quizAnswer.getSubmission());
         }
-        
+
         return QuizAnswerResponseDto.builder()
                 .id(quizAnswer.getId())
                 .submissionId(quizAnswer.getSubmission() != null ? quizAnswer.getSubmission().getId() : null)

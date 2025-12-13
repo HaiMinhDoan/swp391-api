@@ -20,9 +20,14 @@ public class Chat {
     @Column(name = "id", nullable = false)
     private Integer id;
 
-    // Nullable - chỉ set khi user đã đăng nhập
-    @Column(name = "user_id")
-    private UUID userId;
+//    // Nullable - chỉ set khi user đã đăng nhập
+//    @Column(name = "user_id")
+//    private UUID userId;
+
+    // map sang bảng user bằng user_id
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @ColumnDefault("now()")
     @Column(name = "created_at")

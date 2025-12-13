@@ -14,12 +14,12 @@ public interface ChatRepository extends JpaRepository<Chat, Integer> {
     /**
      * Tìm tất cả chats có status cụ thể, sắp xếp theo updatedAt giảm dần
      */
-    List<Chat> findByStatusOrderByUpdatedAtDesc(Integer status);
+    List<Chat> findByStatusNotOrderByUpdatedAtDesc(Integer status);
 
     /**
      * Tìm tất cả chats của một user
      */
-    List<Chat> findByUserIdAndStatusOrderByUpdatedAtDesc(UUID userId, Integer status);
+    List<Chat> findByUserIdAndStatusNotOrderByUpdatedAtDesc(UUID userId, Integer status);
 
     /**
      * Tìm chat theo ID và userId (để verify ownership)
@@ -29,5 +29,5 @@ public interface ChatRepository extends JpaRepository<Chat, Integer> {
     /**
      * Tìm tất cả anonymous chats
      */
-    List<Chat> findByIsAnonymousTrueAndStatusOrderByUpdatedAtDesc(Integer status);
+    List<Chat> findByIsAnonymousTrueAndStatusNotOrderByUpdatedAtDesc(Integer status);
 }

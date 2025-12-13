@@ -10,10 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class UserService extends BaseServiceImpl<User, UUID> {
@@ -52,16 +49,25 @@ public class UserService extends BaseServiceImpl<User, UUID> {
         if (existing.isEmpty()) {
             return AuthenticationResponse.builder()
                     .authenticated(false)
-                    .message("User not found")
+                    .message("Tài khoản hoặc mật khẩu sai")
                     .build();
         }
         User user = existing.get();
+
+        if (user.getStatus() != 1) {
+            return AuthenticationResponse.builder()
+                    .authenticated(false)
+                    .message("Tài khoản chưa được kích hoạt")
+                    .build();
+        }
+
         if (!passwordEncoder.matches(password, user.getPassword())) {
             return AuthenticationResponse.builder()
                     .authenticated(false)
-                    .message("Invalid password")
+                    .message("Tài khoản hoặc mật khẩu sai")
                     .build();
         }
+
         Set<String> roles = new HashSet<>();
         roles.add(user.getRole());
         String token = jwtService.generateToken(user.getId().toString(), user.getEmail(), roles, userAgent);
@@ -75,6 +81,12 @@ public class UserService extends BaseServiceImpl<User, UUID> {
                 .username(user.getUsername())
                 .avt(user.getAvt())
                 .build();
+    }
+
+
+    public List<User> getUserByOtp(String otp) {
+        List<User> users = userRepository.findByOtpAndStatus(otp, 0);
+        return users;
     }
 
 

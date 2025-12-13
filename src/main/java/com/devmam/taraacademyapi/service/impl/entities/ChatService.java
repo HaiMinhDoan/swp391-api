@@ -48,7 +48,7 @@ public class ChatService {
     @Transactional
     public ChatDto createAnonymousChat() {
         Chat chat = new Chat();
-        chat.setUserId(null);
+        chat.setUser(null);
         chat.setIsAnonymous(true);
         chat.setCreatedAt(Instant.now());
         chat.setUpdatedAt(Instant.now());
@@ -70,7 +70,7 @@ public class ChatService {
         }
 
         Chat chat = new Chat();
-        chat.setUserId(userId);
+        chat.setUser(userOpt.get());
         chat.setIsAnonymous(false);
         chat.setCreatedAt(Instant.now());
         chat.setUpdatedAt(Instant.now());
@@ -104,7 +104,7 @@ public class ChatService {
         }
 
         // Link chat với user
-        chat.setUserId(userId);
+        chat.setUser(userOpt.get());
         chat.setIsAnonymous(false);
         chat.setUpdatedAt(Instant.now());
 
@@ -147,7 +147,7 @@ public class ChatService {
         Chat chat = chatOpt.get();
 
         // Verify ownership nếu chat không phải anonymous
-        if (chat.getUserId() != null && !chat.getUserId().equals(userId)) {
+        if (chat.getUser() != null && !chat.getUser().getId().equals(userId)) {
             throw new CommonException("You don't have permission to access this chat");
         }
 
@@ -168,7 +168,7 @@ public class ChatService {
             throw new CommonException("User not found with ID: " + userId);
         }
 
-        List<Chat> chats = chatRepository.findByUserIdAndStatusOrderByUpdatedAtDesc(userId, 1);
+        List<Chat> chats = chatRepository.findByUserIdAndStatusNotOrderByUpdatedAtDesc(userId, 0);
         return chats.stream()
                 .map(chatMapper::toDto)
                 .collect(Collectors.toList());
@@ -178,7 +178,7 @@ public class ChatService {
      * Lấy tất cả chats (cho admin/support)
      */
     public List<ChatDto> getAllChats() {
-        List<Chat> chats = chatRepository.findByStatusOrderByUpdatedAtDesc(1);
+        List<Chat> chats = chatRepository.findByStatusNotOrderByUpdatedAtDesc(0);
         return chats.stream()
                 .map(chatMapper::toDto)
                 .collect(Collectors.toList());
@@ -188,7 +188,7 @@ public class ChatService {
      * Lấy tất cả anonymous chats (cho admin/support)
      */
     public List<ChatDto> getAllAnonymousChats() {
-        List<Chat> chats = chatRepository.findByIsAnonymousTrueAndStatusOrderByUpdatedAtDesc(1);
+        List<Chat> chats = chatRepository.findByIsAnonymousTrueAndStatusNotOrderByUpdatedAtDesc(0);
         return chats.stream()
                 .map(chatMapper::toDto)
                 .collect(Collectors.toList());
@@ -213,7 +213,7 @@ public class ChatService {
         Chat chat = chatOpt.get();
 
         // Verify ownership
-        if (chat.getUserId() != null && !chat.getUserId().equals(userId)) {
+        if (chat.getUser() != null && !chat.getUser().getId().equals(userId)) {
             throw new CommonException("You don't have permission to delete this chat");
         }
 
@@ -226,11 +226,17 @@ public class ChatService {
      * Lưu và broadcast message
      */
     @Transactional
-    public MessageDto saveAndBroadcast(Integer chatId, MessageDto dto) {
+    public MessageDto saveAndBroadcast(Integer chatId, MessageDto dto, UUID userId,boolean isReply) {
         Optional<Chat> chatOpt = chatRepository.findById(chatId);
 
         if (chatOpt.isEmpty()) {
             throw new CommonException("Chat not found with ID: " + chatId);
+        }
+
+        Optional<User> userOpt = userService.getOne(userId);
+
+        if (userOpt.isEmpty()) {
+            throw new CommonException("User not found with ID: " + userId);
         }
 
         Chat chat = chatOpt.get();
@@ -253,6 +259,8 @@ public class ChatService {
 
         // Update chat's updatedAt
         chat.setUpdatedAt(Instant.now());
+        chat.setStatus(isReply ? 2 : 1);
+        chat.setUser(userOpt.get());
         chatRepository.save(chat);
 
         return messageMapper.toDto(message);
@@ -292,7 +300,7 @@ public class ChatService {
         Chat chat = chatOpt.get();
 
         // Verify ownership nếu chat không phải anonymous
-        if (chat.getUserId() != null && !chat.getUserId().equals(userId)) {
+        if (chat.getUser() != null && !chat.getUser().getId().equals(userId)) {
             throw new CommonException("You don't have permission to access this chat");
         }
 

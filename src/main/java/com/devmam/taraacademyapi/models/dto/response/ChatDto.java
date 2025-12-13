@@ -21,7 +21,7 @@ import java.util.UUID;
 @EqualsAndHashCode(of = {"id"})
 public class ChatDto implements Serializable {
     Integer id;
-    UUID userId;
+    UserForChattingDto user;
     Instant createdAt;
     Instant updatedAt;
     Integer status;

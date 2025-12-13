@@ -36,11 +36,12 @@ public class ChatController {
 
         // Lấy token từ header của WebSocket message
         String token = extractTokenFromHeaders(headerAccessor);
+        UUID userId = null;
 
         if (token != null && !token.isEmpty()) {
             try {
                 // User đã đăng nhập
-                UUID userId = jwtService.getUserId(token);
+                userId = jwtService.getUserId(token);
                 Optional<User> userOpt = userService.getOne(userId);
 
                 if (userOpt.isPresent()) {
@@ -52,10 +53,12 @@ public class ChatController {
                     // ROLE_TEACHER/ADMIN = support (false)
                     boolean isCustomer = "ROLE_STUDENT".equals(user.getRole());
                     message.setIsFromUser(isCustomer);
+
                 } else {
                     // User không tồn tại, xử lý như guest
                     message.setSendBy("guest");
                     message.setIsFromUser(true);
+                    userId = null;
                 }
             } catch (Exception e) {
                 // Token không hợp lệ, xử lý như guest
@@ -68,7 +71,7 @@ public class ChatController {
             message.setIsFromUser(true);
         }
 
-        return chatService.saveAndBroadcast(chatId, message);
+        return chatService.saveAndBroadcast(chatId, message, userId,!message.getIsFromUser());
     }
 
     @MessageMapping("/chat/{chatId}/join")

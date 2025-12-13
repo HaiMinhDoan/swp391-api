@@ -86,7 +86,7 @@ public class TranController extends BaseController<Tran, Integer, TranRequestDto
     /**
      * Export Transactions to Excel with filter and sort
      * POST /api/v1/transactions/export/excel
-     * 
+     *
      * Request Body (optional):
      * {
      *   "filters": [...],      // Filter criteria (same as /filter endpoint)
@@ -94,7 +94,7 @@ public class TranController extends BaseController<Tran, Integer, TranRequestDto
      *   "page": 0,             // Starting page (default: 0, will fetch all pages)
      *   "size": 1000           // Page size for pagination (default: 1000)
      * }
-     * 
+     *
      * Note: This endpoint will automatically fetch all pages of filtered results
      * to ensure complete export, regardless of the page/size parameters.
      */
@@ -124,7 +124,7 @@ public class TranController extends BaseController<Tran, Integer, TranRequestDto
             List<Tran> transactions = new java.util.ArrayList<>();
             int currentPage = filterRequest.getPage() != null ? filterRequest.getPage() : 0;
             int pageSize = filterRequest.getSize();
-            
+
             while (true) {
                 BaseFilterRequest pageRequest = BaseFilterRequest.builder()
                         .filters(filterRequest.getFilters())
@@ -132,15 +132,15 @@ public class TranController extends BaseController<Tran, Integer, TranRequestDto
                         .page(currentPage)
                         .size(pageSize)
                         .build();
-                
+
                 Page<Tran> transactionPage = baseService.filter(pageRequest);
                 transactions.addAll(transactionPage.getContent());
-                
+
                 // If this is the last page, break
                 if (transactionPage.isLast() || transactionPage.getContent().isEmpty()) {
                     break;
                 }
-                
+
                 currentPage++;
             }
 

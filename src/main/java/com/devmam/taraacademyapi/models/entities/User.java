@@ -74,4 +74,9 @@ public class User {
     @Column(name = "password", length = 100)
     private String password;
 
+
+    @Size(max = 10)
+    @Column(name = "otp", length = 10)
+    private String otp;
+
 }
