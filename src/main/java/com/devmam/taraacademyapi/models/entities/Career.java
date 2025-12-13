@@ -26,6 +26,10 @@ public class Career {
     @Column(name = "title")
     private String title;
 
+    @Size(max = 255)
+    @Column(name = "summary")
+    private String summary;
+
     @Column(name = "description", length = Integer.MAX_VALUE)
     private String description;
 

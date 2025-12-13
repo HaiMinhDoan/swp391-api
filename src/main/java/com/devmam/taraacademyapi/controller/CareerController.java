@@ -9,7 +9,6 @@ import com.devmam.taraacademyapi.service.impl.entities.CareerService;
 import com.devmam.taraacademyapi.service.impl.entities.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -47,6 +46,7 @@ public class CareerController extends BaseController<Career, Integer, CareerRequ
 
         Career career = new Career();
         career.setTitle(requestDto.getTitle());
+        career.setSummary(requestDto.getSummary());
         career.setDescription(requestDto.getDescription());
         career.setStatus(requestDto.getStatus() != null ? requestDto.getStatus() : 1);
         career.setIsDeleted(0);

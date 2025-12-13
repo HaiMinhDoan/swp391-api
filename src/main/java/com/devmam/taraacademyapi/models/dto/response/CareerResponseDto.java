@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 public class CareerResponseDto implements Serializable {
     private final Integer id;
     private final String title;
+    private final String summary;
     private final String description;
     private final UUID createdById;
     private final String createdByUsername;
@@ -38,6 +39,7 @@ public class CareerResponseDto implements Serializable {
         return CareerResponseDto.builder()
                 .id(career.getId())
                 .title(career.getTitle())
+                .summary(career.getSummary())
                 .description(career.getDescription())
                 .createdById(career.getCreatedBy() != null ? career.getCreatedBy().getId() : null)
                 .createdByUsername(career.getCreatedBy() != null ? career.getCreatedBy().getUsername() : null)
