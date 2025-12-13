@@ -1,8 +1,7 @@
 package com.devmam.taraacademyapi.controller;
 
-import com.devmam.taraacademyapi.models.dto.request.LoginDTO;
-import com.devmam.taraacademyapi.models.dto.request.RegisterDTO;
-import com.devmam.taraacademyapi.models.dto.request.VerifyDto;
+import com.devmam.taraacademyapi.exception.customize.CommonException;
+import com.devmam.taraacademyapi.models.dto.request.*;
 import com.devmam.taraacademyapi.models.dto.response.AuthenticationResponse;
 import com.devmam.taraacademyapi.models.dto.response.ResponseData;
 import com.devmam.taraacademyapi.models.dto.response.UserResponseDto;
@@ -123,5 +122,55 @@ public class AuthController {
                         .error(null)
                         .data(auth)
                         .build());
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ResponseData<String>> forgotPassword(@Valid ForgotPasswordDto dto) {
+        Optional<User> findingUser = userService.findByEmail(dto.getEmail());
+
+        if (findingUser.isEmpty()) {
+            throw new CommonException("Email không tồn tại trong hệ thống");
+        }
+
+        User user = findingUser.get();
+
+        String opt = calcService.getRandomActiveCode(10l);
+        String resetUrl = "http://localhost:3000/reset-password?otp=" + opt;
+        findingUser.get().setOtp(opt);
+        userService.update(findingUser.get().getId(), findingUser.get());
+        Map<String, Object> model = Map.of("resetUrl", resetUrl);
+        model.put("userName", user.getUsername());
+        emailService.sendHtmlEmailFromTemplate(user.getEmail(), "Thay đổi mật khẩu", "reset-password.html", model);
+
+        return ResponseEntity.ok(
+                ResponseData.<String>builder()
+                        .status(200)
+                        .message("Đường dẫn đổi mật khẩu đã được gửi thành công")
+                        .error(null)
+                        .data("Đường dẫn đổi mật khẩu đã được gửi thành công")
+                        .build()
+        );
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<ResponseData<String>> resetPassword(@Valid ResetPasswordDto dto) {
+        List<User> users = userService.getUserByOtp(dto.getOtp());
+        if (users.isEmpty()) {
+            throw new CommonException("Đường dẫn đã hết hạn");
+        }
+
+        for (User user : users) {
+            user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
+            userService.update(user.getId(), user);
+        }
+
+        return ResponseEntity.ok().body(
+                ResponseData.<String>builder()
+                        .status(200)
+                        .message("Mật khẩu đã được đổi thành công")
+                        .error(null)
+                        .data("Mật khẩu đã được đổi thành công")
+                        .build()
+        );
     }
 }
