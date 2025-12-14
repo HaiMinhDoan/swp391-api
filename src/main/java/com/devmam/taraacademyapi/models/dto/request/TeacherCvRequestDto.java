@@ -35,4 +35,7 @@ public class TeacherCvRequestDto {
     private String certificates;
     
     private Integer status;
+    
+    @Size(max = 255, message = "Reject reason must not exceed 255 characters")
+    private String rejectReason;
 }
