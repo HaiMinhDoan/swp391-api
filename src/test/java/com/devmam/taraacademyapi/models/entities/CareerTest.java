@@ -46,7 +46,8 @@ class CareerTest {
         Integer status = 1;
         Integer isDeleted = 0;
 
-        Career career = new Career(id, title, description, null, createdAt, updatedAt, status, isDeleted);
+        Career career = new Career(id, title, null
+                , description, null, createdAt, updatedAt, status, isDeleted);
 
         assertEquals(id, career.getId());
         assertEquals(title, career.getTitle());

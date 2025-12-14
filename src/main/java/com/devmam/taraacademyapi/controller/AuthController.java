@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.security.sasl.AuthenticationException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -138,7 +139,8 @@ public class AuthController {
         String resetUrl = "http://localhost:3000/reset-password?otp=" + opt;
         findingUser.get().setOtp(opt);
         userService.update(findingUser.get().getId(), findingUser.get());
-        Map<String, Object> model = Map.of("resetUrl", resetUrl);
+        Map<String, Object> model = new HashMap<>();
+        model.put("resetUrl", resetUrl);
         model.put("userName", user.getUsername());
         emailService.sendHtmlEmailFromTemplate(user.getEmail(), "Thay đổi mật khẩu", "reset-password.html", model);
 
