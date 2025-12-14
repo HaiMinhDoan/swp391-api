@@ -44,6 +44,7 @@ public class TeacherCvResponseDto implements Serializable {
     private final Instant updatedAt;
     private final Integer status;
     private final Integer isDeleted;
+    private final String rejectReason;
 
     public static TeacherCvResponseDto toDTO(TeacherCv teacherCv) {
         return TeacherCvResponseDto.builder()
@@ -72,6 +73,7 @@ public class TeacherCvResponseDto implements Serializable {
                 .updatedAt(teacherCv.getUpdatedAt())
                 .status(teacherCv.getStatus())
                 .isDeleted(teacherCv.getIsDeleted())
+                .rejectReason(teacherCv.getRejectReason())
                 .build();
     }
 
