@@ -56,7 +56,7 @@ public class AuthController {
             }
             user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-            String opt = calcService.getRandomActiveCode(10l);
+            String opt = calcService.getRandomActiveCode(6l);
             user.setOtp(opt);
             user = userService.create(user);
             Map<String, Object> model = Map.of("activationCode", opt);
@@ -136,7 +136,7 @@ public class AuthController {
 
         User user = findingUser.get();
 
-        String opt = calcService.getRandomActiveCode(10l);
+        String opt = calcService.getRandomActiveCode(6l);
         String resetUrl = "http://localhost:3000/reset-password?otp=" + opt;
         findingUser.get().setOtp(opt);
         userService.update(findingUser.get().getId(), findingUser.get());

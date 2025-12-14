@@ -51,7 +51,7 @@ class TeacherCvTest {
         Integer status = 1;
         Integer isDeleted = 0;
 
-        TeacherCv teacherCv = new TeacherCv(id, null, title, description, cvUrl, experience, skills, educations, certificates, null, createdAt, updatedAt, status, isDeleted);
+        TeacherCv teacherCv = new TeacherCv(id, null, title, description, cvUrl, experience, skills, educations, certificates, null, createdAt, updatedAt, status, isDeleted, null);
 
         assertEquals(id, teacherCv.getId());
         assertEquals(title, teacherCv.getTitle());

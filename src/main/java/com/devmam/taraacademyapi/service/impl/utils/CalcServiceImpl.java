@@ -10,7 +10,7 @@ public class CalcServiceImpl implements CalcService {
 
     @Override
     public String getRandomActiveCode(Long lenghtOfString) {
-        String characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        String characters = "0123456789";
         StringBuilder randomString = new StringBuilder();
         Random random = new Random();
         for (int i = 0;
