@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -40,7 +41,7 @@ public class AuthController {
     private EmailService emailService;
 
     @PostMapping("/register")
-    public ResponseEntity<ResponseData<User>> registerStudent(@Valid RegisterDTO dto) {
+    public ResponseEntity<ResponseData<User>> registerStudent(@Valid @RequestBody RegisterDTO dto) {
         try {
             Optional<User> existingUser = userService.findByUsernameOrEmailOrPhone(dto.getUsername(), dto.getEmail());
             if (existingUser.isPresent()) {
@@ -83,7 +84,7 @@ public class AuthController {
     }
 
     @PostMapping("/verify")
-    public ResponseEntity<ResponseData<UserResponseDto>> verifyAccount(@Valid VerifyDto dto) {
+    public ResponseEntity<ResponseData<UserResponseDto>> verifyAccount(@Valid @RequestBody VerifyDto dto) {
         List<User> users = userService.getUserByOtp(dto.getOtp());
 
         if (users.isEmpty()) {
@@ -111,7 +112,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ResponseData<AuthenticationResponse>> login(@Valid LoginDTO dto) throws AuthenticationException {
+    public ResponseEntity<ResponseData<AuthenticationResponse>> login(@Valid @RequestBody LoginDTO dto) throws AuthenticationException {
         AuthenticationResponse auth = userService.authenticate(dto.getUsernameOrEmail(), dto.getPassword(), "Chrome");
         if (!auth.isAuthenticated()) {
             throw new RuntimeException(auth.getMessage());
@@ -126,7 +127,7 @@ public class AuthController {
     }
 
     @PostMapping("/forgot-password")
-    public ResponseEntity<ResponseData<String>> forgotPassword(@Valid ForgotPasswordDto dto) {
+    public ResponseEntity<ResponseData<String>> forgotPassword(@Valid @RequestBody ForgotPasswordDto dto) {
         Optional<User> findingUser = userService.findByEmail(dto.getEmail());
 
         if (findingUser.isEmpty()) {
@@ -155,7 +156,7 @@ public class AuthController {
     }
 
     @PostMapping("/reset-password")
-    public ResponseEntity<ResponseData<String>> resetPassword(@Valid ResetPasswordDto dto) {
+    public ResponseEntity<ResponseData<String>> resetPassword(@Valid @RequestBody ResetPasswordDto dto) {
         List<User> users = userService.getUserByOtp(dto.getOtp());
         if (users.isEmpty()) {
             throw new CommonException("Đường dẫn đã hết hạn");
