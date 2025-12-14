@@ -10,6 +10,7 @@ import org.hibernate.type.SqlTypes;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Map;
+import java.util.Set;
 
 @Builder
 @AllArgsConstructor
@@ -57,5 +58,9 @@ public class Tran {
     @ColumnDefault("0")
     @Column(name = "is_deleted")
     private Integer isDeleted;
+
+    // map voi user course
+    @OneToMany(mappedBy = "tran", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<UserCourse> userCourses;
 
 }
