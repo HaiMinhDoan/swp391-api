@@ -83,7 +83,9 @@ public class QuizController extends BaseController<Quiz, Integer, QuizRequestDto
 
     /**
      * Import quizzes from Excel file
-     * Excel format: Lesson ID | Type | Question | Answer | Status | Teacher Note | Option 1 | Is Correct 1 | Option 2 | Is Correct 2 | Option 3 | Is Correct 3 | Option 4 | Is Correct 4
+     * Excel format: Lesson ID | Question | Option 1 | Is Correct 1 | Option 2 | Is Correct 2 | Option 3 | Is Correct 3 | Option 4 | Is Correct 4
+     * Note: Type is always set to "Multiple Choice". Status is always set to 1. Teacher Note is not in Excel.
+     * Import starts from row 3 (after header row 0, instruction row 1, example row 2).
      */
     @PostMapping(value = "/import-excel", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
@@ -120,7 +122,7 @@ public class QuizController extends BaseController<Quiz, Integer, QuizRequestDto
             QuizExcelImportResultDto result = quizExcelImportService.importQuizzesFromExcel(file);
 
             String message = String.format("Import completed: %d successful, %d failed out of %d total rows",
-                    result.getSuccessfulImports(), result.getFailedImports(), result.getTotalRows());
+                    result.getSuccessfulImports(), result.getFailedImports(), result.getTotalRows()-1);
 
             return ResponseEntity.ok(ResponseData.<QuizExcelImportResultDto>builder()
                     .status(200)
@@ -145,11 +147,11 @@ public class QuizController extends BaseController<Quiz, Integer, QuizRequestDto
      * @return Excel template file (.xlsx)
      * 
      * Excel template format:
-     * - Row 0: Header row (Lesson ID, Type, Question, Answer, Status, Teacher Note, Option 1-4, Is Correct 1-4)
+     * - Row 0: Header row (Lesson ID, Question, Option 1-4, Is Correct 1-4)
      * - Row 1: Instructions
      * - Row 2: Example data
-     * - Row 3: Additional instructions
-     * - Row 4+: User data (start from here)
+     * - Row 3+: User data (import starts from row 3)
+     * Note: Type is always set to "Multiple Choice", Status is always set to 1, Teacher Note is not included in template
      */
     @GetMapping(value = "/template", produces = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
     @PreAuthorize("permitAll()")

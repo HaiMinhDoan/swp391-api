@@ -32,11 +32,7 @@ public class QuizExcelTemplateGenerator {
             Row headerRow = sheet.createRow(0);
             String[] headers = {
                 "Lesson ID",
-                "Type",
                 "Question",
-                "Answer",
-                "Status",
-                "Teacher Note",
                 "Option 1",
                 "Is Correct 1",
                 "Option 2",
@@ -55,35 +51,27 @@ public class QuizExcelTemplateGenerator {
 
             // Create instruction row
             Row instructionRow = sheet.createRow(1);
-            createMergedCell(sheet, instructionRow, 0, 13, "Lưu ý: Question là bắt buộc. Is Correct có thể là: true/false, yes/no, 1/0, đúng/sai", instructionStyle);
+            createMergedCell(sheet, instructionRow, 0, 9, "Lưu ý: Question là bắt buộc. Type mặc định là 'Multiple Choice'. Status mặc định là 1. Is Correct có thể là: true/false, yes/no, 1/0, đúng/sai", instructionStyle);
 
             // Create example row (row 2)
             Row exampleRow = sheet.createRow(2);
             CellStyle exampleStyle = createExampleStyle(workbook);
             
             exampleRow.createCell(0).setCellValue(1); // Lesson ID
-            exampleRow.createCell(1).setCellValue("Multiple Choice"); // Type
-            exampleRow.createCell(2).setCellValue("Đâu là thủ đô của Việt Nam?"); // Question
-            exampleRow.createCell(3).setCellValue("Hà Nội"); // Answer
-            exampleRow.createCell(4).setCellValue(1); // Status
-            exampleRow.createCell(5).setCellValue("Câu hỏi cơ bản"); // Teacher Note
-            exampleRow.createCell(6).setCellValue("Hà Nội"); // Option 1
-            exampleRow.createCell(7).setCellValue(true); // Is Correct 1
-            exampleRow.createCell(8).setCellValue("Hồ Chí Minh"); // Option 2
-            exampleRow.createCell(9).setCellValue(false); // Is Correct 2
-            exampleRow.createCell(10).setCellValue("Đà Nẵng"); // Option 3
-            exampleRow.createCell(11).setCellValue(false); // Is Correct 3
-            exampleRow.createCell(12).setCellValue("Huế"); // Option 4
-            exampleRow.createCell(13).setCellValue(false); // Is Correct 4
+            exampleRow.createCell(1).setCellValue("Đâu là thủ đô của Việt Nam?"); // Question
+            exampleRow.createCell(2).setCellValue("Hà Nội"); // Option 1
+            exampleRow.createCell(3).setCellValue(true); // Is Correct 1
+            exampleRow.createCell(4).setCellValue("Hồ Chí Minh"); // Option 2
+            exampleRow.createCell(5).setCellValue(false); // Is Correct 2
+            exampleRow.createCell(6).setCellValue("Đà Nẵng"); // Option 3
+            exampleRow.createCell(7).setCellValue(false); // Is Correct 3
+            exampleRow.createCell(8).setCellValue("Huế"); // Option 4
+            exampleRow.createCell(9).setCellValue(false); // Is Correct 4
 
             // Apply example style to all cells
-            for (int i = 0; i < 14; i++) {
+            for (int i = 0; i < 10; i++) {
                 exampleRow.getCell(i).setCellStyle(exampleStyle);
             }
-
-            // Create instruction row 2
-            Row instructionRow2 = sheet.createRow(3);
-            createMergedCell(sheet, instructionRow2, 0, 13, "Ghi chú: Hàng trên là ví dụ. Xóa hàng ví dụ và điền dữ liệu thực tế của bạn từ hàng 4 trở đi.", instructionStyle);
 
             // Auto-size columns
             for (int i = 0; i < headers.length; i++) {

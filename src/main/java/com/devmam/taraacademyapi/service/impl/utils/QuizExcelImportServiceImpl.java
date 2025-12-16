@@ -13,7 +13,9 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -39,25 +41,25 @@ public class QuizExcelImportServiceImpl implements QuizExcelImportService {
     @Autowired
     private LessonService lessonService;
 
+    @Autowired
+    private ApplicationContext applicationContext; // For self-injection to avoid circular dependency
+
     // Excel column indices
     private static final int COL_LESSON_ID = 0;
-    private static final int COL_TYPE = 1;
-    private static final int COL_QUESTION = 2;
-    private static final int COL_ANSWER = 3;
-    private static final int COL_STATUS = 4;
-    private static final int COL_TEACHER_NOTE = 5;
-    private static final int COL_OPTION_1 = 6;
-    private static final int COL_IS_CORRECT_1 = 7;
-    private static final int COL_OPTION_2 = 8;
-    private static final int COL_IS_CORRECT_2 = 9;
-    private static final int COL_OPTION_3 = 10;
-    private static final int COL_IS_CORRECT_3 = 11;
-    private static final int COL_OPTION_4 = 12;
-    private static final int COL_IS_CORRECT_4 = 13;
+    private static final int COL_QUESTION = 1;
+    private static final int COL_OPTION_1 = 2;
+    private static final int COL_IS_CORRECT_1 = 3;
+    private static final int COL_OPTION_2 = 4;
+    private static final int COL_IS_CORRECT_2 = 5;
+    private static final int COL_OPTION_3 = 6;
+    private static final int COL_IS_CORRECT_3 = 7;
+    private static final int COL_OPTION_4 = 8;
+    private static final int COL_IS_CORRECT_4 = 9;
 
     @Override
     @Transactional
     public QuizExcelImportResultDto importQuizzesFromExcel(MultipartFile file) {
+        logger.info("Starting Excel import process for file: {}", file.getOriginalFilename());
         List<QuizExcelImportResultDto.ImportError> errors = new ArrayList<>();
         int successfulImports = 0;
         int totalRows = 0;
@@ -65,10 +67,15 @@ public class QuizExcelImportServiceImpl implements QuizExcelImportService {
         try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
             Sheet sheet = workbook.getSheetAt(0);
             totalRows = sheet.getLastRowNum();
+            logger.info("Excel file loaded. Total rows: {}", totalRows);
 
             // Find header row (contains "Lesson ID")
             int headerRowIndex = findHeaderRow(sheet);
-            int startRowIndex = headerRowIndex + 1;
+            logger.info("Header row found at index: {}", headerRowIndex);
+            // Start from row after header (skip header row only)
+            // If there's an instruction row (row 1) and example row (row 2), they will be skipped automatically
+            int startRowIndex = headerRowIndex + 2;
+            logger.info("Starting import from row index: {}", startRowIndex);
 
             for (int rowIndex = startRowIndex; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
                 Row row = sheet.getRow(rowIndex);
@@ -77,8 +84,11 @@ public class QuizExcelImportServiceImpl implements QuizExcelImportService {
                 }
 
                 try {
+                    logger.debug("Processing row {}: {}", rowIndex + 1, rowIndex);
+                    
                     // Check if row is empty
                     if (isRowEmpty(row)) {
+                        logger.debug("Row {} is empty, skipping", rowIndex + 1);
                         continue;
                     }
 
@@ -86,36 +96,44 @@ public class QuizExcelImportServiceImpl implements QuizExcelImportService {
                     String firstCellValue = getCellValueAsString(row.getCell(0));
                     if (firstCellValue != null && (firstCellValue.contains("Lesson ID") || 
                         firstCellValue.equalsIgnoreCase("Lesson ID"))) {
+                        logger.debug("Row {} looks like header row, skipping", rowIndex + 1);
+                        continue;
+                    }
+
+                    // Skip instruction row (contains "Lưu ý" or "Note")
+                    String questionValue = getCellValueAsString(row.getCell(COL_QUESTION));
+                    if (questionValue != null && (questionValue.contains("Lưu ý") || 
+                        questionValue.contains("Note") || questionValue.contains("Lưu ý:"))) {
+                        logger.debug("Row {} is instruction row, skipping", rowIndex + 1);
                         continue;
                     }
 
                     // Read quiz data from row
+                    logger.debug("Creating quiz from row {}", rowIndex + 1);
                     Quiz quiz = createQuizFromRow(row);
                     
-                    // Validate quiz
-                    if (quiz.getQuestion() == null || quiz.getQuestion().trim().isEmpty()) {
+                    // Validate quiz with detailed error messages
+                    logger.debug("Validating quiz from row {}", rowIndex + 1);
+                    String validationError = validateQuizRow(row, quiz);
+                    if (validationError != null) {
+                        logger.warn("Validation failed for row {}: {}", rowIndex + 1, validationError);
                         errors.add(QuizExcelImportResultDto.ImportError.builder()
                                 .rowNumber(rowIndex + 1)
-                                .message("Question is required")
+                                .message(validationError)
                                 .quizQuestion(getCellValueAsString(row.getCell(COL_QUESTION)))
                                 .build());
                         continue;
                     }
 
-                    // Save quiz
-                    Quiz savedQuiz = quizService.create(quiz);
-
-                    // Read and save quiz options
-                    List<QuizOption> options = createQuizOptionsFromRow(row, savedQuiz);
-                    for (QuizOption option : options) {
-                        if (option.getContent() != null && !option.getContent().trim().isEmpty()) {
-                            quizOptionService.create(option);
-                        }
-                    }
-
+                    // Save quiz and options in a separate transaction
+                    logger.debug("Saving quiz from row {}", rowIndex + 1);
+                    QuizExcelImportService self = applicationContext.getBean(QuizExcelImportService.class);
+                    self.saveQuizWithOptions(quiz, row);
                     successfulImports++;
+                    logger.info("Successfully imported quiz from row {}", rowIndex + 1);
                 } catch (Exception e) {
                     logger.error("Error importing quiz at row {}: {}", rowIndex + 1, e.getMessage(), e);
+                    logger.error("Stack trace: ", e);
                     errors.add(QuizExcelImportResultDto.ImportError.builder()
                             .rowNumber(rowIndex + 1)
                             .message("Error: " + e.getMessage())
@@ -125,15 +143,73 @@ public class QuizExcelImportServiceImpl implements QuizExcelImportService {
             }
         } catch (IOException e) {
             logger.error("Error reading Excel file: {}", e.getMessage(), e);
+            logger.error("Stack trace: ", e);
             throw new RuntimeException("Error reading Excel file: " + e.getMessage(), e);
         }
 
+        logger.info("Import completed. Total rows: {}, Successful: {}, Failed: {}", 
+                totalRows, successfulImports, errors.size());
+        
         return QuizExcelImportResultDto.builder()
                 .totalRows(totalRows)
                 .successfulImports(successfulImports)
                 .failedImports(errors.size())
                 .errors(errors)
                 .build();
+    }
+
+    /**
+     * Validate quiz row and return error message if invalid, null if valid
+     */
+    private String validateQuizRow(Row row, Quiz quiz) {
+        // Validate Question
+        String question = quiz.getQuestion();
+        if (question == null || question.trim().isEmpty()) {
+            return "Question là bắt buộc và không được để trống";
+        }
+
+        // Validate Lesson ID if provided
+        Integer lessonId = getCellValueAsInteger(row.getCell(COL_LESSON_ID));
+        if (lessonId != null) {
+            if (!lessonService.exists(lessonId)) {
+                return String.format("Lesson ID %d không tồn tại trong hệ thống", lessonId);
+            }
+        }
+
+        // Validate options
+        List<QuizOption> options = createQuizOptionsFromRow(row, quiz);
+        
+        // Check if at least one option exists
+        long validOptionsCount = options.stream()
+                .filter(opt -> opt.getContent() != null && !opt.getContent().trim().isEmpty())
+                .count();
+        
+        if (validOptionsCount == 0) {
+            return "Phải có ít nhất 1 option (Option 1-4)";
+        }
+
+        // Check if at least one option is correct
+        boolean hasCorrectOption = options.stream()
+                .filter(opt -> opt.getContent() != null && !opt.getContent().trim().isEmpty())
+                .anyMatch(QuizOption::getIsCorrect);
+        
+        if (!hasCorrectOption) {
+            return "Phải có ít nhất 1 option đúng (Is Correct = true/yes/1/đúng)";
+        }
+
+        // Validate option content if Is Correct is set
+        for (int i = 0; i < options.size(); i++) {
+            QuizOption option = options.get(i);
+            Boolean isCorrect = option.getIsCorrect();
+            String content = option.getContent();
+            
+            // If Is Correct is true but content is empty, it's invalid
+            if (Boolean.TRUE.equals(isCorrect) && (content == null || content.trim().isEmpty())) {
+                return String.format("Option %d có Is Correct = true nhưng nội dung trống", i + 1);
+            }
+        }
+
+        return null; // Valid
     }
 
     private Quiz createQuizFromRow(Row row) {
@@ -146,21 +222,17 @@ public class QuizExcelImportServiceImpl implements QuizExcelImportService {
             quiz.setLesson(lesson);
         }
 
-        // Type
-        quiz.setType(getCellValueAsString(row.getCell(COL_TYPE)));
+        // Type (always set to "Multiple Choice")
+        quiz.setType("multiple choice");
 
         // Question
         quiz.setQuestion(getCellValueAsString(row.getCell(COL_QUESTION)));
 
-        // Answer
-        quiz.setAnswer(getCellValueAsString(row.getCell(COL_ANSWER)));
+        // Status (default to 1 - always set to 1)
+        quiz.setStatus(1);
 
-        // Status (default to 1 if not provided)
-        Integer status = getCellValueAsInteger(row.getCell(COL_STATUS));
-        quiz.setStatus(status != null ? status : 1);
-
-        // Teacher Note
-        quiz.setTeacherNote(getCellValueAsString(row.getCell(COL_TEACHER_NOTE)));
+        // Teacher Note (not in Excel, set to null)
+        quiz.setTeacherNote(null);
 
         // Set defaults
         quiz.setIsDeleted(0);
@@ -168,6 +240,38 @@ public class QuizExcelImportServiceImpl implements QuizExcelImportService {
         quiz.setUpdatedAt(Instant.now());
 
         return quiz;
+    }
+
+    /**
+     * Save quiz and options in a separate transaction
+     * This ensures that if one quiz fails, it doesn't rollback other successful imports
+     * Must be public for Spring AOP to work with @Transactional
+     */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void saveQuizWithOptions(Quiz quiz, Row row) {
+        try {
+            logger.debug("Saving quiz: {}", quiz.getQuestion());
+            // Save quiz
+            Quiz savedQuiz = quizService.create(quiz);
+            logger.debug("Quiz saved with ID: {}", savedQuiz.getId());
+
+            // Read and save quiz options
+            List<QuizOption> options = createQuizOptionsFromRow(row, savedQuiz);
+            logger.debug("Created {} options for quiz", options.size());
+            
+            int savedOptions = 0;
+            for (QuizOption option : options) {
+                if (option.getContent() != null && !option.getContent().trim().isEmpty()) {
+                    quizOptionService.create(option);
+                    savedOptions++;
+                }
+            }
+            logger.debug("Saved {} options for quiz ID: {}", savedOptions, savedQuiz.getId());
+        } catch (Exception e) {
+            logger.error("Error saving quiz with options. Question: {}", quiz.getQuestion(), e);
+            logger.error("Stack trace: ", e);
+            throw e; // Re-throw to trigger transaction rollback
+        }
     }
 
     private List<QuizOption> createQuizOptionsFromRow(Row row, Quiz quiz) {
