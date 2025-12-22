@@ -48,7 +48,7 @@ public class RestControllerGlobalExceptionHandler {
                 .collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage, (a, b) -> a));
         ResponseData<Map<String, String>> body = ResponseData.<Map<String, String>>builder()
                 .status(HttpStatus.BAD_REQUEST.value())
-                .message("Validation failed")
+                .message("Xác thực dữ liệu thất bại")
                 .data(fieldErrors)
                 .error("Bad Request")
                 .path(getPath(request))
@@ -65,7 +65,7 @@ public class RestControllerGlobalExceptionHandler {
         data.put("violations", violations);
         ResponseData<Map<String, Object>> body = ResponseData.<Map<String, Object>>builder()
                 .status(HttpStatus.BAD_REQUEST.value())
-                .message("Constraint violations")
+                .message("Vi phạm ràng buộc dữ liệu")
                 .data(data)
                 .error("Bad Request")
                 .path(getPath(request))
@@ -77,7 +77,7 @@ public class RestControllerGlobalExceptionHandler {
     public ResponseEntity<ResponseData<?>> handleNotReadable(HttpMessageNotReadableException ex, WebRequest request) {
         ResponseData<Void> body = ResponseData.<Void>builder()
                 .status(HttpStatus.BAD_REQUEST.value())
-                .message("Malformed JSON request")
+                .message("Yêu cầu JSON không hợp lệ")
                 .error("Bad Request")
                 .path(getPath(request))
                 .build();
@@ -88,7 +88,7 @@ public class RestControllerGlobalExceptionHandler {
     public ResponseEntity<ResponseData<?>> handleMethodNotSupported(HttpRequestMethodNotSupportedException ex, WebRequest request) {
         ResponseData<Void> body = ResponseData.<Void>builder()
                 .status(HttpStatus.METHOD_NOT_ALLOWED.value())
-                .message("Method not allowed")
+                .message("Phương thức không được phép")
                 .error("Method Not Allowed")
                 .path(getPath(request))
                 .build();
@@ -99,7 +99,7 @@ public class RestControllerGlobalExceptionHandler {
     public ResponseEntity<ResponseData<?>> handleAccessDenied(AccessDeniedException ex, WebRequest request) {
         ResponseData<Void> body = ResponseData.<Void>builder()
                 .status(HttpStatus.FORBIDDEN.value())
-                .message("Access is denied")
+                .message("Truy cập bị từ chối")
                 .error("Forbidden")
                 .path(getPath(request))
                 .build();
@@ -110,7 +110,7 @@ public class RestControllerGlobalExceptionHandler {
     public ResponseEntity<ResponseData<?>> handleAuth(AuthenticationException ex, WebRequest request) {
         ResponseData<Void> body = ResponseData.<Void>builder()
                 .status(HttpStatus.UNAUTHORIZED.value())
-                .message("Unauthorized")
+                .message("Chưa được xác thực")
                 .error("Unauthorized")
                 .path(getPath(request))
                 .build();
@@ -121,7 +121,7 @@ public class RestControllerGlobalExceptionHandler {
     public ResponseEntity<ResponseData<?>> handleNotFound(RuntimeException ex, WebRequest request) {
         ResponseData<Void> body = ResponseData.<Void>builder()
                 .status(HttpStatus.NOT_FOUND.value())
-                .message("Resource not found")
+                .message("Không tìm thấy tài nguyên")
                 .error("Not Found")
                 .path(getPath(request))
                 .build();
@@ -132,7 +132,7 @@ public class RestControllerGlobalExceptionHandler {
     public ResponseEntity<ResponseData<?>> handleConflict(DataIntegrityViolationException ex, WebRequest request) {
         ResponseData<Void> body = ResponseData.<Void>builder()
                 .status(HttpStatus.CONFLICT.value())
-                .message("Data integrity violation")
+                .message("Vi phạm tính toàn vẹn dữ liệu")
                 .error("Conflict")
                 .path(getPath(request))
                 .build();
@@ -154,7 +154,7 @@ public class RestControllerGlobalExceptionHandler {
     public ResponseEntity<ResponseData<?>> handleGeneric(Exception ex, WebRequest request) {
         ResponseData<Void> body = ResponseData.<Void>builder()
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .message("Internal server error")
+                .message("Lỗi máy chủ nội bộ")
                 .error(ex.getMessage())
                 .path(getPath(request))
                 .build();

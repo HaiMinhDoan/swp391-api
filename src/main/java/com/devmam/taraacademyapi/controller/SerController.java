@@ -9,7 +9,6 @@ import com.devmam.taraacademyapi.service.impl.entities.SerService;
 import com.devmam.taraacademyapi.service.impl.entities.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -48,6 +47,8 @@ public class SerController extends BaseController<Ser, Integer, SerRequestDto, S
         Ser ser = new Ser();
         ser.setName(requestDto.getName());
         ser.setDescription(requestDto.getDescription());
+        ser.setDetail(requestDto.getDetail());
+        ser.setPrice(requestDto.getPrice());
         ser.setThumnail(requestDto.getThumnail());
         ser.setStatus(requestDto.getStatus() != null ? requestDto.getStatus() : 1);
         ser.setIsDeleted(0);

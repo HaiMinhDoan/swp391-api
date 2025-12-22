@@ -14,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -47,16 +46,16 @@ public abstract class BaseController<T, ID, RequestDto, ResponseDto> {
      */
     protected User validateUser(@RequestHeader(value = "Authorization", required = false) String authHeader) {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new RuntimeException("Authorization header is required. Please provide a valid Bearer token.");
+            throw new RuntimeException("Yêu cầu header Authorization. Vui lòng cung cấp Bearer token hợp lệ.");
         }
 
         if (jwtService == null || userService == null) {
-            throw new RuntimeException("JWT service not available");
+            throw new RuntimeException("Dịch vụ JWT không khả dụng");
         }
 
         String token = jwtService.getTokenFromAuthHeader(authHeader);
         if (token == null) {
-            throw new RuntimeException("Invalid authorization header format");
+            throw new RuntimeException("Định dạng header Authorization không hợp lệ");
         }
 
         // Get user email from token
@@ -73,16 +72,16 @@ public abstract class BaseController<T, ID, RequestDto, ResponseDto> {
                 userEmail = claims.getSubject();
             }
         } catch (Exception e) {
-            throw new RuntimeException("Invalid or expired token: " + e.getMessage());
+            throw new RuntimeException("Token không hợp lệ hoặc đã hết hạn: " + e.getMessage());
         }
 
         if (userEmail == null || userEmail.isEmpty()) {
-            throw new RuntimeException("Invalid token: user email not found");
+            throw new RuntimeException("Token không hợp lệ: không tìm thấy email người dùng");
         }
 
         final String finalUserEmail = userEmail;
         return userService.findByEmail(finalUserEmail)
-                .orElseThrow(() -> new RuntimeException("User not found with email: " + finalUserEmail));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng với email: " + finalUserEmail));
     }
 
     /**
@@ -94,7 +93,7 @@ public abstract class BaseController<T, ID, RequestDto, ResponseDto> {
         User user = validateUser(authHeader);
         
         if (user.getRole() == null || !user.getRole().contains("ADMIN")) {
-            throw new RuntimeException("Access denied. Admin role required. Current role: " + user.getRole());
+            throw new RuntimeException("Truy cập bị từ chối. Yêu cầu quyền ADMIN. Quyền hiện tại: " + user.getRole());
         }
 
         return user;
@@ -139,7 +138,7 @@ public abstract class BaseController<T, ID, RequestDto, ResponseDto> {
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(ResponseData.<ResponseDto>builder()
                             .status(201)
-                            .message(getEntityName() + " created successfully")
+                            .message("Tạo " + getEntityName() + " thành công")
                             .error(null)
                             .data(responseDto)
                             .build());
@@ -147,7 +146,7 @@ public abstract class BaseController<T, ID, RequestDto, ResponseDto> {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ResponseData.<ResponseDto>builder()
                             .status(500)
-                            .message("Failed to create " + getEntityName())
+                            .message("Tạo " + getEntityName() + " thất bại")
                             .error(e.getMessage())
                             .data(null)
                             .build());
@@ -165,8 +164,8 @@ public abstract class BaseController<T, ID, RequestDto, ResponseDto> {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(ResponseData.<ResponseDto>builder()
                                 .status(404)
-                                .message(getEntityName() + " not found")
-                                .error(getEntityName() + " with id " + id + " not found")
+                                .message("Không tìm thấy " + getEntityName())
+                                .error("Không tìm thấy " + getEntityName() + " với id " + id)
                                 .data(null)
                                 .build());
             }
@@ -174,7 +173,7 @@ public abstract class BaseController<T, ID, RequestDto, ResponseDto> {
             ResponseDto responseDto = toResponseDto(entity.get());
             return ResponseEntity.ok(ResponseData.<ResponseDto>builder()
                     .status(200)
-                    .message(getEntityName() + " found")
+                    .message("Tìm thấy " + getEntityName())
                     .error(null)
                     .data(responseDto)
                     .build());
@@ -182,7 +181,7 @@ public abstract class BaseController<T, ID, RequestDto, ResponseDto> {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ResponseData.<ResponseDto>builder()
                             .status(500)
-                            .message("Failed to get " + getEntityName())
+                            .message("Lấy " + getEntityName() + " thất bại")
                             .error(e.getMessage())
                             .data(null)
                             .build());
@@ -207,8 +206,8 @@ public abstract class BaseController<T, ID, RequestDto, ResponseDto> {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(ResponseData.<ResponseDto>builder()
                                 .status(404)
-                                .message(getEntityName() + " not found")
-                                .error(getEntityName() + " with id " + id + " not found")
+                                .message("Không tìm thấy " + getEntityName())
+                                .error("Không tìm thấy " + getEntityName() + " với id " + id)
                                 .data(null)
                                 .build());
             }
@@ -219,7 +218,7 @@ public abstract class BaseController<T, ID, RequestDto, ResponseDto> {
 
             return ResponseEntity.ok(ResponseData.<ResponseDto>builder()
                     .status(200)
-                    .message(getEntityName() + " updated successfully")
+                    .message("Cập nhật " + getEntityName() + " thành công")
                     .error(null)
                     .data(responseDto)
                     .build());
@@ -227,7 +226,7 @@ public abstract class BaseController<T, ID, RequestDto, ResponseDto> {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ResponseData.<ResponseDto>builder()
                             .status(500)
-                            .message("Failed to update " + getEntityName())
+                            .message("Cập nhật " + getEntityName() + " thất bại")
                             .error(e.getMessage())
                             .data(null)
                             .build());
@@ -242,15 +241,15 @@ public abstract class BaseController<T, ID, RequestDto, ResponseDto> {
     public ResponseEntity<ResponseData<Void>> delete(@PathVariable ID id,
         @RequestHeader(value = "Authorization", required = false) String authHeader) {
         try {
-            User user = validateUser(authHeader);
+            validateUser(authHeader);
 
             Optional<T> entity = baseService.getOne(id);
             if (entity.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(ResponseData.<Void>builder()
                                 .status(404)
-                                .message(getEntityName() + " not found")
-                                .error(getEntityName() + " with id " + id + " not found")
+                                .message("Không tìm thấy " + getEntityName())
+                                .error("Không tìm thấy " + getEntityName() + " với id " + id)
                                 .data(null)
                                 .build());
             }
@@ -258,7 +257,7 @@ public abstract class BaseController<T, ID, RequestDto, ResponseDto> {
             baseService.delete(id);
             return ResponseEntity.ok(ResponseData.<Void>builder()
                     .status(200)
-                    .message(getEntityName() + " deleted successfully")
+                    .message("Xóa " + getEntityName() + " thành công")
                     .error(null)
                     .data(null)
                     .build());
@@ -266,7 +265,7 @@ public abstract class BaseController<T, ID, RequestDto, ResponseDto> {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ResponseData.<Void>builder()
                             .status(500)
-                            .message("Failed to delete " + getEntityName())
+                            .message("Xóa " + getEntityName() + " thất bại")
                             .error(e.getMessage())
                             .data(null)
                             .build());
@@ -285,8 +284,8 @@ public abstract class BaseController<T, ID, RequestDto, ResponseDto> {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(ResponseData.<ResponseDto>builder()
                                 .status(404)
-                                .message(getEntityName() + " not found")
-                                .error(getEntityName() + " with id " + id + " not found")
+                                .message("Không tìm thấy " + getEntityName())
+                                .error("Không tìm thấy " + getEntityName() + " với id " + id)
                                 .data(null)
                                 .build());
             }
@@ -296,7 +295,7 @@ public abstract class BaseController<T, ID, RequestDto, ResponseDto> {
 
             return ResponseEntity.ok(ResponseData.<ResponseDto>builder()
                     .status(200)
-                    .message(getEntityName() + " status updated successfully")
+                    .message("Cập nhật trạng thái " + getEntityName() + " thành công")
                     .error(null)
                     .data(responseDto)
                     .build());
@@ -304,7 +303,7 @@ public abstract class BaseController<T, ID, RequestDto, ResponseDto> {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ResponseData.<ResponseDto>builder()
                             .status(500)
-                            .message("Failed to update " + getEntityName() + " status")
+                            .message("Cập nhật trạng thái " + getEntityName() + " thất bại")
                             .error(e.getMessage())
                             .data(null)
                             .build());
@@ -324,7 +323,7 @@ public abstract class BaseController<T, ID, RequestDto, ResponseDto> {
 
             return ResponseEntity.ok(ResponseData.<List<ResponseDto>>builder()
                     .status(200)
-                    .message(getEntityName() + "s retrieved successfully")
+                    .message("Lấy danh sách " + getEntityName() + " thành công")
                     .error(null)
                     .data(responseDtos)
                     .build());
@@ -332,7 +331,7 @@ public abstract class BaseController<T, ID, RequestDto, ResponseDto> {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ResponseData.<List<ResponseDto>>builder()
                             .status(500)
-                            .message("Failed to get " + getEntityName() + "s")
+                            .message("Lấy danh sách " + getEntityName() + " thất bại")
                             .error(e.getMessage())
                             .data(null)
                             .build());
@@ -350,7 +349,7 @@ public abstract class BaseController<T, ID, RequestDto, ResponseDto> {
 
             return ResponseEntity.ok(ResponseData.<Page<ResponseDto>>builder()
                     .status(200)
-                    .message(getEntityName() + "s filtered successfully")
+                    .message("Lọc " + getEntityName() + " thành công")
                     .error(null)
                     .data(responsePage)
                     .build());
@@ -358,7 +357,7 @@ public abstract class BaseController<T, ID, RequestDto, ResponseDto> {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ResponseData.<Page<ResponseDto>>builder()
                             .status(500)
-                            .message("Failed to filter " + getEntityName() + "s")
+                            .message("Lọc " + getEntityName() + " thất bại")
                             .error(e.getMessage())
                             .data(null)
                             .build());
@@ -374,7 +373,7 @@ public abstract class BaseController<T, ID, RequestDto, ResponseDto> {
             long count = baseService.count();
             return ResponseEntity.ok(ResponseData.<Long>builder()
                     .status(200)
-                    .message(getEntityName() + "s count retrieved successfully")
+                    .message("Lấy số lượng " + getEntityName() + " thành công")
                     .error(null)
                     .data(count)
                     .build());
@@ -382,7 +381,7 @@ public abstract class BaseController<T, ID, RequestDto, ResponseDto> {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ResponseData.<Long>builder()
                             .status(500)
-                            .message("Failed to get " + getEntityName() + "s count")
+                            .message("Lấy số lượng " + getEntityName() + " thất bại")
                             .error(e.getMessage())
                             .data(null)
                             .build());
@@ -398,7 +397,7 @@ public abstract class BaseController<T, ID, RequestDto, ResponseDto> {
             boolean exists = baseService.exists(id);
             return ResponseEntity.ok(ResponseData.<Boolean>builder()
                     .status(200)
-                    .message(getEntityName() + " existence checked")
+                    .message("Kiểm tra sự tồn tại của " + getEntityName() + " thành công")
                     .error(null)
                     .data(exists)
                     .build());
@@ -406,7 +405,7 @@ public abstract class BaseController<T, ID, RequestDto, ResponseDto> {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ResponseData.<Boolean>builder()
                             .status(500)
-                            .message("Failed to check " + getEntityName() + " existence")
+                            .message("Kiểm tra sự tồn tại của " + getEntityName() + " thất bại")
                             .error(e.getMessage())
                             .data(null)
                             .build());
@@ -419,7 +418,7 @@ public abstract class BaseController<T, ID, RequestDto, ResponseDto> {
             T updatedEntity = baseService.updateFromMap(id, map);
             return ResponseEntity.ok(ResponseData.<ResponseDto>builder()
                             .status(200)
-                            .message("Map updated successfully")
+                            .message("Cập nhật Map thành công")
                             .error(null)
                             .data(toResponseDto(updatedEntity))
                     .build());
@@ -427,7 +426,7 @@ public abstract class BaseController<T, ID, RequestDto, ResponseDto> {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ResponseData.<ResponseDto>builder()
                             .status(500)
-                            .message("Failed to check " + getEntityName() + " existence")
+                            .message("Cập nhật Map thất bại")
                             .error(e.getMessage())
                             .data(null)
                             .build());

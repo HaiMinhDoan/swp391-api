@@ -3,11 +3,13 @@ package com.devmam.taraacademyapi.controller;
 import com.devmam.taraacademyapi.models.dto.request.BaseFilterRequest;
 import com.devmam.taraacademyapi.models.dto.request.ContactRequestDto;
 import com.devmam.taraacademyapi.models.dto.response.ContactResponseDto;
+import com.devmam.taraacademyapi.models.dto.response.ResponseData;
 import com.devmam.taraacademyapi.models.entities.Contact;
 import com.devmam.taraacademyapi.models.entities.Ser;
 import com.devmam.taraacademyapi.service.ExcelExportService;
 import com.devmam.taraacademyapi.service.impl.entities.ContactService;
 import com.devmam.taraacademyapi.service.impl.entities.SerService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
@@ -52,6 +54,9 @@ public class ContactController extends BaseController<Contact, Integer, ContactR
         contact.setFullName(requestDto.getFullName());
         contact.setEmail(requestDto.getEmail());
         contact.setPhone(requestDto.getPhone());
+        contact.setCompany(requestDto.getCompany());
+        contact.setPersonalRole(requestDto.getPersonalRole());
+        contact.setSubject(requestDto.getSubject());
         contact.setMessage(requestDto.getMessage());
         contact.setServices(service);
         contact.setStatus(requestDto.getStatus() != null ? requestDto.getStatus() : 1);
@@ -70,6 +75,39 @@ public class ContactController extends BaseController<Contact, Integer, ContactR
     @Override
     protected String getEntityName() {
         return "Contact";
+    }
+
+    /**
+     * Create new Contact - Allow anonymous users (no authentication required)
+     */
+    @Override
+    @PostMapping
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<ResponseData<ContactResponseDto>> create(
+            @Valid @RequestBody ContactRequestDto requestDto,
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
+        try {
+            // No authentication required - allow anonymous users to create contacts
+            Contact entity = toEntity(requestDto);
+            Contact createdEntity = baseService.create(entity);
+            ContactResponseDto responseDto = toResponseDto(createdEntity);
+
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(ResponseData.<ContactResponseDto>builder()
+                            .status(201)
+                            .message("Tạo " + getEntityName() + " thành công")
+                            .error(null)
+                            .data(responseDto)
+                            .build());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ResponseData.<ContactResponseDto>builder()
+                            .status(500)
+                            .message("Tạo " + getEntityName() + " thất bại")
+                            .error(e.getMessage())
+                            .data(null)
+                            .build());
+        }
     }
 
     /**
