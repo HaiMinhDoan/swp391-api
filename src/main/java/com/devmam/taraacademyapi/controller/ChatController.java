@@ -71,7 +71,7 @@ public class ChatController {
             message.setIsFromUser(true);
         }
 
-        return chatService.saveAndBroadcast(chatId, message, userId,!message.getIsFromUser());
+        return chatService.saveAndBroadcast(chatId, message, userId, !message.getIsFromUser());
     }
 
     @MessageMapping("/chat/{chatId}/join")

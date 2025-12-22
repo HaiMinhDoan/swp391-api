@@ -28,7 +28,6 @@ public class ChatRestController {
      * FE sẽ lưu chatId vào cookies
      */
     @PostMapping
-    @PreAuthorize("permitAll()")
     public ResponseEntity<ResponseData<ChatDto>> createChat(
             @RequestHeader(value = "Authorization", required = false) String authHeader) {
         try {
@@ -68,7 +67,6 @@ public class ChatRestController {
      * Dùng cho user chưa đăng nhập (lấy từ cookies)
      */
     @GetMapping("/{chatId}")
-    @PreAuthorize("permitAll()")
     public ResponseEntity<ResponseData<ChatDto>> getChatById(
             @PathVariable Integer chatId,
             @RequestHeader(value = "Authorization", required = false) String authHeader) {
@@ -107,7 +105,6 @@ public class ChatRestController {
      * Lấy lịch sử tin nhắn - CHO PHÉP ANONYMOUS
      */
     @GetMapping("/{chatId}/messages")
-    @PreAuthorize("permitAll()")
     public ResponseEntity<ResponseData<List<MessageDto>>> getChatHistory(
             @PathVariable Integer chatId,
             @RequestHeader(value = "Authorization", required = false) String authHeader) {
@@ -132,6 +129,7 @@ public class ChatRestController {
                             .build()
             );
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(404)
                     .body(ResponseData.<List<MessageDto>>builder()
                             .status(404)

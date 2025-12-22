@@ -35,6 +35,4 @@ public class UserForChattingDto implements Serializable {
     private final Instant updatedAt;
     private final Integer status;
     private final Integer isDeleted;
-    @Size(max = 100)
-    private final String password;
 }

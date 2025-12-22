@@ -260,7 +260,9 @@ public class ChatService {
         // Update chat's updatedAt
         chat.setUpdatedAt(Instant.now());
         chat.setStatus(isReply ? 2 : 1);
-        chat.setUser(userOpt.get());
+        if(!isReply){
+            chat.setUser(userOpt.get());
+        }
         chatRepository.save(chat);
 
         return messageMapper.toDto(message);
@@ -299,10 +301,10 @@ public class ChatService {
 
         Chat chat = chatOpt.get();
 
-        // Verify ownership nếu chat không phải anonymous
-        if (chat.getUser() != null && !chat.getUser().getId().equals(userId)) {
-            throw new CommonException("You don't have permission to access this chat");
-        }
+//        // Verify ownership nếu chat không phải anonymous
+//        if (chat.getUser() != null && !chat.getUser().getId().equals(userId)) {
+//            throw new CommonException("You don't have permission to access this chat");
+//        }
 
         return messageMapper.toDtoList(
                 messageRepository.findByChatIdOrderByCreatedAtAsc(chatId)
@@ -341,5 +343,13 @@ public class ChatService {
         public String getRole() {
             return role;
         }
+    }
+
+    public List<Chat> findByStatusOrderByUpdatedAtDesc(Integer status){
+        return chatRepository.findByStatusOrderByUpdatedAtDesc(status);
+    }
+
+    public Chat save(Chat chat){
+        return chatRepository.save(chat);
     }
 }

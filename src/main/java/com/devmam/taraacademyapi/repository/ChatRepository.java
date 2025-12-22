@@ -30,4 +30,9 @@ public interface ChatRepository extends JpaRepository<Chat, Integer> {
      * Tìm tất cả anonymous chats
      */
     List<Chat> findByIsAnonymousTrueAndStatusNotOrderByUpdatedAtDesc(Integer status);
+
+    /**
+     *
+     */
+    List<Chat> findByStatusOrderByUpdatedAtDesc(Integer status);
 }

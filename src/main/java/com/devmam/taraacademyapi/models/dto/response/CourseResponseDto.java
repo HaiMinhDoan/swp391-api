@@ -70,6 +70,12 @@ public class CourseResponseDto implements Serializable {
                 .build();
     }
 
+    public static List<CourseResponseDto> toDtoList(List<Course> courseList) {
+        return courseList.stream()
+                .map(CourseResponseDto::toDto)
+                .toList();
+    }
+
     public static Page<CourseResponseDto> convertPage(Page<Course> coursePage) {
         List<CourseResponseDto> courseResponseDTOs = coursePage.getContent()
                 .stream()

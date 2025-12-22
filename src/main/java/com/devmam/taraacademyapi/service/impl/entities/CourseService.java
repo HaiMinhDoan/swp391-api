@@ -38,4 +38,8 @@ public class CourseService extends BaseServiceImpl<Course, Integer> {
     public List<Course> findAllActive() {
         return ((CourseRepository) repository).findAllActive();
     }
+
+    public List<Course> findAllShowing(){
+        return ((CourseRepository) repository).findAllCateActiveAndCourseActive();
+    }
 }
