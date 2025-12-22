@@ -28,7 +28,7 @@ import java.util.List;
 @Getter
 @Setter
 public class ChatBotWorker {
-    private Boolean isRunning = false;
+    private Boolean isRunning = true;
 
     @Autowired
     private ChatService chatService;
@@ -50,8 +50,8 @@ public class ChatBotWorker {
 
     @Scheduled(fixedDelay = 60000) // Chạy mỗi 1 phút
     public void runBotJob() {
-        if (isRunning) {
-            log.info("ChatBotWorker is already running, skipping this execution");
+        if (!isRunning) {
+            log.info("ChatBotWorker is stop, skipping this execution");
             return;
         }
 
@@ -172,59 +172,57 @@ public class ChatBotWorker {
 
         // Phân tích nhu cầu
         if (advice.getAnalysis() != null) {
-            message.append("📊 Phân tích nhu cầu:\n");
+            message.append(" Phân tích nhu cầu:\n");
             message.append(advice.getAnalysis()).append("\n\n");
         }
 
         // Danh sách khóa học đề xuất
         if (advice.getRecommendedCourses() != null && !advice.getRecommendedCourses().isEmpty()) {
-            message.append("🎓 Các khóa học phù hợp cho bạn:\n\n");
+            message.append("Các khóa học phù hợp cho bạn:\n\n");
 
             int index = 1;
             for (CourseAdviceDto.RecommendedCourse course : advice.getRecommendedCourses()) {
                 String priority = "";
                 if (course.getPriorityLevel() == 1) {
-                    priority = "⭐ ĐỀ XUẤT MẠNH";
+                    priority = "Lựa chọn tốt nhất";
                 } else if (course.getPriorityLevel() == 2) {
-                    priority = "✨ PHÙ HỢP";
+                    priority = "Phù hợp";
                 } else {
-                    priority = "💡 CÓ THỂ XEM XÉT";
+                    priority = "Bạn có thể xem xét";
                 }
 
                 message.append(String.format("%d. %s %s\n", index++, priority, course.getCourseName()));
-                message.append(String.format("   📁 Danh mục: %s\n", course.getCategory()));
+                message.append(String.format("   Danh mục: %s\n", course.getCategory()));
 
                 if (course.getSaleOff() != null && course.getSaleOff() > 0) {
-                    message.append(String.format("   💰 Giá: %,.0f VNĐ ~~%,.0f VNĐ~~ (Giảm %d%%)\n",
+                    message.append(String.format("   Giá: %,.0f VNĐ ~~%,.0f VNĐ~~ (Giảm %d%%)\n",
                             course.getFinalPrice(), course.getOriginalPrice(), course.getSaleOff()));
                 } else {
-                    message.append(String.format("   💰 Giá: %,.0f VNĐ\n", course.getOriginalPrice()));
+                    message.append(String.format("   Giá: %,.0f VNĐ\n", course.getOriginalPrice()));
                 }
-
-                message.append(String.format("   ✅ Lý do: %s\n\n", course.getReason()));
             }
         }
 
         // Tư vấn giá
         if (advice.getPriceAdvice() != null) {
-            message.append("💎 Về giá cả:\n");
+            message.append("Về giá cả:\n");
             message.append(advice.getPriceAdvice()).append("\n\n");
         }
 
         // Kết luận
         if (advice.getConclusion() != null) {
-            message.append("🎯 Tổng kết:\n");
+            message.append("Tổng kết:\n");
             message.append(advice.getConclusion()).append("\n\n");
         }
 
         // Các bước tiếp theo
         if (advice.getNextSteps() != null) {
-            message.append("📝 Các bước tiếp theo:\n");
+            message.append("Các bước tiếp theo:\n");
             message.append(advice.getNextSteps()).append("\n\n");
         }
 
         message.append("---\n");
-        message.append("Nếu bạn cần thêm thông tin hoặc tư vấn chi tiết hơn, đừng ngần ngại liên hệ với chúng tôi! 💬");
+        message.append("Nếu bạn cần thêm thông tin hoặc tư vấn chi tiết hơn, đừng ngần ngại liên hệ với chúng tôi!");
 
         return message.toString();
     }
