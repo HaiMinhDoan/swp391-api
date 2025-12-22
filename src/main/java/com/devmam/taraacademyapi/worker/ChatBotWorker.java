@@ -4,7 +4,6 @@ import com.devmam.taraacademyapi.mapper.ChatMapper;
 import com.devmam.taraacademyapi.models.dto.response.ChatDto;
 import com.devmam.taraacademyapi.models.dto.response.CourseAdviceDto;
 import com.devmam.taraacademyapi.models.dto.response.CourseResponseDto;
-import com.devmam.taraacademyapi.models.dto.response.MessageDto;
 import com.devmam.taraacademyapi.models.entities.Chat;
 import com.devmam.taraacademyapi.models.entities.Course;
 import com.devmam.taraacademyapi.models.entities.Message;
@@ -90,8 +89,6 @@ public class ChatBotWorker {
 
         } catch (Exception e) {
             log.error("Error in ChatBotWorker", e);
-        } finally {
-            isRunning = false;
         }
     }
 

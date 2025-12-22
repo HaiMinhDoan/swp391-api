@@ -349,6 +349,7 @@ public class ChatService {
         return chatRepository.findByStatusOrderByUpdatedAtDesc(status);
     }
 
+    @Transactional
     public Chat save(Chat chat){
         return chatRepository.save(chat);
     }

@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
@@ -31,6 +32,9 @@ public class UserController extends BaseController<User, UUID, UserRequestDto, U
     @Autowired
     private TranService tranService;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Override
     protected UserResponseDto toResponseDto(User user) {
         return UserResponseDto.toDto(user);
@@ -41,7 +45,7 @@ public class UserController extends BaseController<User, UUID, UserRequestDto, U
         User user = new User();
         user.setUsername(requestDto.getUsername());
         user.setEmail(requestDto.getEmail());
-        user.setPassword(requestDto.getPassword());
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setFullName(requestDto.getFullName());
         user.setPhone(requestDto.getPhone());
         user.setRole(requestDto.getRole() != null ? requestDto.getRole() : "USER");
