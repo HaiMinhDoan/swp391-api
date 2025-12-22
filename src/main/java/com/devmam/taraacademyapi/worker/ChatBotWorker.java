@@ -19,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
@@ -49,6 +50,7 @@ public class ChatBotWorker {
     private ObjectMapper objectMapper;
 
     @Scheduled(fixedDelay = 60000) // Chạy mỗi 1 phút
+    @Transactional
     public void runBotJob() {
         if (!isRunning) {
             log.info("ChatBotWorker is stop, skipping this execution");
@@ -56,7 +58,6 @@ public class ChatBotWorker {
         }
 
         try {
-            isRunning = true;
             log.info("Starting ChatBotWorker");
 
             // Lấy các chat chưa trả lời (status = 1)
