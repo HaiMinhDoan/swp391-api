@@ -350,11 +350,11 @@ public class ChatService {
         List<Chat> chats = chatRepository.findByStatusOrderByUpdatedAtDesc(status);
         // sắp xếp tin nhắn bên trong theo id;
 
-//        for(Chat chat : chats){
-//            Set<Message> messages = chat.getMessages();
-//            chat.setMessages(sortByCreatedAt(messages));
-//
-//        }
+        for(Chat chat : chats){
+            Set<Message> messages = chat.getMessages();
+            chat.setMessages(sortByCreatedAt(messages));
+
+        }
         return chats;
     }
 
@@ -364,8 +364,8 @@ public class ChatService {
     }
 
 //    // sắp xếp tin nhắn bên trong theo thời gian tạo;
-//    public Set<Message> sortByCreatedAt(Set<Message> messages){
-//        return messages.stream().sorted((m1, m2) -> m1.getCreatedAt().compareTo(m2.getCreatedAt())).collect(Collectors.toSet());
-//    }
+    public Set<Message> sortByCreatedAt(Set<Message> messages){
+        return messages.stream().sorted((m1, m2) -> m1.getCreatedAt().compareTo(m2.getCreatedAt())).collect(Collectors.toSet());
+    }
 
 }

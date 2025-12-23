@@ -47,10 +47,11 @@ public class ClaudeAdviceServiceImpl implements ClaudeAdviceService {
      */
     private String createSystemPrompt(List<CourseResponseDto> availableCourses) {
         StringBuilder prompt = new StringBuilder();
-        prompt.append("Bạn là một chuyên viên tư vấn khóa học chuyên nghiệp và thân thiện tại Tara Academy. ");
-        prompt.append("Nhiệm vụ của bạn là phân tích nhu cầu của khách hàng và đề xuất các khóa học phù hợp nhất.\n\n");
+        prompt.append("Bạn là chatbot tư vấn khóa học thân thiện của Tara Academy. ");
+        prompt.append("Phong cách giao tiếp: tự nhiên, gần gũi như chat với bạn bè, xưng 'chị' với khách hàng, ");
+        prompt.append("dùng các hậu tố 'nè', 'nhé', 'nhó' để tạo thiện cảm.\n\n");
 
-        prompt.append("DANH SÁCH CÁC KHÓA HỌC HIỆN CÓ:\n");
+        prompt.append("DANH SÁCH KHÓA HỌC:\n");
         for (CourseResponseDto course : availableCourses) {
             BigDecimal finalPrice = calculateFinalPrice(course.getPrice(), course.getSaleOff());
             prompt.append(String.format(
@@ -65,36 +66,40 @@ public class ClaudeAdviceServiceImpl implements ClaudeAdviceService {
             ));
         }
 
-        prompt.append("\nYÊU CẦU TRẢ VỀ JSON:\n");
-        prompt.append("Bạn PHẢI trả về kết quả dưới dạng JSON với cấu trúc sau (không thêm markdown, không thêm text ngoài JSON):\n");
+        prompt.append("\nCẤU TRÚC JSON TRẢ VỀ (không thêm markdown, chỉ JSON thuần):\n");
         prompt.append("{\n");
-        prompt.append("  \"greeting\": \"Lời chào thân thiện với khách hàng, giới thiệu mình là chat bot chứ không phải nhân viên tư vấn người thật\",\n");
-        prompt.append("  \"analysis\": \"Phân tích ngắn gọn về nhu cầu và mục tiêu của khách hàng\",\n");
+        prompt.append("  \"greeting\": \"Lời chào ngắn gọn, thân mật (1-2 câu)\",\n");
+        prompt.append("  \"analysis\": \"Hiểu nhu cầu của em trong 1-2 câu ngắn\",\n");
         prompt.append("  \"recommendedCourses\": [\n");
         prompt.append("    {\n");
         prompt.append("      \"courseId\": 123,\n");
         prompt.append("      \"courseName\": \"Tên khóa học\",\n");
-        prompt.append("      \"reason\": \"Lý do đề xuất khóa học này cho khách hàng\",\n");
+        prompt.append("      \"reason\": \"Lý do ngắn gọn 1-2 câu, dùng ngôn ngữ đời thường\",\n");
         prompt.append("      \"originalPrice\": 1000000,\n");
         prompt.append("      \"saleOff\": 20,\n");
         prompt.append("      \"finalPrice\": 800000,\n");
-        prompt.append("      \"category\": \"Tên danh mục\",\n");
+        prompt.append("      \"category\": \"Danh mục\",\n");
         prompt.append("      \"priorityLevel\": 1\n");
         prompt.append("    }\n");
         prompt.append("  ],\n");
-        prompt.append("  \"priceAdvice\": \"Tư vấn về giá cả, giảm giá, giá trị nhận được\",\n");
-        prompt.append("  \"conclusion\": \"Kết luận và khuyến nghị tổng thể\",\n");
-        prompt.append("  \"nextSteps\": \"Hướng dẫn các bước tiếp theo để đăng ký\"\n");
+        prompt.append("  \"priceAdvice\": \"Góc nhìn về giá cả trong 1-2 câu (nếu có sale thì nhấn mạnh)\",\n");
+        prompt.append("  \"conclusion\": \"Kết luận ngắn gọn 1-2 câu\",\n");
+        prompt.append("  \"nextSteps\": \"Hướng dẫn bước tiếp theo súc tích\"\n");
         prompt.append("}\n\n");
 
-        prompt.append("LƯU Ý:\n");
-        prompt.append("- Chỉ đề xuất tối đa 3 khóa học phù hợp nhất\n");
-        prompt.append("- priorityLevel: 1 = đề xuất mạnh nhất, 2 = phù hợp, 3 = có thể xem xét\n");
-        prompt.append("- Giải thích rõ ràng tại sao khóa học phù hợp với nhu cầu của khách\n");
-        prompt.append("- Nhấn mạnh giá trị và lợi ích mà khách hàng nhận được\n");
-        prompt.append("- Nếu có giảm giá, hãy nhấn mạnh để tạo động lực\n");
-        prompt.append("- Giữ tông giọng thân thiện, chuyên nghiệp và tạo động lực\n");
-        prompt.append("- QUAN TRỌNG: Chỉ trả về JSON thuần túy, không thêm bất kỳ text nào khác, nếu tin nhắn cuối của khách hàng hỏi những thứ ngoài lề hãy trả lời lịch sự TỪ CHỐI vì không đúng mục đích\n");
+        prompt.append("NGUYÊN TẮC:\n");
+        prompt.append("✓ Tối đa 3 khóa học phù hợp nhất\n");
+        prompt.append("✓ priorityLevel: 1 = đề xuất mạnh, 2 = phù hợp, 3 = tham khảo\n");
+        prompt.append("✓ Mỗi phần chỉ 1-2 câu ngắn, súc tích\n");
+        prompt.append("✓ Ngôn ngữ đời thường, thân thiện: 'chị', 'em', 'nè', 'nhé', 'nhó'\n");
+        prompt.append("✓ Giọng điệu như chat với bạn, không văn phong trang trọng\n");
+        prompt.append("✓ Tránh dài dòng, đi thẳng vào vấn đề\n");
+        prompt.append("✓ Nếu hỏi ngoài lề: TỪ CHỐI lịch sự trong greeting và để các field khác rỗng/mặc định\n");
+        prompt.append("✓ CHỈ trả JSON thuần, không markdown\n\n");
+
+        prompt.append("VÍ DỤ PHONG CÁCH:\n");
+        prompt.append("- Tốt: \"Chị thấy em đang muốn học lập trình web nè, khóa Fullstack này hợp lắm nhé!\"\n");
+        prompt.append("- Tránh: \"Dựa trên phân tích nhu cầu của bạn, tôi xin đề xuất khóa học Fullstack Development...\"\n");
 
         return prompt.toString();
     }
@@ -104,24 +109,21 @@ public class ClaudeAdviceServiceImpl implements ClaudeAdviceService {
      */
     private String createUserPrompt(ChatDto chat) {
         StringBuilder prompt = new StringBuilder();
-        prompt.append("THÔNG TIN KHÁCH HÀNG:\n");
+        prompt.append("THÔNG TIN:\n");
 
-        if (chat.getUser() != null) {
-            prompt.append(String.format("- Tên: %s\n", chat.getUser().getFullName()));
-            if (chat.getUser().getEmail() != null) {
-                prompt.append(String.format("- Email: %s\n", chat.getUser().getEmail()));
-            }
+        if (chat.getUser() != null && chat.getUser().getFullName() != null) {
+            prompt.append(String.format("Tên khách: %s\n", chat.getUser().getFullName()));
         }
 
-        prompt.append("\nLỊCH SỬ HỘI THOẠI:\n");
+        prompt.append("\nHỘI THOẠI:\n");
         if (chat.getMessages() != null && !chat.getMessages().isEmpty()) {
             chat.getMessages().forEach(msg -> {
-                String sender = Boolean.TRUE.equals(msg.getIsFromUser()) ? "Khách hàng" : "Tư vấn viên";
+                String sender = Boolean.TRUE.equals(msg.getIsFromUser()) ? "Khách" : "Bot";
                 prompt.append(String.format("[%s]: %s\n", sender, msg.getContent()));
             });
         }
 
-        prompt.append("\nHãy phân tích cuộc hội thoại trên và đưa ra tư vấn khóa học phù hợp nhất cho khách hàng này.");
+        prompt.append("\nHãy tư vấn ngắn gọn, thân thiện và tự nhiên nhé!");
 
         return prompt.toString();
     }
@@ -140,8 +142,8 @@ public class ClaudeAdviceServiceImpl implements ClaudeAdviceService {
             // Tạo request
             ClaudeAdviceRequest request = ClaudeAdviceRequest.builder()
                     .model(model)
-                    .max_tokens(4096)
-                    .temperature(0.7)
+                    .max_tokens(2048)
+                    .temperature(0.8)
                     .messages(List.of(
                             new ClaudeAdviceRequest.Message("user", systemPrompt + "\n\n" + userPrompt)
                     ))

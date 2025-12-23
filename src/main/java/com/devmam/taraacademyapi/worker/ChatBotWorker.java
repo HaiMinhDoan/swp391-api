@@ -135,7 +135,7 @@ public class ChatBotWorker {
             try {
                 Message errorMessage = new Message();
                 errorMessage.setChat(chat);
-                errorMessage.setContent("Xin lỗi, hiện tại hệ thống đang gặp sự cố. Vui lòng thử lại sau hoặc liên hệ trực tiếp với chúng tôi để được hỗ trợ tốt nhất.");
+                errorMessage.setContent("Ối, chị đang bị lỗi hệ thống rồi em ơi 😅 Em thử lại sau nhé, hoặc nhắn trực tiếp để chị hỗ trợ tốt hơn nha!");
                 errorMessage.setSendBy("SYSTEM");
                 errorMessage.setIsFromUser(false);
                 errorMessage.setCreatedAt(Instant.now());
@@ -157,70 +157,71 @@ public class ChatBotWorker {
     }
 
     /**
-     * Format advice thành message cho khách hàng
+     * Format advice thành message cho khách hàng (phong cách thân thiện, ngắn gọn)
      */
     private String formatAdviceToMessage(CourseAdviceDto advice) {
         StringBuilder message = new StringBuilder();
 
         // Lời chào
-        if (advice.getGreeting() != null) {
+        if (advice.getGreeting() != null && !advice.getGreeting().isEmpty()) {
             message.append(advice.getGreeting()).append("\n\n");
         }
 
         // Phân tích nhu cầu
-        if (advice.getAnalysis() != null) {
-            message.append(" Phân tích nhu cầu:\n");
+        if (advice.getAnalysis() != null && !advice.getAnalysis().isEmpty()) {
             message.append(advice.getAnalysis()).append("\n\n");
         }
 
         // Danh sách khóa học đề xuất
         if (advice.getRecommendedCourses() != null && !advice.getRecommendedCourses().isEmpty()) {
-            message.append("Các khóa học phù hợp cho bạn:\n\n");
+            message.append("📚 Chị gợi ý cho em mấy khóa này nè:\n\n");
 
             int index = 1;
             for (CourseAdviceDto.RecommendedCourse course : advice.getRecommendedCourses()) {
-                String priority = "";
+                // Emoji theo mức độ ưu tiên
+                String emoji = "";
                 if (course.getPriorityLevel() == 1) {
-                    priority = "Lựa chọn tốt nhất";
+                    emoji = "⭐";
                 } else if (course.getPriorityLevel() == 2) {
-                    priority = "Phù hợp";
+                    emoji = "✨";
                 } else {
-                    priority = "Bạn có thể xem xét";
+                    emoji = "💡";
                 }
 
-                message.append(String.format("%d. %s %s\n", index++, priority, course.getCourseName()));
-                message.append(String.format("   Danh mục: %s\n", course.getCategory()));
+                message.append(String.format("%s %s\n", emoji, course.getCourseName()));
 
+                // Hiển thị giá
                 if (course.getSaleOff() != null && course.getSaleOff() > 0) {
-                    message.append(String.format("   Giá: %,.0f VNĐ ~~%,.0f VNĐ~~ (Giảm %d%%)\n",
-                            course.getFinalPrice(), course.getOriginalPrice(), course.getSaleOff()));
+                    message.append(String.format("   💰 %,.0fđ (giảm %d%% từ %,.0fđ)\n",
+                            course.getFinalPrice(), course.getSaleOff(), course.getOriginalPrice()));
                 } else {
-                    message.append(String.format("   Giá: %,.0f VNĐ\n", course.getOriginalPrice()));
+                    message.append(String.format("   💰 %,.0fđ\n", course.getOriginalPrice()));
                 }
+
+                // Lý do
+                if (course.getReason() != null && !course.getReason().isEmpty()) {
+                    message.append(String.format("   → %s\n", course.getReason()));
+                }
+
+                message.append("\n");
             }
         }
 
-        // Tư vấn giá
-        if (advice.getPriceAdvice() != null) {
-            message.append("Về giá cả:\n");
-            message.append(advice.getPriceAdvice()).append("\n\n");
+        // Tư vấn giá (nếu có)
+        if (advice.getPriceAdvice() != null && !advice.getPriceAdvice().isEmpty()) {
+            message.append("💬 ").append(advice.getPriceAdvice()).append("\n\n");
         }
 
         // Kết luận
-        if (advice.getConclusion() != null) {
-            message.append("Tổng kết:\n");
+        if (advice.getConclusion() != null && !advice.getConclusion().isEmpty()) {
             message.append(advice.getConclusion()).append("\n\n");
         }
 
         // Các bước tiếp theo
-        if (advice.getNextSteps() != null) {
-            message.append("Các bước tiếp theo:\n");
-            message.append(advice.getNextSteps()).append("\n\n");
+        if (advice.getNextSteps() != null && !advice.getNextSteps().isEmpty()) {
+            message.append("👉 ").append(advice.getNextSteps());
         }
 
-        message.append("---\n");
-        message.append("Nếu bạn cần thêm thông tin hoặc tư vấn chi tiết hơn, đừng ngần ngại liên hệ với chúng tôi!");
-
-        return message.toString();
+        return message.toString().trim();
     }
 }
