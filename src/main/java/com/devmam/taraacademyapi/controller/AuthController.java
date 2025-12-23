@@ -11,6 +11,7 @@ import com.devmam.taraacademyapi.service.EmailService;
 import com.devmam.taraacademyapi.service.impl.entities.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -39,6 +40,9 @@ public class AuthController {
     private CalcService calcService;
     @Autowired
     private EmailService emailService;
+
+    @Value("${project.domain}")
+    private String domain;
 
     @PostMapping("/register")
     public ResponseEntity<ResponseData<User>> registerStudent(@Valid @RequestBody RegisterDTO dto) {
@@ -139,7 +143,7 @@ public class AuthController {
         User user = findingUser.get();
 
         String opt = calcService.getRandomActiveCode(6l);
-        String resetUrl = "http://localhost:3000/reset-password?otp=" + opt;
+        String resetUrl = domain + "/reset-password?otp=" + opt;
         findingUser.get().setOtp(opt);
         userService.update(findingUser.get().getId(), findingUser.get());
         Map<String, Object> model = new HashMap<>();
