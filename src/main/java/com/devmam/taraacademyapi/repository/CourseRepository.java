@@ -15,7 +15,7 @@ public interface CourseRepository extends JpaRepository<Course, Integer>, JpaSpe
     @Query("SELECT c FROM Course c WHERE c.isDeleted = 0")
     List<Course> findAllActive();
 
-    @Query("SELECT c FROM Course c WHERE c.category.status != 0 and c.isDeleted = 0 and c.status != 0")
+    @Query("SELECT c FROM Course c WHERE c.category.status != 0 and c.isDeleted = 0 and c.status > 1")
     List<Course> findAllCateActiveAndCourseActive();
 
     @Query("SELECT c FROM Course c WHERE c.status = :status AND c.isDeleted = 0")

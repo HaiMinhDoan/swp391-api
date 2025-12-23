@@ -5,6 +5,7 @@ import com.devmam.taraacademyapi.models.dto.response.MessageDto;
 import com.devmam.taraacademyapi.models.dto.response.ResponseData;
 import com.devmam.taraacademyapi.service.JwtService;
 import com.devmam.taraacademyapi.service.impl.entities.ChatService;
+import com.devmam.taraacademyapi.worker.ChatBotWorker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,6 +23,9 @@ public class ChatRestController {
 
     @Autowired
     private JwtService jwtService;
+
+    @Autowired
+    private ChatBotWorker chatBotWorker;
 
     /**
      * Tạo chat mới - CHO PHÉP ANONYMOUS (không cần đăng nhập)
@@ -266,5 +270,50 @@ public class ChatRestController {
                             .build()
                     );
         }
+    }
+
+    //Tắt bật chatbot
+    @PostMapping("/chat-bot/on")
+    public ResponseEntity<ResponseData<String>> chatBotOn(){
+        chatBotWorker.setIsRunning(true);
+
+        System.out.println(chatBotWorker.getIsRunning());
+
+        return ResponseEntity.ok(
+          ResponseData.<String>builder()
+                  .status(200)
+                  .message("Chatbot đang bật")
+                  .data("Chatbot đang bật")
+                  .error(null)
+                  .build()
+        );
+    }
+
+    @PostMapping("/chat-bot/off")
+    public ResponseEntity<ResponseData<String>> chatBotOff(){
+        chatBotWorker.setIsRunning(false);
+
+        System.out.println(chatBotWorker.getIsRunning());
+
+        return ResponseEntity.ok(
+                ResponseData.<String>builder()
+                        .status(200)
+                        .message("Chatbot đang tắt")
+                        .data("Chatbot đang tắt")
+                        .error(null)
+                        .build()
+        );
+    }
+
+    @GetMapping("/chat-bot/status")
+    public ResponseEntity<ResponseData<Boolean>> chatBotStatus(){
+        return ResponseEntity.ok(
+                ResponseData.<Boolean>builder()
+                        .status(200)
+                        .message("Chatbot đang "+(chatBotWorker.getIsRunning()? "Bật":"Tắt"))
+                        .data(chatBotWorker.getIsRunning())
+                        .error(null)
+                        .build()
+        );
     }
 }
