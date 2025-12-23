@@ -147,7 +147,8 @@ public class AuthController {
         findingUser.get().setOtp(opt);
         userService.update(findingUser.get().getId(), findingUser.get());
         Map<String, Object> model = new HashMap<>();
-        model.put("resetUrl", resetUrl);
+        model.put("activationCode", opt);
+        model.put("requestTime", "5 phút");
         model.put("userName", user.getUsername());
         emailService.sendHtmlEmailFromTemplate(user.getEmail(), "Thay đổi mật khẩu", "reset-password.html", model);
 
