@@ -130,10 +130,9 @@ public class ChatBotWorker {
 
         } catch (Exception e) {
             log.error("Failed to process chat ID: {}", chat.getId(), e);
-
+            e.printStackTrace();
             // Gửi message lỗi cho khách hàng
             try {
-
                 Message errorMessage = new Message();
                 errorMessage.setChat(chat);
                 errorMessage.setContent("Xin lỗi, hiện tại hệ thống đang gặp sự cố. Vui lòng thử lại sau hoặc liên hệ trực tiếp với chúng tôi để được hỗ trợ tốt nhất.");

@@ -68,7 +68,7 @@ public class ClaudeAdviceServiceImpl implements ClaudeAdviceService {
         prompt.append("\nYÊU CẦU TRẢ VỀ JSON:\n");
         prompt.append("Bạn PHẢI trả về kết quả dưới dạng JSON với cấu trúc sau (không thêm markdown, không thêm text ngoài JSON):\n");
         prompt.append("{\n");
-        prompt.append("  \"greeting\": \"Lời chào thân thiện với khách hàng\",\n");
+        prompt.append("  \"greeting\": \"Lời chào thân thiện với khách hàng, giới thiệu mình là chat bot chứ không phải nhân viên tư vấn người thật\",\n");
         prompt.append("  \"analysis\": \"Phân tích ngắn gọn về nhu cầu và mục tiêu của khách hàng\",\n");
         prompt.append("  \"recommendedCourses\": [\n");
         prompt.append("    {\n");
@@ -94,7 +94,7 @@ public class ClaudeAdviceServiceImpl implements ClaudeAdviceService {
         prompt.append("- Nhấn mạnh giá trị và lợi ích mà khách hàng nhận được\n");
         prompt.append("- Nếu có giảm giá, hãy nhấn mạnh để tạo động lực\n");
         prompt.append("- Giữ tông giọng thân thiện, chuyên nghiệp và tạo động lực\n");
-        prompt.append("- QUAN TRỌNG: Chỉ trả về JSON thuần túy, không thêm bất kỳ text nào khác\n");
+        prompt.append("- QUAN TRỌNG: Chỉ trả về JSON thuần túy, không thêm bất kỳ text nào khác, nếu tin nhắn cuối của khách hàng hỏi những thứ ngoài lề hãy trả lời lịch sự TỪ CHỐI vì không đúng mục đích\n");
 
         return prompt.toString();
     }

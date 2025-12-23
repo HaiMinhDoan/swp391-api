@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -346,11 +347,25 @@ public class ChatService {
     }
 
     public List<Chat> findByStatusOrderByUpdatedAtDesc(Integer status){
-        return chatRepository.findByStatusOrderByUpdatedAtDesc(status);
+        List<Chat> chats = chatRepository.findByStatusOrderByUpdatedAtDesc(status);
+        // sắp xếp tin nhắn bên trong theo id;
+
+//        for(Chat chat : chats){
+//            Set<Message> messages = chat.getMessages();
+//            chat.setMessages(sortByCreatedAt(messages));
+//
+//        }
+        return chats;
     }
 
     @Transactional
     public Chat save(Chat chat){
         return chatRepository.save(chat);
     }
+
+//    // sắp xếp tin nhắn bên trong theo thời gian tạo;
+//    public Set<Message> sortByCreatedAt(Set<Message> messages){
+//        return messages.stream().sorted((m1, m2) -> m1.getCreatedAt().compareTo(m2.getCreatedAt())).collect(Collectors.toSet());
+//    }
+
 }

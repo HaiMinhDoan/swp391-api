@@ -23,9 +23,9 @@ public class Message {
     @JoinColumn(name = "chat_id")
     private Chat chat;
 
-    @Size(max = 400)
+    @Size(max = 10000)
     @NotNull
-    @Column(name = "content", nullable = false, length = 400)
+    @Column(name = "content", nullable = false, length = 10000)
     private String content;
 
     @Size(max = 200)
