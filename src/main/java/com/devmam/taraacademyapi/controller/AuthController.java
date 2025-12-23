@@ -59,7 +59,9 @@ public class AuthController {
             String opt = calcService.getRandomActiveCode(6l);
             user.setOtp(opt);
             user = userService.create(user);
-            Map<String, Object> model = Map.of("activationCode", opt);
+            Map<String, Object> model = new HashMap<>();
+            model.put("activationCode", opt);
+            model.put("userName", user.getFullName());
 
             emailService.sendHtmlEmailFromTemplate(user.getEmail(), "Kích hoạt tài khoản ngay", "activation.html", model);
 
