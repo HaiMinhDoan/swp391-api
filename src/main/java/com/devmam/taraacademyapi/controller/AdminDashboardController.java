@@ -107,40 +107,47 @@ public class AdminDashboardController {
         try {
             // Validate JWT and admin role
             validateAdminUser(authHeader);
-            // Lấy users với null safety
-            List<User> allUsers = new ArrayList<>();
+            
+            // Đếm users trực tiếp từ database
+            long totalUsers = 0;
+            long totalTeachers = 0;
+            long totalStudents = 0;
             try {
-                allUsers = userRepository.findAll().stream()
+                Long userCount = userRepository.countActiveUsers();
+                totalUsers = userCount != null ? userCount : 0;
+                
+                // Lấy danh sách users để đếm theo role
+                List<User> allUsers = userRepository.findAll().stream()
                         .filter(u -> u != null && u.getIsDeleted() != null && u.getIsDeleted() == 0)
                         .collect(Collectors.toList());
+                
+                totalTeachers = allUsers.stream()
+                        .filter(u -> u.getRole() != null && u.getRole().contains("TEACHER"))
+                        .count();
+                totalStudents = allUsers.stream()
+                        .filter(u -> u.getRole() != null && u.getRole().contains("STUDENT"))
+                        .count();
             } catch (Exception e) {
                 System.err.println("Error fetching users: " + e.getMessage());
                 e.printStackTrace();
             }
 
-            long totalUsers = allUsers.size();
-            long totalTeachers = allUsers.stream()
-                    .filter(u -> u.getRole() != null && u.getRole().contains("TEACHER"))
-                    .count();
-            long totalStudents = allUsers.stream()
-                    .filter(u -> u.getRole() != null && u.getRole().contains("STUDENT"))
-                    .count();
-
-            // Lấy courses với null safety
-            List<Course> allCourses = new ArrayList<>();
+            // Đếm courses trực tiếp từ database
+            long totalCourses = 0;
+            long activeCourses = 0;
             try {
-                allCourses = courseRepository.findAll().stream()
-                        .filter(c -> c != null && c.getIsDeleted() != null && c.getIsDeleted() == 0)
-                        .collect(Collectors.toList());
+                Long courseCount = courseRepository.countActiveCourses();
+                totalCourses = courseCount != null ? courseCount : 0;
+                
+                // Lấy danh sách courses để đếm active courses
+                List<Course> allCourses = courseRepository.findAllActive();
+                activeCourses = allCourses.stream()
+                        .filter(c -> c.getStatus() != null && c.getStatus() == 1)
+                        .count();
             } catch (Exception e) {
                 System.err.println("Error fetching courses: " + e.getMessage());
                 e.printStackTrace();
             }
-
-            long totalCourses = allCourses.size();
-            long activeCourses = allCourses.stream()
-                    .filter(c -> c.getStatus() != null && c.getStatus() == 1)
-                    .count();
 
             // Lấy enrollments với null safety
             List<UserCourse> allUserCourses = new ArrayList<>();

@@ -17,4 +17,7 @@ public interface UserRepository extends JpaRepository<User, UUID>, JpaSpecificat
     Optional<User> findByUsernameOrEmail(String username, String email);
 
     List<User> findByOtpAndStatus(String otp, Integer status);
+
+    @Query("SELECT COUNT(u) FROM User u WHERE u.isDeleted = 0")
+    Long countActiveUsers();
 }

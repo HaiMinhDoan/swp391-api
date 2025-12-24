@@ -26,4 +26,7 @@ public interface CourseRepository extends JpaRepository<Course, Integer>, JpaSpe
 
     @Query("SELECT c FROM Course c WHERE c.title LIKE %:title% AND c.isDeleted = 0")
     List<Course> findByTitleContaining(@Param("title") String title);
+
+    @Query("SELECT COUNT(c) FROM Course c WHERE c.isDeleted = 0")
+    Long countActiveCourses();
 }
