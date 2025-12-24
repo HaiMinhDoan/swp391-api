@@ -48,7 +48,7 @@ public class CourseResponseDto implements Serializable {
                 .id(course.getId())
                 .categoryId(course.getCategory() != null ? course.getCategory().getId() : null)
                 .categoryName(course.getCategory() != null ? course.getCategory().getName() : null)
-                .thumbnail(course.getThumbnail())
+                .thumbnail(replaceBaseUrl(course.getThumbnail(), "https://miniotaraacademy.io.vn"))
                 .title(course.getTitle())
                 .summary(course.getSummary())
                 .description(course.getDescription())
@@ -87,5 +87,27 @@ public class CourseResponseDto implements Serializable {
                 coursePage.getPageable(),
                 coursePage.getTotalElements()
         );
+    }
+
+
+    public static String replaceBaseUrl(String originalUrl, String newBaseUrl) {
+        try {
+            java.net.URL url = new java.net.URL(originalUrl);
+
+            // Lấy path và port từ URL gốc
+            String path = url.getFile();
+            int port = url.getPort();
+
+            // Nếu có port thì giữ lại, nếu không thì bỏ
+            String portPart = (port == -1) ? "" : ":" + port;
+
+            // Ghép lại URL mới
+            return newBaseUrl + portPart + path;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return originalUrl; // nếu lỗi thì trả về URL gốc
+        }
+
     }
 }
