@@ -28,7 +28,7 @@ import java.util.List;
 @Getter
 @Setter
 public class ChatBotWorker {
-    private Boolean isRunning = true;
+    private Boolean isRunning = false;
 
     @Autowired
     private ChatService chatService;
