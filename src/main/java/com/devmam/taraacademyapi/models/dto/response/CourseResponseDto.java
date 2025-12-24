@@ -48,7 +48,7 @@ public class CourseResponseDto implements Serializable {
                 .id(course.getId())
                 .categoryId(course.getCategory() != null ? course.getCategory().getId() : null)
                 .categoryName(course.getCategory() != null ? course.getCategory().getName() : null)
-                .thumbnail(replaceBaseUrl(course.getThumbnail(), "https://miniotaraacademy.io.vn"))
+                .thumbnail(replaceBaseUrlNoPort(course.getThumbnail(), "https://miniotaraacademy.io.vn"))
                 .title(course.getTitle())
                 .summary(course.getSummary())
                 .description(course.getDescription())
