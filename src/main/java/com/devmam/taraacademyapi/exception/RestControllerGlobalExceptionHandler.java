@@ -7,6 +7,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
@@ -31,6 +32,7 @@ public class RestControllerGlobalExceptionHandler {
     @ExceptionHandler({CommonException.class})
     public ResponseEntity<ResponseData<?>> handleCommonException(CommonException e, WebRequest request) {
         return ResponseEntity.status(e.getHttpStatus())
+                .contentType(MediaType.APPLICATION_JSON)
                 .body(ResponseData.builder()
                         .status(e.getHttpStatus().value())
                         .message(e.getMessage())
@@ -158,7 +160,9 @@ public class RestControllerGlobalExceptionHandler {
                 .error(ex.getMessage())
                 .path(getPath(request))
                 .build();
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(body);
     }
 
     private String getPath(WebRequest request) {
