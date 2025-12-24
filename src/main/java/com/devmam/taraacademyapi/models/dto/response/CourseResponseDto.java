@@ -90,24 +90,20 @@ public class CourseResponseDto implements Serializable {
     }
 
 
-    public static String replaceBaseUrl(String originalUrl, String newBaseUrl) {
+    public static String replaceBaseUrlNoPort(String originalUrl, String newBaseUrl) {
         try {
             java.net.URL url = new java.net.URL(originalUrl);
 
-            // Lấy path và port từ URL gốc
+            // Lấy path từ URL gốc
             String path = url.getFile();
-            int port = url.getPort();
 
-            // Nếu có port thì giữ lại, nếu không thì bỏ
-            String portPart = (port == -1) ? "" : ":" + port;
-
-            // Ghép lại URL mới
-            return newBaseUrl + portPart + path;
+            // Ghép lại URL mới (không thêm port)
+            return newBaseUrl + path;
 
         } catch (Exception e) {
             e.printStackTrace();
             return originalUrl; // nếu lỗi thì trả về URL gốc
         }
-
     }
+
 }
